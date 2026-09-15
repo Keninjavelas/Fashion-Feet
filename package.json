@@ -1,0 +1,48 @@
+{
+  "name": "fashion-feet",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test:acceptance": "npx tsx src/scripts/test-all-acceptance.ts",
+    "test:gate2": "node src/scripts/run-gate-2-acceptance.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/adapter-libsql": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "argon2": "^0.45.1",
+    "better-sqlite3": "^12.11.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^1.24.0",
+    "next": "16.2.10",
+    "next-auth": "^5.0.0-beta.31",
+    "otplib": "^13.4.1",
+    "qrcode": "^1.5.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.6.0",
+    "use-debounce": "^10.1.1",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "playwright": "^1.62.1",
+    "prisma": "^7.8.0",
+    "puppeteer-core": "^25.9.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,59 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing & Coverage
+/coverage
+
+# Next.js Build Output
+/.next/
+/out/
+/build
+
+# Miscellaneous
+.DS_Store
+*.pem
+
+# Debug Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Prisma Generated Client
+/src/generated/prisma
+
+# SQLite Local Database & Write-Ahead Logs
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+/dev.db
+/prisma/dev.db
+
+# Database Backup Snapshots
+/backups/
+backups/*.db
+
+# Generated Visual Artifacts & Screenshots
+/artifacts/

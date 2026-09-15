@@ -1,0 +1,226 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #fdf8f6;
+  --color-brand-100: #f2e8e5;
+  --color-brand-200: #eaddd7;
+  --color-brand-300: #e0cec7;
+  --color-brand-400: #d2bab0;
+  --color-brand-500: #a07d70;
+  --color-brand-600: #7b594d;
+  --color-brand-700: #5c3f35;
+  --color-brand-800: #422921;
+  --color-brand-900: #2b1812;
+
+  --color-accent-gold: #c5a059;
+  --color-accent-burgundy: #8a1538;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+}
+
+/* Default Theme: Pristine Warm Ivory Light Atelier */
+:root, [data-theme="default"] {
+  --theme-color-bg: #FAF6F0;
+  --theme-color-surface: #FFFFFF;
+  --theme-color-surface-hover: #F5F0E8;
+  --theme-color-text: #1F1A17;
+  --theme-color-text-muted: #6B6560;
+  --theme-color-accent: #C5A059;
+  --theme-color-jewel: #8A1538;
+  --theme-color-border: #E5E0D8;
+  --theme-color-shadow: rgba(31, 26, 23, 0.06);
+
+  --background: #FAF6F0;
+  --foreground: #1F1A17;
+}
+
+/* Diwali Festival Preset */
+[data-theme="diwali"] {
+  --theme-color-bg: #12080C;
+  --theme-color-surface: #1C1412;
+  --theme-color-surface-hover: #241B18;
+  --theme-color-text: #FFFFFF;
+  --theme-color-text-muted: #F6F2EB;
+  --theme-color-accent: #D4AF37;
+  --theme-color-jewel: #8A1538;
+  --theme-color-border: rgba(212, 175, 55, 0.3);
+  --theme-color-shadow: rgba(0, 0, 0, 0.5);
+
+  --background: #12080C;
+  --foreground: #FFFFFF;
+}
+
+/* Holi Festival Preset */
+[data-theme="holi"] {
+  --theme-color-bg: #FFF9FB;
+  --theme-color-surface: #FFFFFF;
+  --theme-color-surface-hover: #FFF0F5;
+  --theme-color-text: #1A1A2E;
+  --theme-color-text-muted: #4A4E69;
+  --theme-color-accent: #FF758F;
+  --theme-color-jewel: #2A9D8F;
+  --theme-color-border: rgba(255, 117, 143, 0.25);
+  --theme-color-shadow: rgba(255, 117, 143, 0.1);
+
+  --background: #FFF9FB;
+  --foreground: #1A1A2E;
+}
+
+/* Eid Festival Preset */
+[data-theme="eid"] {
+  --theme-color-bg: #0B1D16;
+  --theme-color-surface: #122C22;
+  --theme-color-surface-hover: #1A3A2E;
+  --theme-color-text: #FAF6F0;
+  --theme-color-text-muted: #D1E7DD;
+  --theme-color-accent: #D4AF37;
+  --theme-color-jewel: #064E3B;
+  --theme-color-border: rgba(212, 175, 55, 0.35);
+  --theme-color-shadow: rgba(0, 0, 0, 0.6);
+
+  --background: #0B1D16;
+  --foreground: #FAF6F0;
+}
+
+/* Christmas Festival Preset */
+[data-theme="christmas"] {
+  --theme-color-bg: #0D1F17;
+  --theme-color-surface: #162E23;
+  --theme-color-surface-hover: #1E3B2E;
+  --theme-color-text: #FFFFFF;
+  --theme-color-text-muted: #FEF3C7;
+  --theme-color-accent: #D4AF37;
+  --theme-color-jewel: #991B1B;
+  --theme-color-border: rgba(212, 175, 55, 0.3);
+  --theme-color-shadow: rgba(0, 0, 0, 0.5);
+
+  --background: #0D1F17;
+  --foreground: #FFFFFF;
+}
+
+/* Lohri Festival Preset */
+[data-theme="lohri"] {
+  --theme-color-bg: #1C0D07;
+  --theme-color-surface: #2A160D;
+  --theme-color-surface-hover: #381F13;
+  --theme-color-text: #FFF5EF;
+  --theme-color-text-muted: #FED7AA;
+  --theme-color-accent: #EA580C;
+  --theme-color-jewel: #8A1538;
+  --theme-color-border: rgba(234, 88, 12, 0.35);
+  --theme-color-shadow: rgba(0, 0, 0, 0.6);
+
+  --background: #1C0D07;
+  --foreground: #FFF5EF;
+}
+
+/* Baisakhi Festival Preset */
+[data-theme="baisakhi"] {
+  --theme-color-bg: #FFFDF7;
+  --theme-color-surface: #FFFFFF;
+  --theme-color-surface-hover: #FEF9E7;
+  --theme-color-text: #1F1A17;
+  --theme-color-text-muted: #78350F;
+  --theme-color-accent: #D97706;
+  --theme-color-jewel: #15803D;
+  --theme-color-border: rgba(217, 119, 6, 0.25);
+  --theme-color-shadow: rgba(217, 119, 6, 0.08);
+
+  --background: #FFFDF7;
+  --foreground: #1F1A17;
+}
+
+body {
+  background-color: var(--theme-color-bg);
+  color: var(--theme-color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* WCAG AA Visible Keyboard Focus Ring */
+*:focus-visible {
+  outline: 2px solid var(--theme-color-accent);
+  outline-offset: 2px;
+}
+
+/* Progressive Enhancement Animation Readiness */
+html:not(.animations-ready) .scroll-reveal {
+  opacity: 1;
+  transform: none;
+}
+
+html.animations-ready .scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.animations-ready .scroll-reveal.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Multi-stop Layered Elevation System & Constant Background Patterns */
+.surface-card {
+  background-color: var(--theme-color-surface);
+  border: 1px solid var(--theme-color-border);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.02),
+    0 8px 16px rgba(0, 0, 0, 0.04),
+    0 16px 32px var(--theme-color-shadow);
+  border-radius: 1rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.surface-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 12px 24px rgba(0, 0, 0, 0.06),
+    0 24px 48px var(--theme-color-shadow);
+}
+
+/* Background Texture Overlays */
+[data-theme="default"] .subtle-grain-bg {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(197, 160, 89, 0.08) 1px, transparent 0),
+    radial-gradient(circle at 16px 16px, rgba(138, 21, 56, 0.03) 1px, transparent 0);
+  background-size: 32px 32px;
+}
+
+[data-theme="diwali"] .subtle-grain-bg {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(212, 175, 55, 0.15) 1px, transparent 0),
+    radial-gradient(circle at 20px 20px, rgba(138, 21, 56, 0.1) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+/* Smooth scrolling & Marquee */
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none !important;
+  }
+  html.animations-ready .scroll-reveal,
+  .scroll-reveal, .surface-card {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
