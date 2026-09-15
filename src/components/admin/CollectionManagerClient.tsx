@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, FolderTree, Edit3, Trash2, CheckCircle2, Image as ImageIcon, Eye, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { createCollectionAction, updateCollectionAction, deleteCollectionAction, assignProductsToCollectionAction } from "@/app/actions/collections";
+import { PLACEHOLDER_PRODUCT_IMAGE, PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 interface CollectionItem {
   id: string;
@@ -41,8 +42,8 @@ export function CollectionManagerClient({ initialCollections, allProducts }: { i
     setEditingCollection(null);
     setTitle("");
     setDescription("");
-    setBanner("https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1200&auto=format&fit=crop");
-    setThumbnail("https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600&auto=format&fit=crop");
+    setBanner(PLACEHOLDER_HOMEPAGE_IMAGE);
+    setThumbnail(PLACEHOLDER_PRODUCT_IMAGE);
     setStatus("PUBLISHED");
     setSelectedProductIds([]);
     setModalOpen(true);

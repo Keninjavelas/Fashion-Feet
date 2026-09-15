@@ -59,12 +59,10 @@ const uploadHeaders = [
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "better-sqlite3", "@prisma/adapter-better-sqlite3", "argon2"],
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
-    ],
+    // Storefront imagery is served exclusively from the local media library
+    // (/uploads and /placeholders). No third-party image host is permitted, so
+    // a stock-photo hotlink cannot be rendered even if one were reintroduced.
+    remotePatterns: [],
   },
   async headers() {
     return [

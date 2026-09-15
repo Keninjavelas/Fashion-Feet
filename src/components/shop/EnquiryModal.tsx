@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createEnquiry } from "@/app/actions/enquiries";
 import { useCartStore } from "@/store/cart";
+import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
 
 interface EnquiryModalProps {
   product: {
@@ -47,7 +48,7 @@ export function EnquiryModal({ product, selectedSize, selectedColor, isOpen, onC
 
   // DYNAMIC PRODUCT VALUES
   const productSku = product.productCode || `FF-${product.id.slice(-6).toUpperCase()}`;
-  const thumbnail = product.images?.[0]?.url || "https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=400";
+  const thumbnail = product.images?.[0]?.url || PLACEHOLDER_PRODUCT_IMAGE;
   const displaySize = selectedSize || "Not Selected (Fitting Assistance)";
   const displayColor = selectedColor || "Standard Color";
 

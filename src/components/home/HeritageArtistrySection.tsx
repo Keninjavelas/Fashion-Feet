@@ -3,6 +3,7 @@
 import { Sparkles, Compass, ShieldCheck, Award } from "lucide-react";
 import Link from "next/link";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 export function HeritageArtistrySection({
   artisanImage1,
@@ -11,8 +12,8 @@ export function HeritageArtistrySection({
   artisanImage1?: string;
   artisanImage2?: string;
 }) {
-  const img1 = artisanImage1 || "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=600&auto=format&fit=crop";
-  const img2 = artisanImage2 || "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600&auto=format&fit=crop";
+  const img1 = artisanImage1 || PLACEHOLDER_HOMEPAGE_IMAGE;
+  const img2 = artisanImage2 || PLACEHOLDER_HOMEPAGE_IMAGE;
 
   return (
     <section className="py-24 bg-[var(--theme-color-bg)] text-[var(--theme-color-text)] relative overflow-hidden transition-colors duration-300">

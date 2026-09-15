@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import { logAdminAudit } from "@/lib/audit";
 import { generateProductSku } from "@/lib/sku";
+import { validateManagedImageUrls, refreshMediaUsage } from "@/lib/media";
 import { revalidatePath } from "next/cache";
 
 export async function generateSkuAction(gender?: string, category?: string) {
@@ -49,6 +50,17 @@ export async function createProductAction(formData: FormData) {
       try { imageUrls = JSON.parse(imageListRaw); } catch { imageUrls = [imageListRaw]; }
     }
 
+    // Images must be managed media assets. This stops unmanaged external
+    // hotlinks entering the catalogue and keeps the Media Library's "Used In"
+    // tracking authoritative.
+    const imageValidation = await validateManagedImageUrls(imageUrls);
+    if (!imageValidation.ok) {
+      return {
+        error: `These images are not managed by the Media Library: ${imageValidation.invalid.join(", ")}. Upload them under Media \u2192 Product Imagery, then select them from the library.`
+      };
+    }
+    imageUrls = imageValidation.urls;
+
     if (!title || !price) {
       return { error: "Product Title and Display Price are required." };
     }
@@ -90,6 +102,8 @@ export async function createProductAction(formData: FormData) {
         }
       }
     });
+
+    await refreshMediaUsage(imageUrls);
 
     await logAdminAudit({
       adminId: admin.id,
@@ -144,6 +158,17 @@ export async function updateProductAction(productId: string, formData: FormData)
       try { imageUrls = JSON.parse(imageListRaw); } catch { imageUrls = [imageListRaw]; }
     }
 
+    // Images must be managed media assets. This stops unmanaged external
+    // hotlinks entering the catalogue and keeps the Media Library's "Used In"
+    // tracking authoritative.
+    const imageValidation = await validateManagedImageUrls(imageUrls);
+    if (!imageValidation.ok) {
+      return {
+        error: `These images are not managed by the Media Library: ${imageValidation.invalid.join(", ")}. Upload them under Media \u2192 Product Imagery, then select them from the library.`
+      };
+    }
+    imageUrls = imageValidation.urls;
+
     if (!title || !price) {
       return { error: "Product Title and Display Price are required." };
     }
@@ -189,6 +214,8 @@ export async function updateProductAction(productId: string, formData: FormData)
         }
       }
     });
+
+    await refreshMediaUsage(imageUrls);
 
     await logAdminAudit({
       adminId: admin.id,

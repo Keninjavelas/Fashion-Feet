@@ -121,7 +121,7 @@ export function MediaLibraryClient({ initialAssets }: { initialAssets: MediaAsse
                 <label className="block uppercase font-bold text-gray-500 mb-1">Asset URL / Image Path</label>
                 <input
                   type="url"
-                  placeholder="https://images.unsplash.com/..."
+                  placeholder="/uploads/example-image.jpg"
                   value={uploadUrl}
                   onChange={(e) => setUploadUrl(e.target.value)}
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#C5A059]"

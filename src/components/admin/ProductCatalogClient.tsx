@@ -11,6 +11,7 @@ import {
   restoreProductAction, deleteProductAction, bulkArchiveProductsAction, generateSkuAction
 } from "@/app/actions/products";
 import { MEDIA_FOLDERS } from "@/lib/mediaConstants";
+import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
 
 interface ProductItem {
   id: string;
@@ -74,7 +75,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
   const [formTitle, setFormTitle] = useState("");
   const [formSku, setFormSku] = useState("");
   const [formGender, setFormGender] = useState("Men");
-  const [formCategory, setFormCategory] = useState("Men");
+  const [formCategory, setFormCategory] = useState("");
   const [formOccasion, setFormOccasion] = useState("");
   const [formCollectionId, setFormCollectionId] = useState("");
   const [formPrice, setFormPrice] = useState("");
@@ -329,7 +330,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
               <tbody className="divide-y divide-gray-100 font-medium">
                 {filteredProducts.map((p) => {
                   const isSelected = selectedIds.includes(p.id);
-                  const primaryImage = p.images[0]?.url || "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600&auto=format&fit=crop";
+                  const primaryImage = p.images[0]?.url || PLACEHOLDER_PRODUCT_IMAGE;
 
                   return (
                     <tr key={p.id} className={`hover:bg-gray-50/80 transition-all ${isSelected ? "bg-amber-50/40" : ""}`}>
@@ -459,7 +460,12 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                     <div>
                       <label className="block font-bold text-gray-700 uppercase mb-1">Category</label>
                       <select value={formCategory} onChange={(e) => setFormCategory(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
+                        <option value="">{categories.length === 0 ? "No categories defined yet" : "— Select category —"}</option>
                         {categories.map((c) => (<option key={c.id} value={c.name}>{c.name}</option>))}
+                        {/* Keep an existing value selectable so editing a product never silently rewrites its category. */}
+                        {formCategory && !categories.some((c) => c.name === formCategory) && (
+                          <option value={formCategory}>{formCategory} (current)</option>
+                        )}
                       </select>
                     </div>
 

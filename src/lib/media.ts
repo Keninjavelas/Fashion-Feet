@@ -95,3 +95,49 @@ export async function calculateUsedInLocations(url: string, folder: string): Pro
 
   return Array.from(new Set(locations));
 }
+
+export type ManagedUrlValidation =
+  | { ok: true; urls: string[] }
+  | { ok: false; invalid: string[] };
+
+/**
+ * Ensures every supplied image URL is backed by a MediaAsset.
+ *
+ * Storefront imagery must flow through the media system. Without this check the
+ * product actions accept any string, which is how unmanaged external hotlinks
+ * (e.g. third-party stock photo URLs) enter the catalogue.
+ */
+export async function validateManagedImageUrls(
+  urls: ReadonlyArray<string>
+): Promise<ManagedUrlValidation> {
+  const cleaned = Array.from(
+    new Set(urls.map((u) => (typeof u === "string" ? u.trim() : "")).filter(Boolean))
+  );
+  if (cleaned.length === 0) return { ok: true, urls: [] };
+
+  const assets = await prisma.mediaAsset
+    .findMany({ where: { url: { in: cleaned } }, select: { url: true } })
+    .catch(() => []);
+  const managed = new Set(assets.map((a) => a.url));
+
+  const invalid = cleaned.filter((url) => !managed.has(url));
+  if (invalid.length > 0) return { ok: false, invalid };
+
+  return { ok: true, urls: cleaned };
+}
+
+/**
+ * Recomputes the cached "Used In" labels for the given asset URLs so the Media
+ * Library reflects where an asset is attached after a content change.
+ */
+export async function refreshMediaUsage(urls: ReadonlyArray<string>): Promise<void> {
+  const unique = Array.from(new Set(urls.filter(Boolean)));
+  for (const url of unique) {
+    const asset = await prisma.mediaAsset.findFirst({ where: { url } }).catch(() => null);
+    if (!asset) continue;
+    const usedIn = await calculateUsedInLocations(url, asset.folder);
+    await prisma.mediaAsset
+      .update({ where: { id: asset.id }, data: { usedIn: JSON.stringify(usedIn) } })
+      .catch(() => null);
+  }
+}

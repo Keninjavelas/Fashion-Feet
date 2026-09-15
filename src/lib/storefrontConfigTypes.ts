@@ -1,3 +1,5 @@
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
+
 export interface StorefrontSection {
   id: string;
   type: string;
@@ -31,7 +33,7 @@ export const DEFAULT_HOMEPAGE_SECTIONS: StorefrontSection[] = [
     description: "Hand-embroidery by 4th-generation master artisans using genuine leather and pure zari thread.",
     ctaText: "Explore Collection",
     ctaLink: "/shop",
-    image: "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1200&auto=format&fit=crop",
+    image: PLACEHOLDER_HOMEPAGE_IMAGE,
     displayOrder: 1,
     visible: true,
     stylePreset: "DARK_ROYAL",
@@ -59,7 +61,7 @@ export const DEFAULT_HOMEPAGE_SECTIONS: StorefrontSection[] = [
     description: "Each Jutti is crafted from vegetable-tanned leather soles and adorned with dabka, cut-dana, and bullion embroidery.",
     ctaText: "Discover Our Heritage",
     ctaLink: "/about",
-    image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop",
+    image: PLACEHOLDER_HOMEPAGE_IMAGE,
     displayOrder: 3,
     visible: true,
     stylePreset: "GLASS",
@@ -118,7 +120,7 @@ export const DEFAULT_PAGE_CONFIGS: Record<string, StorefrontSection[]> = {
       subtitle: "Traditional Royal Mojaris & Velvet Sherwani Footwear",
       ctaText: "Shop Men's",
       ctaLink: "/shop?gender=Men",
-      image: "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1200&auto=format&fit=crop",
+      image: PLACEHOLDER_HOMEPAGE_IMAGE,
       displayOrder: 1,
       visible: true,
       stylePreset: "DARK_ROYAL",
@@ -134,7 +136,7 @@ export const DEFAULT_PAGE_CONFIGS: Record<string, StorefrontSection[]> = {
       subtitle: "Extravagant Zardozi, Cut-Dana, & Pearl Embroidery",
       ctaText: "Shop Women's",
       ctaLink: "/shop?gender=Women",
-      image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1200&auto=format&fit=crop",
+      image: PLACEHOLDER_HOMEPAGE_IMAGE,
       displayOrder: 1,
       visible: true,
       stylePreset: "LIGHT_GOLD",

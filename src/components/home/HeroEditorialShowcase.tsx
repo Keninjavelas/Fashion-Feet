@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sparkles, Award } from "lucide-react";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 export function HeroEditorialShowcase({ 
   heroImage, 
@@ -19,19 +20,19 @@ export function HeroEditorialShowcase({
     {
       id: "front",
       label: "Heritage Front",
-      image: heroImage || "https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=1200&auto=format&fit=crop",
+      image: heroImage || PLACEHOLDER_HOMEPAGE_IMAGE,
       desc: "Intricate gold zari & dabka hand embroidery on rich royal crimson silk velvet."
     },
     {
       id: "embroidery",
       label: "Zari Detail",
-      image: artisanImage1 || "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1200&auto=format&fit=crop",
+      image: artisanImage1 || PLACEHOLDER_HOMEPAGE_IMAGE,
       desc: "Stitched thread-by-thread by third-generation Punjabi master artisans."
     },
     {
       id: "sole",
       label: "Leather Sole",
-      image: artisanImage2 || "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1200&auto=format&fit=crop",
+      image: artisanImage2 || PLACEHOLDER_HOMEPAGE_IMAGE,
       desc: "Anatomically molded chrome-free vegetable-tanned leather for day-long ease."
     }
   ];

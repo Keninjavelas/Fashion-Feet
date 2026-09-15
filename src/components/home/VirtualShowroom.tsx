@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sparkles, ArrowRight, Info, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 export function VirtualShowroom({ products = [] }: { products?: any[] }) {
   const [activePavilion, setActivePavilion] = useState<"wedding" | "everyday" | "vault" | "craft">("wedding");
@@ -16,7 +17,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       icon: "🏛",
       subtitle: "Royal Zari & Dabka Embroidered Bridal Collections",
       desc: "Immerse yourself in handcrafted silk velvet and golden zari threadwork designed for royal wedding celebrations, sangeet nights, and festive grandeur.",
-      banner: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1200&auto=format&fit=crop",
+      banner: PLACEHOLDER_HOMEPAGE_IMAGE,
       accent: "#C5A059"
     },
     {
@@ -25,7 +26,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       icon: "🌿",
       subtitle: "Genuine Leather Mojaris & Casual Luxury",
       desc: "Designed for day-long comfort with double-padded memory foam soles and supple chrome-free leather that molds naturally to your feet.",
-      banner: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1200&auto=format&fit=crop",
+      banner: PLACEHOLDER_HOMEPAGE_IMAGE,
       accent: "#8A1538"
     },
     {
@@ -34,7 +35,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       icon: "✨",
       subtitle: "Limited-Edition Handcrafted Heritage Pairs",
       desc: "Bespoke Punjabi Juttis featuring pure silver sequin embroidery, pearl embellishments, and artisanal velvet lining.",
-      banner: "https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=1200&auto=format&fit=crop",
+      banner: PLACEHOLDER_HOMEPAGE_IMAGE,
       accent: "#C5A059"
     },
     {
@@ -43,7 +44,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       icon: "👞",
       subtitle: "Interactive Anatomical & Artistry Hotspots",
       desc: "Explore the 400-year-old heritage art form behind every pair — from hand-punched leather soles to padded velvet arch support.",
-      banner: "https://images.unsplash.com/photo-1564769625905-50e93615e769?q=80&w=1200&auto=format&fit=crop",
+      banner: PLACEHOLDER_HOMEPAGE_IMAGE,
       accent: "#8A1538"
     }
   ];

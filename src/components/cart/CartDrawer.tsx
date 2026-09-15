@@ -3,6 +3,7 @@
 import { useCartStore } from "@/store/cart";
 import { X, MessageSquare, Trash2, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem } = useCartStore();
@@ -44,7 +45,7 @@ export function CartDrawer() {
             </div>
           ) : (
             items.map((item) => {
-              const imgUrl = item.image || "https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=400";
+              const imgUrl = item.image || PLACEHOLDER_PRODUCT_IMAGE;
 
               return (
                 <div

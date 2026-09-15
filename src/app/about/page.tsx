@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Hand, Feather, ShieldCheck } from "lucide-react";
 import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 export default function AboutPage() {
   return (
@@ -12,7 +13,7 @@ export default function AboutPage() {
             <div className="absolute inset-0 bg-black/40 z-10"></div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=2000&auto=format&fit=crop" 
+              src={PLACEHOLDER_HOMEPAGE_IMAGE} 
               alt="Punjabi Juttis" 
               className="w-full h-full object-cover"
             />

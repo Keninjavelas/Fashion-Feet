@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Sparkles, RotateCw, Image as ImageIcon } from "lucide-react";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 export const HERO_MODEL_URL = "/models/punjabi_jutti_master.gltf";
 
@@ -195,7 +196,7 @@ export function Real3DJuttiHeroCanvas({ fallbackImage }: { fallbackImage?: strin
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={fallbackImage || "https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=1200&auto=format&fit=crop"}
+            src={fallbackImage || PLACEHOLDER_HOMEPAGE_IMAGE}
             alt="Royal Crimson Zari Jutti"
             className="w-full h-full object-cover"
           />

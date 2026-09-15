@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sparkles, Layers, Scissors, ShieldCheck, Award, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 const craftBeats = [
   {
@@ -11,7 +12,7 @@ const craftBeats = [
     title: "Raw Vegetable-Tanned Leather",
     subtitle: "Chrome-Free Anatomical Sole Foundation",
     desc: "Every pair begins with premium chrome-free leather sourced from heritage tanneries. Molded to adapt naturally to your foot's unique contours over time.",
-    image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1200&auto=format&fit=crop",
+    image: PLACEHOLDER_HOMEPAGE_IMAGE,
     icon: ShieldCheck,
     tag: "Beat 1: Tanning & Moulding"
   },
@@ -20,7 +21,7 @@ const craftBeats = [
     title: "Double Velvet Arch Cushioning",
     subtitle: "Memory Foam Ergonomic Soles",
     desc: "Layered beneath rich silk velvet, our dual-density memory foam arch insert ensures zero bite marks and all-day royal comfort.",
-    image: "https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=1200&auto=format&fit=crop",
+    image: PLACEHOLDER_HOMEPAGE_IMAGE,
     icon: Layers,
     tag: "Beat 2: Ergonomic Arch"
   },
@@ -29,7 +30,7 @@ const craftBeats = [
     title: "Artisanal Zari & Dabka Embroidery",
     subtitle: "Needlework by 3rd-Gen Punjabi Artisans",
     desc: "Stitched thread-by-thread using metallic gold zari yarn, sequins, and pearls. A single pair takes up to 40 hours of focused craftsmanship.",
-    image: "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1200&auto=format&fit=crop",
+    image: PLACEHOLDER_HOMEPAGE_IMAGE,
     icon: Scissors,
     tag: "Beat 3: Hand Embroidery"
   },
@@ -38,7 +39,7 @@ const craftBeats = [
     title: "Heritage Fitting & Polish",
     subtitle: "Custom Boutique Finishing",
     desc: "Finished with natural beeswax conditioning and hand-checked for perfection before being wrapped in luxury heritage presentation boxes.",
-    image: "https://images.unsplash.com/photo-1564769625905-50e93615e769?q=80&w=1200&auto=format&fit=crop",
+    image: PLACEHOLDER_HOMEPAGE_IMAGE,
     icon: Award,
     tag: "Beat 4: Final Inspection"
   }

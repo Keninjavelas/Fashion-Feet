@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 export function FeaturedCollections({
   collectionWedding,
@@ -18,7 +19,7 @@ export function FeaturedCollections({
       title: "Wedding Collection",
       subtitle: "Bridal Zari & Dabka Grandeur",
       desc: "Royal crimson silk velvet juttis stitched thread-by-thread with gold zari yarn for wedding ceremonies.",
-      image: collectionWedding || "https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=1200&auto=format&fit=crop",
+      image: collectionWedding || PLACEHOLDER_HOMEPAGE_IMAGE,
       href: "/shop?category=Wedding",
       tag: "Bridal Couture"
     },
@@ -26,7 +27,7 @@ export function FeaturedCollections({
       title: "Festive Collection",
       subtitle: "Sequin, Pearl & Silver Sparkle",
       desc: "Vibrant festive pairs designed for Diwali, Eid, and Anand Karaj celebrations.",
-      image: collectionFestive || "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=800&auto=format&fit=crop",
+      image: collectionFestive || PLACEHOLDER_HOMEPAGE_IMAGE,
       href: "/shop?category=Festive",
       tag: "Festive Season"
     },
@@ -34,7 +35,7 @@ export function FeaturedCollections({
       title: "Everyday Luxury Mojaris",
       subtitle: "Supple Leather & Memory Insoles",
       desc: "Chrome-free genuine leather slip-ons with double velvet arch padding for daily ease.",
-      image: collectionCasual || "https://images.unsplash.com/photo-1564769625905-50e93615e769?q=80&w=800&auto=format&fit=crop",
+      image: collectionCasual || PLACEHOLDER_HOMEPAGE_IMAGE,
       href: "/shop?category=Casual",
       tag: "Everyday Comfort"
     }

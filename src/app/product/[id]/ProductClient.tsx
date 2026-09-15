@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EnquiryModal } from "@/components/shop/EnquiryModal";
 import { toggleWishlist } from "@/app/actions/wishlist";
+import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
 
 function Accordion({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -70,8 +71,8 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
 
   const images = product.images?.length > 0 
     ? product.images.map((img: any) => img.url) 
-    : ["https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=600", 
-       "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=600"];
+    : [PLACEHOLDER_PRODUCT_IMAGE, 
+       PLACEHOLDER_PRODUCT_IMAGE];
        
   const activeImage = images[activeImageIndex];
   const sizes = ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"];

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Button } from "./Button";
 import { EnquiryModal } from "../shop/EnquiryModal";
+import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
 
 export function QuickViewModal({ product, isOpen, onClose }: { product: any, isOpen: boolean, onClose: () => void }) {
   const [selectedSize, setSelectedSize] = useState("");
@@ -12,7 +13,7 @@ export function QuickViewModal({ product, isOpen, onClose }: { product: any, isO
   
   if (!product) return null;
 
-  const image = product.images?.[0]?.url || "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600&auto=format&fit=crop";
+  const image = product.images?.[0]?.url || PLACEHOLDER_PRODUCT_IMAGE;
 
   const handleOpenEnquiry = () => {
     setEnquiryOpen(true);
