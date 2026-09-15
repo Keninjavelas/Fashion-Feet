@@ -48,13 +48,24 @@ function base32Decode(input: string): Buffer {
   return Buffer.from(bytes);
 }
 
+export const MFA_ISSUER = "Fashion Feet Admin";
+
+/**
+ * Builds an RFC 6238 / Key-URI-Format compatible enrolment URI.
+ * The `issuer:account` label plus the `issuer` parameter is what allows Google
+ * Authenticator, Microsoft Authenticator, Authy and 1Password to group and name
+ * the entry correctly.
+ */
+export function buildOtpauthUrl(secret: string, email: string): string {
+  const issuer = encodeURIComponent(MFA_ISSUER);
+  const account = encodeURIComponent(email);
+  return `otpauth://totp/${issuer}:${account}?secret=${secret}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
+}
+
 export function generateMfaSecret(email: string) {
   const secretBuffer = crypto.randomBytes(20);
   const secret = base32Encode(secretBuffer);
-  const issuer = encodeURIComponent("Fashion Feet Admin");
-  const account = encodeURIComponent(email);
-  const otpauthUrl = `otpauth://totp/${issuer}:${account}?secret=${secret}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
-  return { secret, otpauthUrl };
+  return { secret, otpauthUrl: buildOtpauthUrl(secret, email) };
 }
 
 export async function generateQrCodeUrl(otpauthUrl: string): Promise<string> {
@@ -84,20 +95,41 @@ export function generateTotpCode(secret: string, timeStep: number = Math.floor(D
   return otp;
 }
 
-export function verifyMfaToken(token: string, secret: string): boolean {
-  if (!token || !secret) return false;
+/**
+ * Verifies a TOTP and reports which time step matched.
+ *
+ * The matched step is needed to reject replay: RFC 6238 requires that a code
+ * which has already authenticated a login cannot be used again within its
+ * validity window.
+ */
+export function verifyMfaTokenWithStep(
+  token: string,
+  secret: string
+): { valid: boolean; timeStep: number | null } {
+  if (!token || !secret) return { valid: false, timeStep: null };
+
   const cleanToken = token.trim();
+  if (!/^\d{6}$/.test(cleanToken)) return { valid: false, timeStep: null };
+
   const currentTimeStep = Math.floor(Date.now() / 1000 / 30);
 
-  // Check current time step and +/- 1 window (for clock drift tolerance)
+  // Current time step plus a +/- 1 step window for clock drift tolerance.
   for (let window = -1; window <= 1; window++) {
-    const expected = generateTotpCode(secret, currentTimeStep + window);
-    if (expected === cleanToken) {
-      return true;
+    const timeStep = currentTimeStep + window;
+    const expected = generateTotpCode(secret, timeStep);
+    if (
+      expected.length === cleanToken.length &&
+      crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(cleanToken))
+    ) {
+      return { valid: true, timeStep };
     }
   }
 
-  return false;
+  return { valid: false, timeStep: null };
+}
+
+export function verifyMfaToken(token: string, secret: string): boolean {
+  return verifyMfaTokenWithStep(token, secret).valid;
 }
 
 export function generateRecoveryCodes(count: number = 8): { rawCodes: string[]; hashedCodes: string[] } {

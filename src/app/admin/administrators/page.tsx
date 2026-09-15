@@ -16,6 +16,18 @@ export default async function AdminUsersPage() {
   }
 
   const admins = await prisma.adminUser.findMany({
+    // Only non-sensitive fields. These rows are handed to a "use client" table,
+    // so an unfiltered findMany serialised passwordHash and mfaSecret into the
+    // browser payload even though the table never renders them.
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      mfaEnabled: true,
+      suspended: true,
+      lastLoginAt: true,
+    },
     orderBy: { createdAt: "desc" }
   }).catch(() => []);
 

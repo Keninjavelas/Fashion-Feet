@@ -34,6 +34,7 @@ model AdminUser {
   role          String              @default("CONTENT_MANAGER") // SUPER_ADMIN | CONTENT_MANAGER
   mfaSecret     String?
   mfaEnabled    Boolean             @default(false)
+  mfaLastUsedStep Int?              // last TOTP time step that authenticated this account (replay protection)
   suspended     Boolean             @default(false)
   lastLoginAt   DateTime?
   createdAt     DateTime            @default(now())

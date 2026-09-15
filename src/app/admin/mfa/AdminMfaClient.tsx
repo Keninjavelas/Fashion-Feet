@@ -20,6 +20,7 @@ export function AdminMfaClient({ adminEmail, mfaEnabled }: AdminMfaClientProps) 
   const [error, setError] = useState<string | null>(null);
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
+  const [useRecoveryCode, setUseRecoveryCode] = useState(false);
 
   useEffect(() => {
     if (!mfaEnabled) {
@@ -37,7 +38,7 @@ export function AdminMfaClient({ adminEmail, mfaEnabled }: AdminMfaClientProps) 
     setLoading(true);
     setError(null);
 
-    const res = await verifyAdminMfa(code, false);
+    const res = await verifyAdminMfa(code, useRecoveryCode);
     setLoading(false);
 
     if (res.error) {
@@ -108,22 +109,30 @@ export function AdminMfaClient({ adminEmail, mfaEnabled }: AdminMfaClientProps) 
         <form onSubmit={handleVerify} className="space-y-4">
           <div>
             <label className="block text-[10px] uppercase font-bold tracking-widest text-[#D4AF37] mb-1">
-              6-Digit Authenticator Code
+              {useRecoveryCode ? "One-Time Recovery Code" : "6-Digit Authenticator Code"}
             </label>
             <input
               type="text"
-              maxLength={6}
+              maxLength={useRecoveryCode ? 10 : 6}
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-              placeholder="123456"
+              onChange={(e) =>
+                setCode(
+                  useRecoveryCode
+                    ? e.target.value.toUpperCase().replace(/[^0-9A-F]/g, "").slice(0, 10)
+                    : e.target.value.replace(/\D/g, "").slice(0, 6)
+                )
+              }
+              placeholder={useRecoveryCode ? "A1B2C3D4E5" : "123456"}
               required
-              className="w-full px-4 py-3.5 bg-black/40 border border-white/10 rounded-xl text-center font-mono text-2xl font-bold tracking-[0.5em] text-[#D4AF37] focus:outline-none focus:border-[#D4AF37]"
+              className={`w-full px-4 py-3.5 bg-black/40 border border-white/10 rounded-xl text-center font-mono font-bold text-[#D4AF37] focus:outline-none focus:border-[#D4AF37] ${
+                useRecoveryCode ? "text-lg tracking-[0.2em]" : "text-2xl tracking-[0.5em]"
+              }`}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading || code.length !== 6}
+            disabled={loading || code.length !== (useRecoveryCode ? 10 : 6)}
             className="w-full py-3.5 bg-[#8A1538] hover:bg-[#A81B45] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg border border-[#D4AF37]/40 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
@@ -136,6 +145,26 @@ export function AdminMfaClient({ adminEmail, mfaEnabled }: AdminMfaClientProps) 
             )}
           </button>
         </form>
+
+        {/* Recovery-code fallback. Only meaningful once MFA is enrolled, because
+            recovery codes are generated at the end of enrolment. */}
+        {mfaEnabled && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setUseRecoveryCode(!useRecoveryCode);
+                setCode("");
+                setError(null);
+              }}
+              className="text-[10px] uppercase font-bold tracking-widest text-white/50 hover:text-[#D4AF37] transition-colors"
+            >
+              {useRecoveryCode
+                ? "Use authenticator code instead"
+                : "Lost your authenticator? Use a recovery code"}
+            </button>
+          </div>
+        )}
 
         {/* Recovery Code Screen Modal */}
         {recoveryCodes.length > 0 && (

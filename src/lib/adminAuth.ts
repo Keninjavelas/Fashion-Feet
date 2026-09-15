@@ -62,7 +62,25 @@ export async function getAuthenticatedAdmin() {
 
     const session = await prisma.adminSession.findUnique({
       where: { token },
-      include: { admin: true }
+      // Only the fields callers need. Returning the whole AdminUser row from the
+      // shared auth helper would carry passwordHash and mfaSecret along with it,
+      // where any future client-component prop would serialise them to the
+      // browser. The login path needs passwordHash, and it queries directly.
+      include: {
+        admin: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            mfaEnabled: true,
+            suspended: true,
+            lastLoginAt: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
     });
 
     if (!session || session.expiresAt < new Date()) {

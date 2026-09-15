@@ -125,8 +125,11 @@ Severity reflects exploitability at the current (localhost, single-origin) deplo
 16. **`/admin/editor/preview` is statically served with no auth check.** It is client-only and fetches no
     server data, so no information is exposed, but its `postMessage` handler does not validate
     `event.origin`.
-17. **No TOTP replay protection.** A code is accepted anywhere in the ±1 step window (~90 s) and the same code
-    can be replayed within it. RFC 6238 recommends rejecting a reused time step.
+17. ~~**No TOTP replay protection.**~~ **FIXED — see [MfaFlow.md](MfaFlow.md).** A code was accepted anywhere in
+    the ±1 step window (~90 s) and could be replayed within it. A `mfaLastUsedStep` column now rejects a reused
+    time step. The same task found and fixed four further MFA defects, including a **critical bypass** where
+    `setupMfaSecret()` could rotate an already-enrolled secret, and the fact that `/admin/mfa` was unreachable
+    through the proxy — so the TOTP flow could not previously be completed in a browser at all.
 18. **Recovery codes use unsalted SHA-256 over 40 bits** of entropy, weaker than the Argon2id used for
     passwords.
 19. **Rate limiting is per-process, in-memory.** Limits reset on restart, are not shared across instances, and
@@ -177,10 +180,12 @@ Every fix below was applied and re-verified through the gate (lint, `tsc`, build
 | 15 | `updateUserProfile` returns only non-sensitive profile fields — no `password`/`mfaSecret` crosses the boundary | `actions/users.ts` |
 | 16 | Recent-audit widget narrowed to `{ id, name, role }` so the fixed defect-#3 pattern cannot re-leak on refactor | `admin/page.tsx` |
 
-Deliberately **not** changed, because the fixes would be redesigns or require schema changes the task
-excluded: TOTP replay (#17), recovery-code hashing strength (#18), rate-limit storage (#19), proxy
-defence-in-depth (#15), `postMessage` origin (#16), CORS (#21). These are documented as follow-ups instead of
-being silently weakened or half-fixed.
+Deliberately **not** changed, because the fixes would be redesigns or require broader changes: recovery-code
+hashing strength (#18), rate-limit storage (#19), proxy defence-in-depth (#15), `postMessage` origin (#16),
+CORS (#21). These are documented as follow-ups instead of being silently weakened or half-fixed.
+
+**Since this report:** TOTP replay protection (#17) has been fixed, along with four further MFA defects —
+see [MfaFlow.md](MfaFlow.md). `getActiveFestival` (#24) is unchanged and remains a documented design finding.
 
 ---
 

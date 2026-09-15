@@ -21,9 +21,17 @@ export default auth((req) => {
 
   const pathname = req.nextUrl.pathname;
   const isOnAdminLoginPage = pathname === "/admin/login";
+  // The TOTP challenge/enrolment page must be reachable by a pre-MFA
+  // administrator, who by definition does not yet hold a full admin session.
+  // Without this exemption the coarse session gate below bounced every request
+  // for /admin/mfa back to the login form, making the MFA flow impossible to
+  // complete. The page itself performs the authoritative getPreMfaAdmin() check
+  // and redirects, so no protection is lost here.
+  const isOnMfaChallengePage = pathname === "/admin/mfa";
+  const isOnPreSessionPage = isOnAdminLoginPage || isOnMfaChallengePage;
   const isOnAdminRoute = pathname.startsWith("/admin");
 
-  if (isOnAdminRoute && !isOnAdminLoginPage) {
+  if (isOnAdminRoute && !isOnPreSessionPage) {
     // 1. Unauthenticated -> Redirect to /admin/login
     if (!isLoggedIn) {
       const loginUrl = new URL("/admin/login", req.nextUrl);

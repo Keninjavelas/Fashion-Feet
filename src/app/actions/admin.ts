@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { hashPassword, verifyPassword, createAdminSession, getAuthenticatedAdmin, revokeAdminSession, ADMIN_COOKIE_NAME } from "@/lib/adminAuth";
-import { generateMfaSecret, generateQrCodeUrl, verifyMfaToken, generateRecoveryCodes, hashRecoveryCode } from "@/lib/mfa";
+import { generateMfaSecret, generateQrCodeUrl, buildOtpauthUrl, verifyMfaTokenWithStep, generateRecoveryCodes, hashRecoveryCode } from "@/lib/mfa";
 import { logAdminAudit } from "@/lib/audit";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -111,11 +111,12 @@ export async function adminLogin(formData: FormData) {
     path: "/admin",
   });
 
+  // No admin identifier is returned: the signed pre-MFA cookie is the only
+  // handle the client needs, and echoing internal ids is unnecessary.
   return {
     success: true,
     mfaRequired: true,
     mfaEnabled: admin.mfaEnabled,
-    adminId: admin.id,
   };
 }
 
@@ -135,14 +136,40 @@ export async function setupMfaSecret() {
   const admin = await getPreMfaAdmin();
   if (!admin) return { error: "Unauthorized pre-MFA session." };
 
-  const { secret, otpauthUrl } = generateMfaSecret(admin.email);
-  const qrCodeUrl = await generateQrCodeUrl(otpauthUrl);
+  // Enrollment must be impossible once MFA is already active. Without this
+  // guard, a caller holding only the password could invoke this action to
+  // replace the enrolled secret, read the replacement from the response, derive
+  // a valid code from it and obtain a full session — defeating the second factor
+  // entirely. Recovery from a lost device is a Super Admin `resetAdminMfa`
+  // action instead.
+  if (admin.mfaEnabled) {
+    await logAdminAudit({
+      adminId: admin.id,
+      action: "MFA_ENROLLMENT_BLOCKED_ALREADY_ENROLLED",
+      resourceType: "AdminUser"
+    });
+    return {
+      error: "MFA is already enrolled for this account. Ask a Super Admin to reset MFA if you have lost your authenticator device."
+    };
+  }
 
-  // Save secret temporarily
-  await prisma.adminUser.update({
-    where: { id: admin.id },
-    data: { mfaSecret: secret }
-  });
+  // Reuse a pending secret so reloading the enrolment page cannot invalidate a
+  // QR code the administrator has already scanned.
+  let secret = admin.mfaSecret;
+  if (!secret) {
+    secret = generateMfaSecret(admin.email).secret;
+    await prisma.adminUser.update({
+      where: { id: admin.id },
+      data: { mfaSecret: secret }
+    });
+    await logAdminAudit({
+      adminId: admin.id,
+      action: "MFA_ENROLLMENT_STARTED",
+      resourceType: "AdminUser"
+    });
+  }
+
+  const qrCodeUrl = await generateQrCodeUrl(buildOtpauthUrl(secret, admin.email));
 
   return { secret, qrCodeUrl };
 }
@@ -158,6 +185,7 @@ export async function verifyAdminMfa(code: string, isRecoveryCode: boolean = fal
 
   let verified = false;
   let usedRecoveryCodeId: string | null = null;
+  let matchedTimeStep: number | null = null;
 
   if (isRecoveryCode) {
     const codeHash = hashRecoveryCode(code);
@@ -171,7 +199,19 @@ export async function verifyAdminMfa(code: string, isRecoveryCode: boolean = fal
     }
   } else {
     if (!admin.mfaSecret) return { error: "MFA secret not initialized." };
-    verified = verifyMfaToken(code, admin.mfaSecret);
+    const evaluation = verifyMfaTokenWithStep(code, admin.mfaSecret);
+    verified = evaluation.valid;
+    matchedTimeStep = evaluation.timeStep;
+  }
+
+  // RFC 6238 replay protection: a time step that has already authenticated this
+  // account cannot be accepted again. This is deliberately strict — it also
+  // rejects reuse within the same 30s window, so an administrator who signs out
+  // and immediately back in must wait for the authenticator to roll over.
+  if (verified && matchedTimeStep !== null && admin.mfaLastUsedStep !== null && matchedTimeStep <= admin.mfaLastUsedStep) {
+    recordFailedAttempt(admin.id);
+    await logAdminAudit({ adminId: admin.id, action: "MFA_CODE_REPLAY_REJECTED", resourceType: "AdminUser" });
+    return { error: "Invalid authentication code. Please check your authenticator app." };
   }
 
   if (!verified) {
@@ -212,14 +252,32 @@ export async function verifyAdminMfa(code: string, isRecoveryCode: boolean = fal
     }
   }
 
+  // Record the consumed time step before issuing the session so the same code
+  // cannot be replayed even if the session write failed.
+  if (matchedTimeStep !== null) {
+    await prisma.adminUser.update({
+      where: { id: admin.id },
+      data: { mfaLastUsedStep: matchedTimeStep }
+    });
+  }
+
   // Clear pre-MFA cookie and issue full admin session
   const cookieStore = await cookies();
   cookieStore.delete(PRE_MFA_COOKIE);
   await createAdminSession(admin.id);
 
+  await prisma.adminUser.update({
+    where: { id: admin.id },
+    data: { lastLoginAt: new Date() }
+  }).catch(() => null);
+
   await logAdminAudit({ adminId: admin.id, action: "ADMIN_LOGIN_SUCCESS", resourceType: "AdminUser" });
 
-  revalidatePath("/admin");
+  // Deliberately no revalidatePath("/admin") here. Revalidating re-renders the
+  // *current* route (/admin/mfa), whose server component redirects to the login
+  // page once the pre-MFA cookie has just been cleared — which destroyed the
+  // one-time recovery-code display before the administrator could read or save
+  // it. /admin is a dynamic route, so it renders from fresh data regardless.
   return { success: true, recoveryCodes: rawRecoveryCodes };
 }
 
