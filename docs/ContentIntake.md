@@ -6,6 +6,10 @@
 This file records the *verified current state* of storefront content and lists exactly what must be supplied
 to complete Task 11. It intentionally contains no fabricated Fashion Feet data.
 
+**How to hand assets over:** drop them into the `intake/` folder at the project root and fill in the templates
+there. See [../intake/README.md](../intake/README.md) for the exact layout, the `catalogue.csv` columns, and the
+store/brand templates. Your assets in `intake/` are gitignored; the templates are tracked.
+
 ---
 
 ## 0. Completed in this pass (structural only — no invented content)

@@ -57,3 +57,13 @@ backups/*.db
 
 # Generated Visual Artifacts & Screenshots
 /artifacts/
+
+# Task 11 real-content intake. The templates in /intake are tracked; actual assets
+# are not, so dropping brand photography in here cannot pollute the repository.
+# Assets are uploaded through the Admin Media Library and served from /public/uploads.
+/intake/logo/
+/intake/products/
+/intake/homepage/
+/intake/collections/
+/intake/stores/
+/intake/catalogue.csv
