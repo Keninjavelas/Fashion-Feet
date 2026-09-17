@@ -7,10 +7,10 @@ import { useFestival } from "@/components/providers/FestivalProvider";
 const collectionCategories = [
   { name: "Wedding Collection", href: "/shop?category=Wedding", desc: "Bridal Zari, Dabka & Velvet Grandeur", tag: "Royal Ceremonies" },
   { name: "Festive Showcase", href: "/shop?category=Festive", desc: "Sequin, Pearl & Silver Embellishments", tag: "Celebration Drop" },
-  { name: "Casual Everyday Mojaris", href: "/shop?category=Casual", desc: "Supple Leather & Memory Foam Insoles", tag: "Daily Ease" },
+  { name: "Casual Everyday Mojaris", href: "/shop?category=Casual", desc: "Supple Leather & Cushioned Insoles", tag: "Daily Ease" },
   { name: "Office & Formal Wear", href: "/shop?category=Office", desc: "Subtle Sleek Leather Slip-ons", tag: "Professional" },
   { name: "Luxury Velvet Vault", href: "/shop?category=Luxury", desc: "Royal Velvet & Pure Zari Craftsmanship", tag: "Prestige" },
-  { name: "Heritage Punjabi Craft", href: "/shop?category=Heritage", desc: "400 Years of Traditional Embroidery", tag: "Artisanal" },
+  { name: "Heritage Punjabi Craft", href: "/shop?category=Heritage", desc: "Traditional Hand Embroidery", tag: "Artisanal" },
   { name: "Best Sellers Showcase", href: "/shop?type=bestsellers", desc: "Most Requested Footwear Pairs", tag: "Popular" },
 ];
 
@@ -71,7 +71,7 @@ export function CollectionsMegaMenu({ onClose }: { onClose: () => void }) {
                 {preset.name}
               </h3>
               <p className="text-xs text-[var(--theme-color-text-muted)] leading-relaxed font-light">
-                {preset.decorations.announcementMessages[0] || "Step into 400 years of Punjabi footwear artistry."}
+                {preset.decorations.announcementMessages[0] || "Step into Punjabi footwear artistry."}
               </p>
             </div>
 

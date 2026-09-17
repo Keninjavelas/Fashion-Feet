@@ -16,11 +16,11 @@ const features = [
   {
     icon: Feather,
     title: "Double Cushion Comfort",
-    description: "Memory foam velvet arch insoles to keep your feet easeful all day long.",
+    description: "Layered velvet arch insoles to keep your feet easeful all day long.",
   },
   {
     icon: Scissors,
-    title: "400-Year Heritage Artistry",
+    title: "Heritage Artistry",
     description: "Authentic Zari and Dabka threadwork techniques passed down across generations.",
   },
 ];

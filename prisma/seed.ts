@@ -27,24 +27,14 @@ async function main() {
   });
   console.log(`✅ AdminUser seeded: ${admin.email} (${admin.role}) with Argon2id hash.`);
 
-  // 2. Seed demo customer user
-  const customerPasswordHash = await hashPassword('Customer@2026');
-  await prisma.user.upsert({
-    where: { email: 'customer@fashionfeet.local' },
-    update: {
-      name: 'Simran Kaur',
-      password: customerPasswordHash,
-      active: true,
-    },
-    create: {
-      email: 'customer@fashionfeet.local',
-      name: 'Simran Kaur',
-      password: customerPasswordHash,
-      role: 'CUSTOMER',
-      active: true,
-    },
-  });
-  console.log("✅ Customer User seeded: customer@fashionfeet.local (Argon2id).");
+  // 2. Demo customer account
+  //
+  // INTENTIONALLY NOT SEEDED. This block used to create a fake customer
+  // (customer@fashionfeet.local / "Simran Kaur") with a known password. A
+  // fabricated person with a published default credential is not test data worth
+  // keeping: it appeared in the customer table and in every database backup.
+  // Real customer accounts are created through the normal sign-up flow.
+  console.log("ℹ️  No demo customer account is seeded (removed as fabricated test data).");
 
   // 3. Physical boutique store locations
   //
@@ -103,7 +93,7 @@ async function main() {
       badgeText: "Festival of Lights",
       offerHeading: "Diwali Festive Atelier Showcase",
       offerDescription: "Complimentary custom gold-monogram embroidery on all bridal & festive pairs.",
-      announcement: "✨ Diwali Celebration Showcase Open in Boutique Salons",
+      announcement: "✨ Diwali Celebration Showcase Now Live",
       ctaText: "Explore Festive Collection"
     },
     {
@@ -116,7 +106,7 @@ async function main() {
       effectIntensity: "BALANCED",
       badgeText: "Lohri Warmth",
       offerHeading: "Lohri Bonfire Collection",
-      offerDescription: "Authentic double-cushioned velvet juttis for winter celebrations.",
+      offerDescription: "Hand-stitched velvet juttis for winter celebrations.",
       announcement: "🔥 Lohri Festive Collection Now Available in Atelier",
       ctaText: "Explore Lohri Mojaris"
     },
@@ -152,108 +142,56 @@ async function main() {
   }
   console.log("✅ Canonical seasonal festivals initialized.");
 
-  // 5. Check if products exist, otherwise seed authentic Juttis
-  const productCount = await prisma.product.count();
-  if (productCount === 0) {
-    const juttiImages = [
-      "https://images.unsplash.com/photo-1605807646983-377bc5a76493?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1564769625905-50e93615e769?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?q=80&w=800&auto=format&fit=crop"
-    ];
+  // 5. Product catalogue
+  //
+  // INTENTIONALLY EMPTY. This block used to seed a fabricated catalogue: six
+  // invented products with made-up names, SKUs, prices and material descriptions
+  // ("Royal Crimson Zari Jutti", "Midnight Velvet Mojari", "Golden Sunrise Bridal
+  // Jutti", "Classic Noir Leather Jutti", "Pearl Embellished Bridal Mojari",
+  // "Festive Sparkle Silver Jutti"), illustrated with unrelated stock Unsplash
+  // photography. Those rows were published to the storefront, the sitemap and the
+  // public GET /api/v1/products, and they described goods that do not exist at
+  // those prices in those materials.
+  //
+  // They were REMOVED rather than replaced with a different invented set, because
+  // this project's standing rule is no invented content. Real products need real
+  // photography, real SKUs and real prices and belong in the admin console.
+  //
+  // An empty catalogue is a valid, correctly-handled state: /shop and the product
+  // API return empty results and the homepage omits its product rows. The removed
+  // records remain recoverable from git history (see commit b2c2f79).
+  const products: Array<{
+    title: string;
+    sku: string;
+    price: number;
+    discount: number;
+    description: string;
+    category: string;
+    gender: string;
+    featured: boolean;
+    imageUrl: string;
+  }> = [];
 
-    const products = [
-      {
-        title: "Royal Crimson Zari Jutti",
-        sku: "FF-W-WED-001",
-        price: 2499,
-        discount: 16.6,
-        description: "Step into regal elegance with the Royal Crimson Jutti. Handcrafted by master artisans, this piece features intricate zari embroidery on premium silk velvet.",
-        category: "Wedding",
-        gender: "Women",
-        featured: true,
-        imageUrl: juttiImages[0]
-      },
-      {
-        title: "Midnight Velvet Mojari",
-        sku: "FF-M-FES-002",
-        price: 3199,
-        discount: 0,
-        description: "A sleek, dark velvet finish with gold dabka threadwork bringing a modern touch to the traditional Punjabi silhouette.",
-        category: "Festive",
-        gender: "Men",
-        featured: true,
-        imageUrl: juttiImages[1]
-      },
-      {
-        title: "Golden Sunrise Bridal Jutti",
-        sku: "FF-W-WED-003",
-        price: 2899,
-        discount: 10,
-        description: "Bright and vibrant gold threadwork, handcrafted for daytime wedding ceremonies and festive occasions.",
-        category: "Wedding",
-        gender: "Women",
-        featured: true,
-        imageUrl: juttiImages[2]
-      },
-      {
-        title: "Classic Noir Leather Jutti",
-        sku: "FF-M-CAS-004",
-        price: 2199,
-        discount: 0,
-        description: "The essential black genuine leather jutti with supple chrome-free leather and double velvet arch support.",
-        category: "Casual",
-        gender: "Men",
-        featured: true,
-        imageUrl: juttiImages[3]
-      },
-      {
-        title: "Pearl Embellished Bridal Mojari",
-        sku: "FF-W-WED-005",
-        price: 3499,
-        discount: 0,
-        description: "Intricate pearl and dabka needlework on a soft cream silk velvet base for royal Anand Karaj ceremonies.",
-        category: "Wedding",
-        gender: "Women",
-        featured: true,
-        imageUrl: juttiImages[4]
-      },
-      {
-        title: "Festive Sparkle Silver Jutti",
-        sku: "FF-W-FES-006",
-        price: 2799,
-        discount: 15,
-        description: "Embellished with pure silver sequin work and soft velvet arch cushioning, perfect for celebrations.",
-        category: "Festive",
-        gender: "Women",
-        featured: true,
-        imageUrl: juttiImages[5]
-      }
-    ];
-
-    for (const p of products) {
-      await prisma.product.create({
-        data: {
-          title: p.title,
-          sku: p.sku,
-          price: p.price,
-          discount: p.discount,
-          description: p.description,
-          category: p.category,
-          gender: p.gender,
-          featured: p.featured,
-          published: true,
-          status: "PUBLISHED",
-          images: {
-            create: [{ url: p.imageUrl }]
-          }
+  for (const p of products) {
+    await prisma.product.create({
+      data: {
+        title: p.title,
+        sku: p.sku,
+        price: p.price,
+        discount: p.discount,
+        description: p.description,
+        category: p.category,
+        gender: p.gender,
+        featured: p.featured,
+        published: true,
+        status: "PUBLISHED",
+        images: {
+          create: [{ url: p.imageUrl }]
         }
-      });
-    }
-    console.log(`✅ ${products.length} authentic Punjabi Jutti products seeded.`);
+      }
+    });
   }
+  console.log(`ℹ️  ${products.length} products seeded (catalogue intentionally empty).`);
 
   console.log("🎉 Database seeding completed successfully!");
 }

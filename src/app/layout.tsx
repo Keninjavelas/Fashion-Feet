@@ -20,8 +20,8 @@ export const metadata: Metadata = {
     default: "Fashion Feet | Royal Punjabi Juttis & Bespoke Atelier",
     template: "%s | Fashion Feet"
   },
-  description: "Handcrafted Punjabi Juttis, bridal mojaris, and bespoke ceremonial footwear crafted by master artisans in Patiala and Punjab.",
-  keywords: ["Punjabi Jutti", "Bespoke Mojari", "Bridal Juttis", "Indian Handcrafted Footwear", "Patiala Jutti", "Luxury Footwear India"],
+  description: "Handcrafted Punjabi Juttis, bridal mojaris, and bespoke ceremonial footwear crafted by master artisans.",
+  keywords: ["Punjabi Jutti", "Bespoke Mojari", "Bridal Juttis", "Indian Handcrafted Footwear", "Handcrafted Jutti", "Luxury Footwear India"],
   authors: [{ name: "Fashion Feet Atelier" }],
   openGraph: {
     title: "Fashion Feet | Royal Punjabi Juttis & Bespoke Atelier",

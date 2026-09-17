@@ -27,13 +27,13 @@ export function HeroEditorialShowcase({
       id: "embroidery",
       label: "Zari Detail",
       image: artisanImage1 || PLACEHOLDER_HOMEPAGE_IMAGE,
-      desc: "Stitched thread-by-thread by third-generation Punjabi master artisans."
+      desc: "Stitched thread-by-thread by Punjabi master artisans."
     },
     {
       id: "sole",
       label: "Leather Sole",
       image: artisanImage2 || PLACEHOLDER_HOMEPAGE_IMAGE,
-      desc: "Anatomically molded chrome-free vegetable-tanned leather for day-long ease."
+      desc: "Anatomically molded vegetable-tanned leather for day-long ease."
     }
   ];
 

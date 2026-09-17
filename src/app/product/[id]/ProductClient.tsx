@@ -245,8 +245,8 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
               <ul className="space-y-2 list-disc list-inside">
                 <li>100% Genuine vegetable-tanned leather sole</li>
                 <li>Hand-stitched zari & dabka embroidery by Punjabi artisans</li>
-                <li>Double-padded memory foam velvet arch cushioning</li>
-                <li>Chrome-free hypoallergenic inner lining</li>
+                <li>Padded velvet arch cushioning</li>
+                <li>Hypoallergenic inner lining</li>
               </ul>
             </Accordion>
             <Accordion title="Craft Guarantee">

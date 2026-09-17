@@ -176,15 +176,15 @@ export function InteractiveSizeFinderSection() {
               <div className="space-y-3 text-xs text-[var(--theme-color-text-muted)]">
                 <p className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Genuine leather stretches naturally by 1-2mm after 2-3 wears to mold perfectly to your feet.</span>
+                  <span>Genuine leather naturally molds to the shape of your feet over time.</span>
                 </p>
                 <p className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span>Double memory foam cushioning provides immediate heel comfort during ceremonies and long events.</span>
+                  <span>Cushioned arch support provides immediate heel comfort during ceremonies and long events.</span>
                 </p>
                 <div className="p-3 bg-amber-500/10 text-amber-900 rounded-xl border border-amber-500/20 flex items-start gap-2 text-[11px]">
                   <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                  <span><strong>Handmade Disclaimer:</strong> As each Jutti is 100% handcrafted from natural leather, fit may vary slightly by design.</span>
+                  <span><strong>Handmade Disclaimer:</strong> As each Jutti is handcrafted, fit may vary slightly by design.</span>
                 </div>
               </div>
             </StorefrontTiltCard>

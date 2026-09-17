@@ -28,7 +28,7 @@ export const SEASONAL_ATMOSPHERES: Record<SeasonalThemeKey, SeasonalAtmosphereCo
   default: {
     key: "default",
     label: "Default Atmosphere",
-    badgeText: "Patiala Heritage Atelier",
+    badgeText: "Heritage Atelier",
     bgClass: "bg-[#12080C] text-[#F6F2EB] border-[#D4AF37]",
     textColor: "#F6F2EB",
     borderColor: "#D4AF37",

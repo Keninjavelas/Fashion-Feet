@@ -10,8 +10,8 @@ const craftBeats = [
   {
     step: "01",
     title: "Raw Vegetable-Tanned Leather",
-    subtitle: "Chrome-Free Anatomical Sole Foundation",
-    desc: "Every pair begins with premium chrome-free leather sourced from heritage tanneries. Molded to adapt naturally to your foot's unique contours over time.",
+    subtitle: "Anatomical Sole Foundation",
+    desc: "Every pair begins with premium leather sourced from heritage tanneries. Molded to adapt naturally to your foot's unique contours over time.",
     image: PLACEHOLDER_HOMEPAGE_IMAGE,
     icon: ShieldCheck,
     tag: "Beat 1: Tanning & Moulding"
@@ -19,8 +19,8 @@ const craftBeats = [
   {
     step: "02",
     title: "Double Velvet Arch Cushioning",
-    subtitle: "Memory Foam Ergonomic Soles",
-    desc: "Layered beneath rich silk velvet, our dual-density memory foam arch insert ensures zero bite marks and all-day royal comfort.",
+    subtitle: "Ergonomic Arch Soles",
+    desc: "Layered beneath rich silk velvet, our arch insert is shaped for all-day royal comfort.",
     image: PLACEHOLDER_HOMEPAGE_IMAGE,
     icon: Layers,
     tag: "Beat 2: Ergonomic Arch"
@@ -28,8 +28,8 @@ const craftBeats = [
   {
     step: "03",
     title: "Artisanal Zari & Dabka Embroidery",
-    subtitle: "Needlework by 3rd-Gen Punjabi Artisans",
-    desc: "Stitched thread-by-thread using metallic gold zari yarn, sequins, and pearls. A single pair takes up to 40 hours of focused craftsmanship.",
+    subtitle: "Needlework by Punjabi Artisans",
+    desc: "Stitched thread-by-thread using metallic gold zari yarn, sequins, and pearls, with each pair finished entirely by hand.",
     image: PLACEHOLDER_HOMEPAGE_IMAGE,
     icon: Scissors,
     tag: "Beat 3: Hand Embroidery"

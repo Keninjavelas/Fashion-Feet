@@ -23,7 +23,7 @@ export function HeritageArtistrySection({
           <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[var(--theme-color-surface)] text-[var(--theme-color-accent)] text-xs uppercase tracking-widest font-semibold border border-[var(--theme-color-border)] rounded-full shadow-sm">
               <Sparkles className="w-4 h-4 text-[var(--theme-color-accent)]" />
-              <span>400 Years of Punjabi Heritage</span>
+              <span>Handcrafted in the Punjabi Tradition</span>
             </div>
 
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-[var(--theme-color-text)]">
@@ -31,7 +31,7 @@ export function HeritageArtistrySection({
             </h2>
 
             <p className="text-[var(--theme-color-text-muted)] text-base md:text-lg leading-relaxed font-sans font-light">
-              Unlike mass-manufactured shoes, every pair of Fashion Feet Juttis is crafted by third-generation Punjabi master artisans using vegetable-tanned leather, silk velvet, and metallic threadwork.
+              Unlike mass-manufactured shoes, every pair of Fashion Feet Juttis is crafted by hand by Punjabi artisans using vegetable-tanned leather, silk velvet, and metallic threadwork.
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--theme-color-border)]">
@@ -44,7 +44,7 @@ export function HeritageArtistrySection({
 
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-[var(--theme-color-accent)] font-bold text-sm">
-                  <ShieldCheck className="w-4 h-4" /> Double Memory Foam
+                  <ShieldCheck className="w-4 h-4" /> Cushioned Comfort
                 </div>
                 <p className="text-xs text-[var(--theme-color-text-muted)]">Velvet arch cushioning for day-long royal comfort.</p>
               </div>

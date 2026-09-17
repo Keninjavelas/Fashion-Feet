@@ -33,7 +33,7 @@ export default function AboutPage() {
               <div>
                 <h2 className="font-serif text-4xl text-[var(--color-brand-900)] mb-6">Our Story</h2>
                 <p className="text-gray-600 leading-relaxed mb-6">
-                  Fashion Feet began with a simple vision: to preserve the rich heritage of handcrafted Indian footwear while adapting it for the modern wardrobe. Every pair of Juttis we offer tells a story of generations of skilled artisans from Punjab.
+                  Fashion Feet began with a simple vision: to preserve the rich heritage of handcrafted Indian footwear while adapting it for the modern wardrobe. Every pair of Juttis we offer is shaped by traditional Punjabi craftsmanship.
                 </p>
                 <p className="text-gray-600 leading-relaxed">
                   We work directly with traditional shoemakers, ensuring fair practices and keeping the beautiful art of hand-embroidery and leather craftsmanship alive in a world of mass production.

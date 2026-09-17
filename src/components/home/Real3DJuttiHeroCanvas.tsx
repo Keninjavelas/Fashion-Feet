@@ -228,11 +228,11 @@ export function Real3DJuttiHeroCanvas({ fallbackImage }: { fallbackImage?: strin
       <div className="space-y-1 text-left pt-1">
         <div className="flex items-center justify-between">
           <span className="text-[10px] text-[var(--theme-color-accent)] uppercase font-bold tracking-widest">Bridal Couture</span>
-          <span className="text-[10px] text-emerald-600 font-bold">100% Handcrafted</span>
+          <span className="text-[10px] text-emerald-600 font-bold">Handcrafted</span>
         </div>
-        <h3 className="font-serif text-lg font-bold text-[var(--theme-color-text)]">Royal Crimson Zari Jutti</h3>
+        <h3 className="font-serif text-lg font-bold text-[var(--theme-color-text)]">Zari Work Jutti</h3>
         <p className="text-xs text-[var(--theme-color-text-muted)] leading-relaxed font-light">
-          Intricate gold zari needlework on silk velvet, chrome-free leather sole, and turned-up Punjabi Khussa point.
+          Intricate gold zari needlework on silk velvet, leather sole, and turned-up Punjabi Khussa point.
         </p>
       </div>
     </StorefrontTiltCard>

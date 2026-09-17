@@ -51,15 +51,15 @@ export const themePresets: Record<string, ThemePreset> = {
       particlesEnabled: false,
       announcementEnabled: true,
       announcementMessages: [
-        "Handcrafted Punjabi Footwear • 400 Years of Heritage Artistry",
+        "Handcrafted Punjabi Footwear • Heritage Artistry",
         "Free Fitting Consultation at Experience Boutiques • Pure Leather Soles",
-        "Worldwide Heritage Shipping • Double Memory Foam Velvet Cushioning"
+        "Worldwide Heritage Shipping • Cushioned Comfort"
       ],
       heroTreatment: "plain",
       ornamentDividersEnabled: false,
       cardBadge: "Heritage Pair",
       heroHeadline: "Handcrafted Luxury Footwear",
-      heroSubheadline: "Where 400 years of Royal Punjabi embroidery meets modern ergonomic comfort."
+      heroSubheadline: "Where traditional Punjabi embroidery meets modern ergonomic comfort."
     }
   },
   diwali: {

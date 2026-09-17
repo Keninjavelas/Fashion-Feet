@@ -25,7 +25,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       title: "Everyday Elegance Studio",
       icon: "🌿",
       subtitle: "Genuine Leather Mojaris & Casual Luxury",
-      desc: "Designed for day-long comfort with double-padded memory foam soles and supple chrome-free leather that molds naturally to your feet.",
+      desc: "Designed for day-long comfort with supple leather that molds naturally to your feet.",
       banner: PLACEHOLDER_HOMEPAGE_IMAGE,
       accent: "#8A1538"
     },
@@ -34,7 +34,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       title: "Royal Exclusive Vault",
       icon: "✨",
       subtitle: "Limited-Edition Handcrafted Heritage Pairs",
-      desc: "Bespoke Punjabi Juttis featuring pure silver sequin embroidery, pearl embellishments, and artisanal velvet lining.",
+      desc: "Bespoke Punjabi Juttis featuring sequin embroidery, pearl embellishments, and artisanal velvet lining.",
       banner: PLACEHOLDER_HOMEPAGE_IMAGE,
       accent: "#C5A059"
     },
@@ -43,7 +43,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       title: "Craftsmanship Corner",
       icon: "👞",
       subtitle: "Interactive Anatomical & Artistry Hotspots",
-      desc: "Explore the 400-year-old heritage art form behind every pair — from hand-punched leather soles to padded velvet arch support.",
+      desc: "Explore the craft behind every pair — from hand-punched leather soles to padded velvet arch support.",
       banner: PLACEHOLDER_HOMEPAGE_IMAGE,
       accent: "#8A1538"
     }
@@ -51,8 +51,8 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
 
   const hotspots = [
     { id: 1, top: "35%", left: "45%", title: "Hand Zari & Dabka Sequin Work", desc: "Stitched thread-by-thread by master Punjabi artisans with metallic gold yarn." },
-    { id: 2, top: "65%", left: "30%", title: "Double-Padded Velvet Cushioning", desc: "Memory foam arch padding preventing bite marks and ensuring all-day ease." },
-    { id: 3, top: "75%", left: "65%", title: "100% Genuine Leather Sole", desc: "Flexible, breathable vegetable-tanned leather sole that molds to your natural foot shape." }
+    { id: 2, top: "65%", left: "30%", title: "Double-Padded Velvet Cushioning", desc: "Arch padding designed for all-day ease." },
+    { id: 3, top: "75%", left: "65%", title: "Genuine Leather Sole", desc: "Flexible, breathable vegetable-tanned leather sole that molds to your natural foot shape." }
   ];
 
   const currentPavilion = pavilions.find(p => p.id === activePavilion)!;

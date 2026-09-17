@@ -59,7 +59,7 @@ export function Hero({
           <p className={`text-base sm:text-xl font-sans max-w-xl mx-auto lg:mx-0 leading-relaxed font-light ${
             isDiwali ? "text-[#F6F2EB]/90" : "text-[#1F1A17]/80"
           }`}>
-            Step into 400 years of Punjabi footwear artistry. Crafted from genuine leather, gold zari threadwork, and double velvet arch comfort.
+            Step into Punjabi footwear artistry. Crafted from genuine leather, gold zari threadwork, and double velvet arch comfort.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">

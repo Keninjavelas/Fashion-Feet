@@ -33,8 +33,8 @@ export function FeaturedCollections({
     },
     {
       title: "Everyday Luxury Mojaris",
-      subtitle: "Supple Leather & Memory Insoles",
-      desc: "Chrome-free genuine leather slip-ons with double velvet arch padding for daily ease.",
+      subtitle: "Supple Leather & Cushioned Insoles",
+      desc: "Genuine leather slip-ons with velvet arch padding for daily ease.",
       image: collectionCasual || PLACEHOLDER_HOMEPAGE_IMAGE,
       href: "/shop?category=Casual",
       tag: "Everyday Comfort"

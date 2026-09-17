@@ -544,7 +544,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
 
                   <div>
                     <label className="block font-bold text-gray-700 uppercase mb-1">Craftsmanship Details</label>
-                    <textarea rows={2} value={formCraftsmanship} onChange={(e) => setFormCraftsmanship(e.target.value)} placeholder="Hand-stitched leather sole by master artisans of Patiala..." className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
+                    <textarea rows={2} value={formCraftsmanship} onChange={(e) => setFormCraftsmanship(e.target.value)} placeholder="Hand-stitched leather sole by master artisans..." className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

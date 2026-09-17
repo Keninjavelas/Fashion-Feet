@@ -30,7 +30,7 @@ export function Footer({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
               )}
             </h3>
             <p className="text-white/70 leading-relaxed max-w-xs text-xs">
-              Traditional elegance meets modern comfort. Handcrafted Punjabi Juttis for every occasion, bringing 400 years of heritage to your steps.
+              Traditional elegance meets modern comfort. Handcrafted Punjabi Juttis for every occasion, with heritage in every step.
             </p>
 
             {/* Social Icons */}

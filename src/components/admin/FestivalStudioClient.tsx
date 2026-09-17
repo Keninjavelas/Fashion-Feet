@@ -233,7 +233,7 @@ export function FestivalStudioClient({
             <p className="text-white/70 text-xs max-w-xl leading-relaxed">
               {activeFestival?.offerHeading
                 ? `${activeFestival.offerHeading} — ${activeFestival.offerDescription}`
-                : "Serving timeless Patiala heritage aesthetic with subtle ambient gold particles and bespoke bridal consultation."}
+                : "Serving a timeless heritage aesthetic with subtle ambient gold particles and bespoke bridal consultation."}
             </p>
           </div>
 
@@ -630,7 +630,7 @@ export function FestivalStudioClient({
                     rows={2}
                     value={editingFestival.offerDescription || ""}
                     onChange={(e) => setEditingFestival({ ...editingFestival, offerDescription: e.target.value })}
-                    placeholder="e.g., Visit our Patiala atelier for handcrafted zari customization on festive orders."
+                    placeholder="e.g., Visit our atelier for handcrafted zari customization on festive orders."
                     className="w-full px-3.5 py-2.5 bg-black/40 border border-white/20 rounded-xl text-white focus:outline-none"
                   />
                 </div>
