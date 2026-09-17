@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Mail } from "lucide-react";
 import { FooterNewsletterForm } from "./FooterNewsletterForm";
 
 export function Footer({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?: string; siteName?: string }) {
@@ -74,17 +74,23 @@ export function Footer({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
           <div>
             <h4 className="font-sans font-bold uppercase tracking-wider mb-6 text-[#D4AF37] text-xs">Get in Touch</h4>
             <ul className="space-y-3.5 text-xs">
+              {/* No phone number, street address or mailbox is published here on
+                  purpose. This block previously carried a fabricated phone number, a
+                  @fashionfeet.com address that is not ours, and a claimed head-office
+                  location. None of it was real, so it was removed rather than swapped
+                  for another invented value — contact goes through /contact. */}
               <li className="flex items-start space-x-3 text-white/70">
                 <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5 text-[#D4AF37]" />
-                <span>Fashion Feet Atelier & Head Office<br />Punjab, India<br />(Physical Boutiques Opening Soon)</span>
+                <span>Physical boutiques opening soon</span>
               </li>
-              <li className="flex items-center space-x-3 text-white/70">
-                <Phone className="w-4 h-4 flex-shrink-0 text-[#D4AF37]" />
-                <span>+91 98765 43210</span>
-              </li>
-              <li className="flex items-center space-x-3 text-white/70">
-                <Mail className="w-4 h-4 flex-shrink-0 text-[#D4AF37]" />
-                <span>hello@fashionfeet.com</span>
+              <li className="flex items-start space-x-3 text-white/70">
+                <Mail className="w-4 h-4 flex-shrink-0 mt-0.5 text-[#D4AF37]" />
+                <Link
+                  href="/contact"
+                  className="underline decoration-[#D4AF37]/40 underline-offset-2 hover:text-[#D4AF37] transition-colors"
+                >
+                  Enquiries via our contact form
+                </Link>
               </li>
             </ul>
           </div>

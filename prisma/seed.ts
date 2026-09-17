@@ -46,54 +46,40 @@ async function main() {
   });
   console.log("✅ Customer User seeded: customer@fashionfeet.local (Argon2id).");
 
-  // 3. Seed Physical Boutique Store Locations
-  const stores = [
-    {
-      code: "FF-PTA-01",
-      name: "Patiala Heritage Atelier & Flagship",
-      type: "FLAGSHIP",
-      status: "OPEN",
-      city: "Patiala",
-      state: "Punjab",
-      street: "Heritage Street, Near Qila Mubarak",
-      pinCode: "147001",
-      phone: "+91 175 220 1980",
-      email: "patiala@fashionfeet.com",
-      openingHours: "Mon-Sat: 10:30 AM - 8:30 PM, Sun: 12:00 PM - 7:00 PM",
-      description: "Our historic flagship salon where master artisans craft and custom-fit bespoke Punjabi Juttis.",
-      displayOrder: 1
-    },
-    {
-      code: "FF-IXC-02",
-      name: "Chandigarh Luxury Salon",
-      type: "BOUTIQUE",
-      status: "OPEN",
-      city: "Chandigarh",
-      state: "Punjab",
-      street: "SCO 42-43, Sector 17-C",
-      pinCode: "160017",
-      phone: "+91 172 460 2026",
-      email: "chandigarh@fashionfeet.com",
-      openingHours: "Mon-Sun: 11:00 AM - 9:00 PM",
-      description: "Contemporary luxury showcase featuring bespoke bridal fittings, custom embroidery sessions, and seasonal previews.",
-      displayOrder: 2
-    },
-    {
-      code: "FF-DEL-03",
-      name: "Delhi Heritage Experience Studio",
-      type: "STUDIO",
-      status: "OPEN",
-      city: "New Delhi",
-      state: "Delhi",
-      street: "Middle Lane, Khan Market",
-      pinCode: "110003",
-      phone: "+91 11 4102 3388",
-      email: "delhi@fashionfeet.com",
-      openingHours: "Mon-Sun: 10:30 AM - 8:30 PM",
-      description: "Private bridal fitting salon and custom ceremonial bespoke lounge for discerning connoisseurs.",
-      displayOrder: 3
-    }
-  ];
+  // 3. Physical boutique store locations
+  //
+  // INTENTIONALLY EMPTY. This block used to seed three FABRICATED placeholder stores:
+  // invented street addresses, phone numbers in real national formats, and
+  // @fashionfeet.com mailboxes that are not ours. They were not inert data — the
+  // public /stores page lists every store whose status is "OPEN", and the
+  // unauthenticated GET /api/v1/stores served them too, so the site was publishing
+  // fabricated contact details for a business with no published premises.
+  //
+  // They were DELETED rather than renamed or hidden behind a DRAFT status, because
+  // this project's standing rule is no invented content and a draft would still ship
+  // the fabrication in the repository. Do not re-add placeholder stores here: real
+  // locations go in through the admin console, or get captured first with
+  // intake/stores-template.md.
+  //
+  // An empty Store table is a valid, correctly-handled state — /stores renders its
+  // "Stores Coming Soon" panel and the API returns an empty array.
+  //
+  // The removed records remain recoverable from git history (see commit b2c2f79).
+  const stores: Array<{
+    code: string;
+    name: string;
+    type: string;
+    status: string;
+    city: string;
+    state: string;
+    street: string;
+    pinCode: string;
+    phone: string;
+    email: string;
+    openingHours: string;
+    description: string;
+    displayOrder: number;
+  }> = [];
 
   for (const s of stores) {
     await prisma.store.upsert({

@@ -54,7 +54,7 @@ const faqs = [
     questions: [
       {
         q: "Where can I find a Fashion Feet store?",
-        a: "We are located in Delhi (Greater Kailash), Mumbai (Juhu), and Chandigarh (Sector 17). You can visit our Find a Store page to get direct directions and opening hours.",
+        a: "We do not have physical boutiques open to the public yet. Our first locations are being prepared and will be announced here once they are confirmed; until then, the Find a Store page shows the current status, or you can send us a fitting enquiry through the contact form.",
         link: { text: "Find a Store →", url: "/stores" }
       }
     ]

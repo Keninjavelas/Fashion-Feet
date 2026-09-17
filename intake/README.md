@@ -67,9 +67,10 @@ Example Product Name,Mojari,Women,2499,Leather,"example-01.jpg,example-02.jpg"
 Use `stores-template.md`. Fields: name, type, street, city, state, PIN, phone, email, WhatsApp, opening hours,
 services, accessibility notes, map URL, photographs.
 
-The three demo stores currently in the database have **invented addresses, phone numbers and
-`@fashionfeet.com` emails** and are being removed as part of the location cleanup. Tell me when your real
-locations are ready.
+The three fabricated placeholder stores that were in the database had **invented addresses, phone numbers
+and `@fashionfeet.com` emails**. They have now been removed from `prisma/seed.ts` and from the database, so
+the store table is empty and `prisma/seed.ts` creates no store at all. Tell me when your real locations are
+ready and I will add them from this template.
 
 ## 3. Brand — `brand.md`
 

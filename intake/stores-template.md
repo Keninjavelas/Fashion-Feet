@@ -3,8 +3,12 @@
 Add each real location you operate. Copy the block below once per store.
 Mark anything unknown as `TODO` rather than guessing.
 
-The three demo stores currently in the database contain invented addresses, phone numbers and
-`@fashionfeet.com` email addresses, and are being removed as part of the location cleanup.
+The store table is now **empty**. The three fabricated placeholder records that used to be seeded
+(invented addresses, phone numbers and `@fashionfeet.com` email addresses) have been removed — from
+`prisma/seed.ts` and from the database — rather than renamed. `prisma/seed.ts` deliberately creates
+**no** store at all, so a fresh database starts with a legitimately empty store table and anything you
+see in `/admin/stores` is a real record you added. The removed rows remain recoverable from git history
+at commit `b2c2f79`.
 
 ---
 
@@ -48,7 +52,10 @@ The three demo stores currently in the database contain invented addresses, phon
 
 ---
 
-## Demo store cleanup
+## Adding your real stores
 
-The three demo stores are being removed rather than renamed, so no decision is needed here. Tell me once your
-real locations are ready and I will add them from this template.
+The fabricated placeholder records are already gone — from both `prisma/seed.ts` and the database — so
+there is no decision to make about them and nothing to confirm. Tell me once your real locations are
+ready and I will add each one from this template through the admin console (`/admin/stores`). A newly
+created store defaults to `DRAFT` with blank contact fields, so it stays invisible on the website and to
+the mobile app until you deliberately publish it.

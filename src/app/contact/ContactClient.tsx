@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, Clock } from "lucide-react";
+import { Mail, Clock } from "lucide-react";
 
 export function ContactClient() {
   const [reason, setReason] = useState("General Inquiry");
@@ -41,31 +41,29 @@ export function ContactClient() {
                 <div className="flex items-start gap-4">
                   <Mail className="w-6 h-6 text-[var(--color-accent-gold)] flex-shrink-0 mt-1" />
                   <div>
-                    <p className="font-bold uppercase tracking-widest text-[10px] text-white/50 mb-1">Email</p>
-                    <p className="text-base font-medium">hello@fashionfeet.com</p>
+                    <p className="font-bold uppercase tracking-widest text-[10px] text-white/50 mb-1">Enquiries</p>
+                    <p className="text-base font-medium">Use the form on this page</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-4">
-                  <Phone className="w-6 h-6 text-[var(--color-accent-gold)] flex-shrink-0 mt-1" />
-                  <div>
-                    <p className="font-bold uppercase tracking-widest text-[10px] text-white/50 mb-1">Phone</p>
-                    <p className="text-base font-medium">+91 98765 43210</p>
-                  </div>
-                </div>
+                {/* The phone row that used to sit here was removed: the number was
+                    fabricated, and publishing a number the business does not own sends
+                    customers to a stranger. The email row likewise no longer prints a
+                    @fashionfeet.com mailbox that is not ours. */}
                 
                 <div className="flex items-start gap-4">
                   <Clock className="w-6 h-6 text-[var(--color-accent-gold)] flex-shrink-0 mt-1" />
                   <div>
-                    <p className="font-bold uppercase tracking-widest text-[10px] text-white/50 mb-1">Business Hours</p>
-                    <p className="text-base font-medium">Mon-Sat: 10:00 AM - 7:00 PM</p>
+                    <p className="font-bold uppercase tracking-widest text-[10px] text-white/50 mb-1">Boutique Hours</p>
+                    <p className="text-base font-medium">Not published yet</p>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="mt-16 pt-8 border-t border-white/10 text-xs text-white/60">
-              Fashion Feet Punjabi Footwear Showrooms — Coming Soon across major locations.
+              Our first physical boutiques are being prepared. Locations and opening hours will be
+              published here once they are confirmed.
             </div>
           </div>
 

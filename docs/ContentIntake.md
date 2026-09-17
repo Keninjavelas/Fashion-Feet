@@ -22,6 +22,7 @@ store/brand templates. Your assets in `intake/` are gitignored; the templates ar
 | **Taxonomy corrected** | `Category` now holds product types only — gender (`Men`/`Women`) and the five occasion names removed. `Occasion` is now populated (Casual, Festive, Wedding, Office, Traditional). All 8 products had `occasion` backfilled and `category` retyped to Jutti/Mojari. The product form no longer defaults a new product's category to `"Men"`. |
 | **No data-loss risk on edit** | The product form's category select renders an existing value even when it is absent from the list, so editing a product can never silently rewrite its category. |
 | **Verification** | `lint` 0 errors · `tsc` clean · build green · `test:acceptance` passed · `test:gate2` **72/72, 0 console errors**. |
+| **Fabricated store records removed** | The three fabricated placeholder store records (invented names, street addresses, phone numbers, pin codes, opening hours and `@fashionfeet.com` mailboxes) were deleted from `dev.db` **and** from `prisma/seed.ts` — not renamed and not set to `DRAFT`, because a draft row would still ship the fabrication in the repository. `Store` now holds **0 rows**, `GET /api/v1/stores` returns `{"data": []}` and `/stores` renders its "Stores Coming Soon" panel. Fabricated contact/location copy was removed from the footer, contact, FAQ, accessibility, enquiry and admin store-form surfaces in the same pass (see §5). |
 
 **Still requires your input:** every row in §1 below whose value is placeholder/demo — most importantly all
 photography, the real catalogue, and the real store details.
@@ -43,7 +44,7 @@ Everything below is **demo/seed data written during earlier phases**. None of it
 | `Category` | 2 | `Jutti, Mojari` — product types only. Gender and occasion values removed (see §0). |
 | `Occasion` | 5 | `Casual, Festive, Wedding, Office, Traditional`. |
 | `Collection` | **0** | Feature empty. |
-| `Store` | 3 | Three demo stores with invented addresses, phone numbers and `@fashionfeet.com` emails. `photos` is NULL for all 3. |
+| `Store` | **0** | **Empty by design.** The three fabricated placeholder records (invented addresses, phone numbers and `@fashionfeet.com` emails) have been removed from `prisma/seed.ts` and from the database, and no store is seeded any more. Intended to stay empty until real locations are supplied — see §2 and §5. |
 | `Festival` | 3 | Diwali / Lohri / Baisakhi demo campaigns, all `INACTIVE`. |
 | `Faq` | 4 | Generic copy. |
 | `CompanyContent` | 5 | Appearance tokens only. |
@@ -59,9 +60,14 @@ Everything below is **demo/seed data written during earlier phases**. None of it
    are unused, and `Occasion` is a separate empty table.
 3. **`appearance.accentGold` is `#40bbc4`** — a teal/cyan, not gold. It contradicts both its own key name and
    the `#D4AF37` gold used throughout the admin design system.
-4. **Store emails use `@fashionfeet.com`** while the production domain is `fashionfeet.co.in`.
+4. **Store emails used `@fashionfeet.com`** while the production domain is `fashionfeet.co.in`.
+   **Resolved** — the records carrying them were removed (see §0 and §5), and no fabricated mailbox
+   remains anywhere in the project.
 5. **Dead/placeholder fields**: `Store.photos`, `Store.googleMapsUrl`, `Store.latitude/longitude`,
-   `Store.managerName`, `Store.whatsapp`, `Store.services`, `Store.accessibility` are all NULL.
+   `Store.managerName`, `Store.whatsapp`, `Store.services`, `Store.accessibility` were all NULL.
+   **Moot for the seeded data now** — every one of those NULLs belonged to the three fabricated
+   placeholder rows, which have been deleted. The columns themselves are unchanged; the empty table
+   simply has no rows to carry values, and the same fields still need supplying for a real location.
 
 ---
 
@@ -98,7 +104,15 @@ consume; nothing new needs to be built.
 - [ ] Real **store details** for each location you actually operate: name, type, street, city, state, PIN,
       phone, email, WhatsApp, opening hours, services, accessibility notes, map URL/co-ordinates
 - [ ] **Store photographs**
-- [ ] Confirm which of the 3 demo stores are real, renamed, or should be removed
+
+There is nothing left to confirm about the old rows: the three fabricated placeholder records have been
+removed from **both** `prisma/seed.ts` and the database, so the `Store` table is empty (see §5).
+`prisma/seed.ts` deliberately creates **no** store at all, so a freshly seeded database also starts with a
+legitimately empty store table. Capture each real location with
+[../intake/stores-template.md](../intake/stores-template.md) and add it through the admin console
+(`/admin/stores`); a newly created store defaults to `DRAFT` with blank contact fields, so nothing becomes
+customer-visible until publishing is a deliberate act. The removed records remain recoverable from git
+history at commit `b2c2f79`.
 
 ### Homepage and seasonal
 - [ ] Confirm/approve the homepage hero copy and sections (a `PUBLISHED` v1 currently holds demo copy)
@@ -138,3 +152,47 @@ Task 12:
 - `fashionfeet.co.in` / `admin.fashionfeet.co.in` provisioning and reverse-proxy routing
 - Server database migration (SQLite is a single file and blocks two independent deployments)
 - Persistent media storage, secrets management, HTTPS, real backup destination, synchronisation
+
+---
+
+## 5. Verified content defects found while removing the fabricated stores
+
+Recorded here so they are not lost. Both are **open items — not fixed**; neither is a build, lint or
+type error, which is exactly why neither was caught by the existing checks.
+
+1. **The website's FAQ page does not read the FAQ table.** The public `/faq` page renders a **hardcoded
+   `FAQ` array** in `src/app/faq/FaqClient.tsx`, entirely separate from the four rows in the database
+   `Faq` table that `GET /api/v1/faqs` serves. The two disagree — different questions, and until the
+   store cleanup they also disagreed about store locations. **Consequence:** the website and the mobile
+   app show *different* FAQs, and editing a FAQ in the admin console cannot change what the website
+   displays. The website's copy must eventually be driven by the table (or the table retired), but that
+   is a behaviour change, not a content edit, so it is left as found.
+2. **The contact form fakes a successful submission.** `src/app/contact/ContactClient.tsx` resolves on a
+   `setTimeout` (line 14, cleared at line 17) and then displays "Message Sent Successfully!" (line 76) —
+   nothing is sent and nothing is stored. Anyone using that form is told their message was delivered
+   when it was not. This matches the mobile app's honest "Not sent" behaviour (`MobileApp.md` §5) only
+   in the sense that neither transmits anything; the web form is the one that lies about it.
+
+---
+
+## 6. Deliberately left unchanged — pending your decision, not defects
+
+Choosing replacement brand wording is **your** decision, not a defect fix, so the following is still
+published and was deliberately not touched. Each is listed with file and line references so it can be
+actioned directly.
+
+| Where | Published wording | Kind |
+|---|---|---|
+| `src/components/layout/Footer.tsx:13` | "Join Our Heritage Atelier" | Brand wording |
+| `src/app/layout.tsx:20`, `:23`, `:24`, `:27-28`, `:36-37` | SEO title `Fashion Feet \| Royal Punjabi Juttis & Bespoke Atelier`, the matching meta/OG descriptions, and keywords including "Patiala Jutti" | Brand wording + regional claim |
+| `src/lib/storefrontConfigTypes.ts:32` | Hero subtitle "Patiala Heritage & Modern Couture Mojaris" | Regional claim |
+| `src/lib/storefrontConfigTypes.ts:59` | Section title "Centuries of Patiala Mastery" | Regional claim |
+| `src/lib/storefrontConfigTypes.ts:152` | "Preserving Punjab's Cordwainer Heritage **Since 1994**" | **Invented founding year — see below** |
+| `src/lib/storefrontConfigTypes.ts:167` | "Crafted with passion in Patiala, Punjab. Worldwide delivery." | Regional claim |
+| `src/lib/seasonalConstants.ts:31` | Seasonal badge "Patiala Heritage Atelier" | Regional claim |
+| `src/app/accessibility/page.tsx:34` | "Light Atelier" theme name | Theme name (shares the "Atelier" wording) |
+
+> **"Since 1994" is an invented founding year.** It is a **factual claim about the business**, not a
+> style choice, so it must not be removed silently and must not be swapped for another guess. It needs
+> explicit confirmation from you — supply the real founding year, or confirm removal. Until then it
+> stays exactly as it is, listed here as a content defect awaiting a decision.

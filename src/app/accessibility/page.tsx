@@ -39,7 +39,7 @@ export default function AccessibilityPage() {
             <section className="space-y-3">
               <h2 className="font-serif text-2xl font-bold text-[var(--theme-color-text)]">Feedback & Assistance</h2>
               <p className="text-[var(--theme-color-text-muted)]">
-                If you encounter any accessibility barriers while browsing Fashion Feet or need assistance submitting a product enquiry, please contact our concierge team at <a href="mailto:hello@fashionfeet.com" className="text-[var(--theme-color-jewel)] underline font-bold">hello@fashionfeet.com</a>.
+                If you encounter any accessibility barriers while browsing Fashion Feet or need assistance submitting a product enquiry, please reach our concierge team through the <a href="/contact" className="text-[var(--theme-color-jewel)] underline font-bold">contact form</a>.
               </p>
             </section>
           </div>

@@ -523,7 +523,8 @@ Be precise about this, because the app looks more finished than it is:
 - **The enquiry form does not submit anywhere.** The public API is read-only and the app has no other
   backend, so the Contact form validates locally and then says so ("Not sent"); there is no success
   message anywhere in the codebase, because nothing is transmitted. The real contact channels published
-  by `/api/v1/stores` are surfaced on the same screen as links.
+  by `/api/v1/stores` are surfaced on the same screen as links — but that table is currently empty
+  (§7), so no store contact links resolve today and the web `/contact` page is the contact route.
 - **No write requests at all** — no `POST`/`PUT`/`PATCH`/`DELETE`, and therefore no cart, checkout,
   order or payment flow.
 
@@ -557,14 +558,22 @@ demo content for a finished catalogue:
 | Occasions | **5** |
 | Collections | **0** |
 | FAQs | **4** |
-| Store records | **3 placeholder records** |
+| Store records | **0** |
 
 - **Every seeded product has `sizes: []` and `colors: []`.** The app's "Available sizes" and
   "Available colours" sections therefore render **hidden** — an empty list never produces an empty
   heading.
-- **`/api/v1/stores` currently publishes those three placeholder store records**, which still carry
-  legacy naming and location details. That is a **content task, not a code defect**: the endpoint and
-  the serializer behave correctly, the rows are simply not production content yet.
+- **`/api/v1/stores` returns an empty array, and that is the intended state.** The store table holds
+  **0 rows**: the three fabricated placeholder records (invented names, street addresses, phone
+  numbers, pin codes, opening hours and `@fashionfeet.com` mailboxes) have been removed from
+  `prisma/seed.ts` and deleted from the database, rather than renamed or set to `DRAFT` — a draft row
+  would still ship the fabrication in the repository. Verified after removal: `GET /api/v1/stores`
+  answers `200 {"data": []}`, the `Store` table has 0 rows, and `/stores` renders its "Stores Coming
+  Soon" panel. `prisma/seed.ts` now deliberately creates **no** store at all, so a freshly seeded
+  database also starts with a legitimately empty store table. Real locations are captured with
+  `intake/stores-template.md` and added through the admin console; until then neither client has any
+  store content to render. The removed rows remain recoverable from git history at commit `b2c2f79`.
+  This is **content state, not a code defect**: the endpoint and the serializer behave correctly.
 - There are no collections, so `/api/v1/collections` legitimately returns `[]` and no screen depends
   on it.
 

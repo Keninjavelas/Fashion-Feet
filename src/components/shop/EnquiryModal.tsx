@@ -256,7 +256,7 @@ export function EnquiryModal({ product, selectedSize, selectedColor, isOpen, onC
                   <input
                     type="tel"
                     name="phone"
-                    placeholder="+91 98765 43210"
+                    placeholder="Your phone or WhatsApp number"
                     className="w-full px-4 py-2.5 bg-[var(--theme-color-bg)] border border-[var(--theme-color-border)] text-xs text-[var(--theme-color-text)] rounded-xl focus:outline-none focus:border-[var(--theme-color-accent)]"
                   />
                 </div>

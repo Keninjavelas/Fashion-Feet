@@ -32,7 +32,10 @@ export function StoreManagerClient({ initialStores, currentAdminRole }: { initia
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [type, setType] = useState("FLAGSHIP");
-  const [status, setStatus] = useState("OPEN");
+  // DRAFT, not OPEN: a half-finished store must never be customer-visible the moment
+  // it is saved. `openNewModal` sets this too — both are deliberate so no future code
+  // path can open the form with a publishable default.
+  const [status, setStatus] = useState("DRAFT");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [street, setStreet] = useState("");
@@ -48,15 +51,22 @@ export function StoreManagerClient({ initialStores, currentAdminRole }: { initia
     setName("");
     setCode(`FF-STORE-${(stores.length + 1).toString().padStart(3, "0")}`);
     setType("FLAGSHIP");
-    setStatus("OPEN");
-    setCity("New Delhi");
-    setState("Delhi");
-    setStreet("M-Block Market, Greater Kailash 1");
-    setPinCode("110048");
-    setPhone("+91 98765 43210");
-    setEmail("delhi@fashionfeet.com");
-    setGoogleMapsUrl("https://maps.google.com");
-    setOpeningHours("Mon-Sat: 10:00 - 20:00, Sun: Closed");
+    // New stores start as DRAFT. Publishing to the storefront and the public API is a
+    // deliberate act, and this used to default straight to "OPEN" — so an unfinished
+    // record became customer-visible the moment it was saved.
+    setStatus("DRAFT");
+    // Address, contact and hours are deliberately EMPTY. These fields used to arrive
+    // pre-filled with a fabricated Delhi address, a placeholder phone number and a
+    // @fashionfeet.com mailbox, which meant one click could publish invented contact
+    // details for the business. Real values must now be entered deliberately.
+    setCity("");
+    setState("");
+    setStreet("");
+    setPinCode("");
+    setPhone("");
+    setEmail("");
+    setGoogleMapsUrl("");
+    setOpeningHours("");
     setModalOpen(true);
   };
 
