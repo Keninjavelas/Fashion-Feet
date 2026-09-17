@@ -1,10 +1,10 @@
 # Fashion Feet — Store Details
 
-Replace the three demo stores with your real locations. Copy the block below once per store.
-Delete any store you do not operate. Mark anything unknown as `TODO` rather than guessing.
+Add each real location you operate. Copy the block below once per store.
+Mark anything unknown as `TODO` rather than guessing.
 
-The stores currently in the database (Patiala / Chandigarh / New Delhi) contain invented addresses, phone
-numbers and `@fashionfeet.com` email addresses.
+The three demo stores currently in the database contain invented addresses, phone numbers and
+`@fashionfeet.com` email addresses, and are being removed as part of the location cleanup.
 
 ---
 
@@ -48,8 +48,7 @@ numbers and `@fashionfeet.com` email addresses.
 
 ---
 
-## Which of the existing demo stores to keep?
+## Demo store cleanup
 
-- [ ] Patiala — keep as real / rename / **delete**
-- [ ] Chandigarh — keep as real / rename / **delete**
-- [ ] New Delhi — keep as real / rename / **delete**
+The three demo stores are being removed rather than renamed, so no decision is needed here. Tell me once your
+real locations are ready and I will add them from this template.

@@ -56,7 +56,7 @@ This manifest maps every system requirement across Phase A (Security & Auth), Ph
 | Versioned Prisma Migration | `VERIFIED_AUTOMATICALLY` | `prisma/migrations/20260902000000_phase_d_festival_studio/migration.sql` |
 | Seasonal Experience Portfolio (All 7 Atmospheres) | `VERIFIED_IN_BROWSER` | `src/app/admin/festivals/page.tsx`, `src/components/admin/FestivalStudioClient.tsx`, `src/scripts/run-gate-2-acceptance.js` |
 | Automated Campaign Scheduler (Temporal Window Detection) | `VERIFIED_AUTOMATICALLY` | `src/app/actions/festivals.ts` (`getActiveFestival`), `src/scripts/test-all-acceptance.ts` |
-| Auto-Expiry & Fallback to Default Atelier | `VERIFIED_AUTOMATICALLY` | `src/app/actions/festivals.ts` (`autoDisable`), `src/scripts/test-all-acceptance.ts` |
+| Auto-Expiry & Fallback to Default Theme | `VERIFIED_AUTOMATICALLY` | `src/app/actions/festivals.ts` (`autoDisable`), `src/scripts/test-all-acceptance.ts` |
 | Single Active Festival Constraint | `VERIFIED_AUTOMATICALLY` | `src/app/actions/festivals.ts` (`activateFestivalNowAction`), `src/scripts/test-all-acceptance.ts` |
 | Super Admin One-Click Live Activation / Deactivation | `VERIFIED_IN_BROWSER` | `src/components/admin/FestivalStudioClient.tsx`, `src/app/actions/festivals.ts` |
 | MediaAsset Library Isolation (Strictly No Raw URL Paste) | `VERIFIED_IN_BROWSER` | `src/components/admin/FestivalStudioClient.tsx` (Media picker modal binding to `mediaAssetId`) |

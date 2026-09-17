@@ -25,9 +25,9 @@ Primary Header Navigation is frozen:
 | `/profile` | Customer Profile & Favorites | Customer dashboard, saved size, favorites grid |
 | `/stores` | Boutiques Showcase | **Displays "Stores Coming Soon" with launch notification form** |
 | `/about` | Brand Heritage Narrative | 400-year Punjabi craftsmanship story |
-| `/contact` | Atelier Enquiries | Direct contact form & store concierge details |
+| `/contact` | Enquiries | Direct contact form & store concierge details |
 | `/faq` | Frequently Asked Questions | **1st Question: "Why doesn't Fashion Feet offer online shopping?"** |
 | `/privacy` | Privacy Policy | Customer data protection terms |
-| `/terms` | Terms of Service | Atelier fitting terms |
+| `/terms` | Terms of Service | Fitting terms |
 | `/accessibility` | Accessibility Statement | WCAG AA standards, contrast rules, & feedback details |
 | `/not-found` | 404 Route Error Page | Custom 404 view |

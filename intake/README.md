@@ -67,8 +67,9 @@ Example Product Name,Mojari,Women,2499,Leather,"example-01.jpg,example-02.jpg"
 Use `stores-template.md`. Fields: name, type, street, city, state, PIN, phone, email, WhatsApp, opening hours,
 services, accessibility notes, map URL, photographs.
 
-The three stores currently in the database (Patiala / Chandigarh / New Delhi) have **invented addresses, phone
-numbers and `@fashionfeet.com` emails**. Tell me which are real, which need renaming, and which to delete.
+The three demo stores currently in the database have **invented addresses, phone numbers and
+`@fashionfeet.com` emails** and are being removed as part of the location cleanup. Tell me when your real
+locations are ready.
 
 ## 3. Brand — `brand.md`
 

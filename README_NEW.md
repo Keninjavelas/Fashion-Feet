@@ -1,4 +1,4 @@
-# Fashion Feet Atelier (ਪੰਜਾਬੀ ਜੁੱਤੀ ਅਟੈਲੀਅਰ)
+# Fashion Feet
 
 ## ✨ Bespoke Punjabi Luxury Footwear
 
@@ -10,9 +10,9 @@
 
 ---
 
-## 🌟 The Atelier Vision
+## 🌟 The Fashion Feet Vision
 
-Fashion Feet is a **luxury boutique atelier** rooted in Patiala’s historic shoemaking lanes. We honor Punjabi heritage through:
+Fashion Feet is a **luxury boutique footwear label**. We honor Punjabi heritage through:
 - **Vegetable‑tanned leather** – ethically sourced, naturally beautiful.
 - **Royal dabka needlework** – intricate silver‑zari stitching.
 - **Bespoke comfort** – double‑cushioned velvet arches crafted for a perfect fit.
@@ -86,7 +86,7 @@ npx prisma migrate status
 npx tsx prisma/seed.ts
 ```
 
-### Run the Atelier
+### Run Locally
 ```bash
 npm run dev   # Development server at http://localhost:3000
 ```
@@ -112,17 +112,12 @@ npm run build
 
 ---
 
-## 📍 Flagship Boutiques
-
-- **Patiala** – Heritage Street, Near Qila Mubarak, Patiala, Punjab 147001
-- **Chandigarh** – SCO 42‑43, Sector 17‑C, Chandigarh, Punjab 160017
-- **Delhi** – Middle Lane, Khan Market, New Delhi, Delhi 110003
 
 ---
 
 ## 📜 Intellectual Property
 
-© 2026 Fashion Feet Atelier. All rights reserved.
+© 2026 Fashion Feet. All rights reserved.
 
 ---
 

@@ -40,14 +40,14 @@ Everything below is **demo/seed data written during earlier phases**. None of it
 | `public/uploads` | **0 files** | No uploaded media exists at all. |
 | Branding logo | — | No `branding.primaryLogo` setting and no published branding asset → `siteLogo` resolves to `""` and the name falls back to the hardcoded string `"Fashion Feet"`. |
 | `SiteSetting` | **0** | No `general.siteName`, contact, or social settings. |
-| `Category` | 7 | `Casual, Festive, Men, Office, Traditional, Wedding, Women` — **mixes occasion/style with gender in one table**. |
-| `Occasion` | **0** | Feature empty. |
+| `Category` | 2 | `Jutti, Mojari` — product types only. Gender and occasion values removed (see §0). |
+| `Occasion` | 5 | `Casual, Festive, Wedding, Office, Traditional`. |
 | `Collection` | **0** | Feature empty. |
-| `Store` | 3 | Patiala / Chandigarh / New Delhi with invented addresses, phone numbers and `@fashionfeet.com` emails. `photos` is NULL for all 3. |
+| `Store` | 3 | Three demo stores with invented addresses, phone numbers and `@fashionfeet.com` emails. `photos` is NULL for all 3. |
 | `Festival` | 3 | Diwali / Lohri / Baisakhi demo campaigns, all `INACTIVE`. |
 | `Faq` | 4 | Generic copy. |
 | `CompanyContent` | 5 | Appearance tokens only. |
-| `StorefrontConfig` | 2 | one `DRAFT` + one `PUBLISHED` homepage v1. Hero is `"Timeless Elegance in Every Step"` / `"Patiala Heritage & Modern Couture Mojaris"`. |
+| `StorefrontConfig` | 2 | one `DRAFT` + one `PUBLISHED` homepage v1. Hero title is `"Timeless Elegance in Every Step"`; its subtitle still carries a legacy region reference, pending the code/data pass. |
 | `Discount` | 0 | — |
 
 ### Structural problems found while taking inventory

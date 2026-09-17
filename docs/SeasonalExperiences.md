@@ -6,7 +6,7 @@ The Seasonal Experience System transforms the visual atmosphere of the website w
 
 ## Presets (`src/lib/themeTokens.ts`)
 
-1. **`default` (Light Atelier)**: Warm ivory (`#FAF6F0`), dark walnut (`#1F1A17`), antique gold (`#C5A059`), royal crimson (`#8A1538`). Minimal luxury.
+1. **`default` (Light Theme)**: Warm ivory (`#FAF6F0`), dark walnut (`#1F1A17`), antique gold (`#C5A059`), royal crimson (`#8A1538`). Minimal luxury.
 2. **`diwali`**: Aubergine (`#12080C`), gold (`#D4AF37`), maroon (`#8A1538`). Diya sparks, rangoli dividers, card badge `"Diwali Exclusive"`.
 3. **`holi`**: Rose (`#FFF9FB`), pink (`#FF758F`), green (`#2A9D8F`). Gulal powder particle reveal, card badge `"Holi Color Drop"`.
 4. **`eid`**: Emerald (`#0B1D16`), gold (`#D4AF37`), ivory (`#FAF6F0`). Crescent moon lanterns, geometric arches, card badge `"Eid Festive Elegance"`.
