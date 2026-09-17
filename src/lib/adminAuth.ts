@@ -6,6 +6,33 @@ import { hashPassword, verifyPassword as verifyPasswordHelper } from "@/lib/pass
 export const ADMIN_COOKIE_NAME = "ff_admin_session";
 const SESSION_EXPIRY_HOURS = 12;
 
+/**
+ * Admin sessions carry two independent bounds.
+ *
+ * `SESSION_EXPIRY_HOURS` is the absolute ceiling: a session dies 12 hours after
+ * it was issued no matter how heavily it was used. On its own that is too
+ * generous for an unattended machine — an admin console left open in a back
+ * office stayed usable for the remainder of the working day.
+ *
+ * `ADMIN_IDLE_TIMEOUT_MINUTES` adds an inactivity bound on top. A session that
+ * has not been used for that long is dropped even though its absolute expiry has
+ * not passed, which is what actually closes the "someone walks up to the
+ * unlocked laptop" gap.
+ *
+ * The value is configurable because the right number depends on the operating
+ * environment, but it is deliberately not *disable-able*: an unset, non-numeric
+ * or non-positive value falls back to the default rather than switching the check
+ * off. A timeout that can be silently turned off tends to end up off.
+ */
+const DEFAULT_IDLE_TIMEOUT_MINUTES = 30;
+
+function resolveIdleTimeoutMs(): number {
+  const configured = Number(process.env.ADMIN_IDLE_TIMEOUT_MINUTES);
+  const minutes =
+    Number.isFinite(configured) && configured > 0 ? configured : DEFAULT_IDLE_TIMEOUT_MINUTES;
+  return minutes * 60 * 1000;
+}
+
 export { hashPassword };
 
 /**
@@ -88,6 +115,18 @@ export async function getAuthenticatedAdmin() {
     }
 
     if (session.admin.suspended) {
+      return null;
+    }
+
+    // Inactivity bound — see the two-tier note on DEFAULT_IDLE_TIMEOUT_MINUTES.
+    // The row is deleted rather than merely refused, so a dead session does not
+    // linger in the table and keep appearing in the admin's active-sessions view
+    // as though it were still usable. `lastActiveAt` is non-nullable with a DB
+    // default, but fall back to `createdAt` so a row written without the client
+    // cannot cause a freshly issued session to be rejected.
+    const lastActiveAt = session.lastActiveAt ?? session.createdAt;
+    if (Date.now() - lastActiveAt.getTime() > resolveIdleTimeoutMs()) {
+      await prisma.adminSession.delete({ where: { id: session.id } }).catch(() => null);
       return null;
     }
 

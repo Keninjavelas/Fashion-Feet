@@ -12,6 +12,11 @@ export default defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // `mobile/` is a separate Expo/React Native project with its own toolchain,
+    // dependencies and lint expectations. It is intentionally NOT part of this
+    // project's lint run — left unignored, its source (and its node_modules) get
+    // linted under the Next.js ruleset and break `npm run lint`.
+    "mobile/**",
   ]),
   {
     rules: {

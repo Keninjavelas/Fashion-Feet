@@ -31,3 +31,20 @@ Primary Header Navigation is frozen:
 | `/terms` | Terms of Service | Fitting terms |
 | `/accessibility` | Accessibility Statement | WCAG AA standards, contrast rules, & feedback details |
 | `/not-found` | 404 Route Error Page | Custom 404 view |
+
+## Storefront Content as Public JSON (`/api/v1`)
+
+The storefront's published content is now also served, read-only, as public JSON for the native mobile client. Same source tables and the same published/active filters the pages use, with every response field whitelisted by `src/lib/publicSerializers.ts`:
+
+| v1 Route | Serves |
+|-------|--------|
+| `GET /api/v1/products` | Published catalogue. Query: `category`, `occasion`, `collection`, `q`, `limit` (default 24, max 60), `offset` — returns `pagination: { total, limit, offset, hasMore }` |
+| `GET /api/v1/products/:idOrSku` | One product by cuid **id** or unique **sku** — there is no slug; `404` → `{ error: "Product not found" }` |
+| `GET /api/v1/categories` | Active product types (Jutti, Mojari) |
+| `GET /api/v1/collections` | Visible + `PUBLISHED` collections — currently empty, so this legitimately returns `[]` |
+| `GET /api/v1/occasions` | Active occasions |
+| `GET /api/v1/stores` | `OPEN`, `COMING_SOON` and `TEMPORARILY_CLOSED` locations |
+| `GET /api/v1/faqs` | All FAQs, pinned first |
+| `GET /api/v1/site` | Appearance tokens plus the published homepage composition (`page`, `version`, `publishedAt`, `sections`) |
+
+`GET`/`OPTIONS` only, unauthenticated by design, rate-limited at 120 requests/min per IP, and cached `public, max-age=60` (120s for `/site`). The full contract and field lists are in [MobileApp.md](MobileApp.md).

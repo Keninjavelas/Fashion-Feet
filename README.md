@@ -19,6 +19,8 @@ Fashion Feet is a **luxury boutique footwear label**. We honor Punjabi heritage 
 
 Our digital showroom mirrors this devotion, offering a **personalised, immersive online journey** that feels like stepping into a handcrafted boutique.
 
+The showroom now has two clients: the **website storefront**, and a **native mobile app** (`mobile/`) that reads the same published catalogue through a new public JSON surface, `GET /api/v1` — see [docs/MobileApp.md](docs/MobileApp.md).
+
 ---
 
 ## 🎉 Signature Seasonal Atmospheres
@@ -43,6 +45,20 @@ Administrators shape the public face of Fashion Feet from an **embedded sandbo
 - **Drag‑and‑drop sections**, typography tweaks, and motion presets.
 - **Draft / Live workflow** – changes are previewed in isolation and published atomically.
 - **One‑click rollback** – every publish creates a version snapshot for instant restoration.
+
+---
+
+## 📱 Native Mobile App & the `/api/v1` Surface
+
+A read-only, customer-facing app (**Expo / React Native**) lives in [`mobile/`](mobile/) and renders the same published content as the storefront. It talks to the backend through one interface — the public JSON surface under `/api/v1`:
+
+- `/api/v1/products` — published catalogue; `category`, `occasion`, `collection`, `q`, `limit` (default 24, max 60), `offset`, plus `pagination`
+- `/api/v1/products/:idOrSku` — a single product by cuid **id** or unique **sku** (there is no slug)
+- `/api/v1/categories` · `/api/v1/collections` · `/api/v1/occasions` · `/api/v1/stores` · `/api/v1/faqs` · `/api/v1/site`
+
+The surface is `GET`/`OPTIONS` only, **unauthenticated by design**, rate-limited (120 requests/min per IP, then `429` with `Retry-After`), and returns whitelisted fields from `src/lib/publicSerializers.ts` — never raw Prisma rows. The storefront and the app are two clients of one backend, so the contract is versioned and any change to it must be mirrored in `mobile/src/api/types.ts`.
+
+Full contract, architecture and the honest trade-offs: [docs/MobileApp.md](docs/MobileApp.md).
 
 ---
 

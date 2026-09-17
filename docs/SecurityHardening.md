@@ -19,7 +19,7 @@ https://admin.fashionfeet.co.in    -> isolated administrative system
 
 | Command | Result | Exit |
 |---|---|---|
-| `npm run lint` | `✖ 1 problem (0 errors, 1 warning)` — pre-existing `ProductClient.tsx:71 react-hooks/exhaustive-deps` only | 0 |
+| `npm run lint` | `✖ 1 problem (0 errors, 1 warning)` — pre-existing `ProductClient.tsx:72 react-hooks/exhaustive-deps` only | 0 |
 | `npx tsc --noEmit` | no output (clean) | 0 |
 | `npm run build` | `✓ Compiled successfully` · `Finished TypeScript` | 0 |
 | `npm run test:acceptance` | `🎉 WHOLE-PROJECT MASTER ENGINEERING ACCEPTANCE PASSED CLEANLY!` | 0 |
@@ -185,7 +185,9 @@ hashing strength (#18), rate-limit storage (#19), proxy defence-in-depth (#15), 
 CORS (#21). These are documented as follow-ups instead of being silently weakened or half-fixed.
 
 **Since this report:** TOTP replay protection (#17) has been fixed, along with four further MFA defects —
-see [MfaFlow.md](MfaFlow.md). `getActiveFestival` (#24) is unchanged and remains a documented design finding.
+see [MfaFlow.md](MfaFlow.md). A **30-minute admin session idle timeout** has also been added
+(`ADMIN_IDLE_TIMEOUT_MINUTES`), so a session no longer stays valid for the full 12 hours on an unattended
+machine — see §6. `getActiveFestival` (#24) is unchanged and remains a documented design finding.
 
 ---
 
@@ -257,7 +259,112 @@ Nothing was deployed, so the following are **unverified at this level** and must
 
 ---
 
-## 6. Task 10 verdict
+## 6. Admin session model — scope, lifetime and device binding
+
+Answers the question "if I sign in, does anyone else get the admin console?" against the code as it stands.
+
+**The session is a bearer token in a per-browser cookie, not shared server state.** Signing in writes an
+`ff_admin_session` cookie into that one browser and creates an `AdminSession` row keyed by the token
+(`crypto.randomBytes(32)` → 64 hex chars; the `token` column is `@unique`). Every later request is
+authenticated by reading the cookie the *requesting* browser sent and looking that token up. There is no
+global "an admin is signed in" flag anywhere in the application, so signing in on one device cannot
+authenticate another.
+
+| Property | Value | Source |
+|---|---|---|
+| Cookie name | `ff_admin_session` | `lib/adminAuth.ts` |
+| Token | 32 random bytes, hex, unique index | `createAdminSession()` |
+| Absolute lifetime | 12h from issue | `SESSION_EXPIRY_HOURS = 12` |
+| Idle timeout | 30 min, override via `ADMIN_IDLE_TIMEOUT_MINUTES` | `getAuthenticatedAdmin()` |
+| `httpOnly` | `true` | `createAdminSession()` |
+| `secure` | only when `NODE_ENV === "production"` | `createAdminSession()` |
+| `sameSite` | `lax` | `createAdminSession()` |
+| `path` | `/` (deliberate — see defect #7) | `createAdminSession()` |
+| `Domain` | never set → host-only | `createAdminSession()` |
+
+### What each client sees
+
+| Client | Cookie present | Result on `/admin/*` |
+|---|---|---|
+| The browser that signed in | yes | admin console |
+| A different browser / OS user / private window | no | `302` to `/admin/login` |
+| A second tab in the signed-in browser | yes (shared jar) | admin console |
+| Any client that never receives the cookie | no | `302` to `/admin/login` |
+
+The third row is the one that matters operationally: **a new device is refused, but a new person at the same
+browser profile is not.** The cookie jar is per browser profile, not per human, so an admin console left open
+on a shared machine is already authenticated for whoever sits down next. The idle timeout below bounds that
+exposure; previously it was unbounded for the full 12 hours.
+
+### The token is not bound to a device
+
+`createAdminSession()` *records* `ipAddress` and `userAgent`, but `getAuthenticatedAdmin()` never compares
+either. It validates only that the token exists, that `expiresAt` has not passed, that the idle bound has not
+been exceeded, and that the admin is not suspended. The cookie is therefore a pure bearer credential: whoever
+holds the string can present it from anywhere until it expires. `httpOnly` is what stops script reading it,
+and `secure` (in production) is what stops it crossing plaintext HTTP.
+
+### Which layer enforces it
+
+Two layers, only the second of which is authoritative:
+
+1. **Middleware (`src/proxy.ts`) — coarse.** It treats *any* non-empty `ff_admin_session` value as an
+   authorised `SUPER_ADMIN` (documented as defect #15). A forged cookie value passes this layer.
+2. **Server-side `getAuthenticatedAdmin()` — authoritative.** Called by `AdminShell`
+   (`components/admin/AdminShell.tsx`), which `redirect()`s to `/admin/login` when it returns null, and by
+   every privileged server action and admin API route.
+
+Coverage across the 16 `src/app/admin/**/page.tsx` files — **12 wrap in `AdminShell`**, **2 guard themselves
+directly without it** (`/admin/editor`, `/admin/mfa`), and **2 make no auth call at all**: `/admin/login`, which
+is a pre-session page by design, and `/admin/editor/preview`, which is client-only and reads no server data
+(defect #16). Those three buckets are a partition: 12 + 2 + 2 = 16, with no file counted twice. The
+forged-cookie probe in §1 confirms the authoritative layer rejects a bad value with no admin content returned,
+so layer 1 being weak is degraded defence-in-depth rather than a bypass.
+
+### Consequences
+
+- Every device signs in separately. Signing out of one does not sign out another, because each sign-in is its
+  own `AdminSession` row.
+- Suspending an admin (`toggleSuspendAdmin`) or resetting their MFA (`resetAdminMfa`) deletes **all** of that
+  admin's session rows at once — that is the available kill switch.
+- Individual sessions are visible and revocable at `/admin/settings`; a non-`SUPER_ADMIN` may only revoke
+  their own (defect #9, fixed).
+- `sameSite: "lax"` blocks most cross-site POST CSRF. `path: "/"` also sends the cookie on storefront routes,
+  which `httpOnly` keeps from becoming a read primitive; the separated production topology in §5 fixes the
+  scope properly by moving the admin host out of the storefront's cookie space.
+
+---
+
+## 7. Public `/api/v1` surface — unauthenticated by design
+
+Added after Task 10 for the native mobile client (`mobile/`): a public read surface at
+`src/app/api/v1/**`. It is a deliberate expansion of public, unauthenticated attack surface, and it is
+constrained rather than defended by authentication.
+
+- **Unauthenticated by design.** There is no customer login in this product, so there is nothing to
+  authenticate against. The surface reads no session and accepts no credential.
+- **Strictly read-only.** No `POST`/`PUT`/`PATCH`/`DELETE` handler exists anywhere on it, so a write
+  method is answered with `405`.
+- **Whitelisted, never rows.** `src/lib/publicSerializers.ts` builds every response object field by
+  field; nothing is spread from a Prisma row. Adding a column to the schema cannot widen a public
+  response by accident — a field becomes public only when that file is edited on purpose. `Store.managerName`
+  (a named individual's contact) and `StorefrontConfig.lastEditedById` (an `AdminUser` id) are
+  explicitly excluded, and only an allowlist of `appearance.*` settings keys may leave the server.
+- **No credentials on the wire.** The CORS headers never set `Access-Control-Allow-Credentials`, so a
+  browser cannot ride an admin cookie onto the surface; `Access-Control-Allow-Origin` is `*` because
+  the response contains nothing per-user.
+- **Rate-limited.** 120 requests per 60s per client IP, then `429` with `Retry-After`. An
+  unauthenticated endpoint with no throttle is a trivial denial-of-service vector.
+- **Fail-quiet.** Unhandled errors are logged server-side and returned as a generic
+  `Internal server error`, consistent with the defect #14 fix in §3.
+
+**Rule for future work:** this surface must never be extended with admin routes, authenticated routes
+or write operations. Administrative functionality stays on `/admin` and `/api/admin/*` under the
+session model in §6. The endpoint contract and its field lists are in [MobileApp.md](MobileApp.md).
+
+---
+
+## 8. Task 10 verdict
 
 **PASS — for the locally verifiable scope, with deployment-dependent items explicitly out of scope.**
 
