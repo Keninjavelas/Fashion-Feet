@@ -12,6 +12,12 @@ import { useFestival } from "@/components/providers/FestivalProvider";
 export function TrendingProductsClient({ products }: { products: any[] }) {
   const { preset } = useFestival();
 
+  // With an empty catalogue there is nothing to showcase: rendering the heading
+  // over an empty grid would leave a stranded title and a blank `py-24` band.
+  if (!products || products.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-24 bg-[var(--theme-color-bg)] text-[var(--theme-color-text)] relative overflow-hidden transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 space-y-12">

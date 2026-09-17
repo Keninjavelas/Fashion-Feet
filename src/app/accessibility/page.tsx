@@ -31,7 +31,7 @@ export default function AccessibilityPage() {
               <ul className="list-disc list-inside space-y-2 text-[var(--theme-color-text-muted)]">
                 <li><strong>Keyboard Operability:</strong> Full keyboard navigation across top navigation, seasonal theme selectors, search overlays, and product enquiry modals.</li>
                 <li><strong>Visible Focus Rings:</strong> High-contrast focus outlines (`focus-visible`) for all interactive buttons and links.</li>
-                <li><strong>Contrast Compliance:</strong> Handcrafted color tokens tailored across all 7 seasonal experiences (Diwali, Holi, Eid, Christmas, Lohri, Baisakhi, Light Atelier) to ensure high text contrast.</li>
+                <li><strong>Contrast Compliance:</strong> Handcrafted color tokens tailored across all 7 seasonal experiences (Diwali, Holi, Eid, Christmas, Lohri, Baisakhi, Normal Luxury Atelier) to ensure high text contrast.</li>
                 <li><strong>Reduced Motion Support:</strong> Disables nonessential animations automatically when `prefers-reduced-motion: reduce` is enabled on your OS.</li>
               </ul>
             </section>

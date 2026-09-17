@@ -301,6 +301,10 @@ storefront's own precedence so the API and the website cannot disagree about a c
 absent or not valid JSON, the response falls back to the built-in homepage configuration rather than
 returning a `500`. This endpoint caches for 120 seconds instead of 60.
 
+There are currently **0** `StorefrontConfig` rows — no `DRAFT` and no `PUBLISHED` — so `version` and
+`publishedAt` are `null` and the **built-in homepage defaults are the content this endpoint actually serves**
+(§7).
+
 ### 3.3 Response field lists
 
 These are copied from the interfaces in `src/lib/publicSerializers.ts`. `| null` means the field is
@@ -546,36 +550,67 @@ Cross-reference: `docs/SecurityHardening.md` §5 item 3, which already flags thi
 
 ---
 
-## 7. Data reality in the seeded database
+## 7. Data reality in the current database
 
-These are measured facts about the current database. They are recorded so that nobody mistakes the
-demo content for a finished catalogue:
+These are measured facts about the current database, taken with the same Prisma adapter pattern the app's
+backend uses (`src/lib/prisma.ts`, `url: "file:./dev.db"`). They are recorded so that nobody mistakes an
+emptied database for a broken API — or for a finished catalogue:
 
 | Content | Count |
 |---|---|
-| Products | **8** (all published) |
+| Products | **0** |
 | Categories | **2** — Jutti, Mojari |
 | Occasions | **5** |
 | Collections | **0** |
-| FAQs | **4** |
+| FAQs | **0** |
 | Store records | **0** |
 
-- **Every seeded product has `sizes: []` and `colors: []`.** The app's "Available sizes" and
-  "Available colours" sections therefore render **hidden** — an empty list never produces an empty
-  heading.
-- **`/api/v1/stores` returns an empty array, and that is the intended state.** The store table holds
-  **0 rows**: the three fabricated placeholder records (invented names, street addresses, phone
-  numbers, pin codes, opening hours and `@fashionfeet.com` mailboxes) have been removed from
-  `prisma/seed.ts` and deleted from the database, rather than renamed or set to `DRAFT` — a draft row
-  would still ship the fabrication in the repository. Verified after removal: `GET /api/v1/stores`
-  answers `200 {"data": []}`, the `Store` table has 0 rows, and `/stores` renders its "Stores Coming
-  Soon" panel. `prisma/seed.ts` now deliberately creates **no** store at all, so a freshly seeded
-  database also starts with a legitimately empty store table. Real locations are captured with
-  `intake/stores-template.md` and added through the admin console; until then neither client has any
-  store content to render. The removed rows remain recoverable from git history at commit `b2c2f79`.
-  This is **content state, not a code defect**: the endpoint and the serializer behave correctly.
-- There are no collections, so `/api/v1/collections` legitimately returns `[]` and no screen depends
-  on it.
+**The catalogue, the FAQ table and the store table are all legitimately empty.** The rows they used to hold
+were fabricated content and were deliberately removed from `dev.db` **and** from `prisma/seed.ts` — not
+hidden behind a filter, not renamed, not set to `DRAFT` (a draft row would still ship the fabrication in the
+repository). They are referred to here only as *fabricated placeholder records*; none of their invented
+names, prices, store details or mailboxes is reproduced in this document.
+
+**What the public API returns for them.** `GET /api/v1/products`, `GET /api/v1/faqs` and `GET /api/v1/stores`
+each answer **HTTP `200` with an empty array** — `{"data": []}`, and for `/products` a `pagination` block with
+`total: 0`, `hasMore: false`. None of the three `404`s, errors or falls back:
+
+- **`/api/v1/products`** returns an empty page over the empty `Product` table (the handler filters
+  `archived: false, published: true` and there are no rows of any kind). The Home screen's featured row and
+  "Latest additions" fallback have nothing to render, and the shop grid has no cards.
+- **`/api/v1/faqs`** returns `[]` over the empty `Faq` table. The website's `/faq` page now reads that same
+  table with the same ordering (`isPinned` desc, then `displayOrder` asc) — the drift between the two clients
+  is fixed (`ContentIntake.md` §5.1) — so **both clients agree, and both are simply empty**.
+- **`/api/v1/stores`** returns `[]`, which is the intended state. The three fabricated placeholder store
+  records (invented names, street addresses, phone numbers, pin codes, opening hours and mailboxes) have been
+  removed from `prisma/seed.ts` and deleted from the database. `prisma/seed.ts` deliberately creates **no**
+  store at all, so a freshly seeded database also starts with a legitimately empty store table. Real
+  locations are captured with `intake/stores-template.md` and added through the admin console; until then
+  neither client has any store content to render and no store contact links resolve (§5). The removed rows
+  remain recoverable from git history at commit `b2c2f79`. This is **content state, not a code defect**: the
+  endpoint and the serializer behave correctly.
+- **`/api/v1/collections`** returns `[]` for the same reason, and no screen depends on it.
+
+**Therefore the app must render proper empty states, and that is the state it is being developed against.**
+This is not a transient local condition to be worked around with placeholder products or hardcoded lists: a
+list response of `{"data": []}` is the documented, correct answer here, and each screen that consumes
+`/products`, `/faqs` or `/stores` needs a deliberate empty state (an explanatory message plus a route to
+`/contact`), not a permanent spinner, a crash on `data[0]`, or invented sample content. The same applies to
+the web storefront, which is in the identical honest empty state.
+
+Two consequences worth stating plainly:
+
+- **No product means no sizes and no colours.** The `sizes: []` / `colors: []` normalisation rule in §3.4
+  still governs the contract, but there is currently no product row to carry either field, so "Available
+  sizes" and "Available colours" cannot appear at all — not because the app hides them, but because there is
+  no product screen to open. `ProductImage` is empty too, so no image array is ever populated.
+- **`/api/v1/site` serves the built-in homepage defaults.** There are **0** `StorefrontConfig` rows — no
+  `DRAFT` and no `PUBLISHED` — so the endpoint answers with `version: null` and `publishedAt: null` and falls
+  back to the built-in sections (§3.2), and `SiteSetting` is empty, so `appearance.*` comes from the five
+  `CompanyContent` rows alone.
+
+Real content — a logo, real products and real categories — will be supplied later, and **this section must be
+re-measured and updated when it is**; every figure above describes the emptied database, not a target.
 
 ---
 

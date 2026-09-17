@@ -26,6 +26,10 @@ export function CollectionPage({ title, description, products }: CollectionPageP
       prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
     );
   };
+
+  // Distinguishes "the visitor narrowed the results away" from "there is
+  // nothing published yet", which need different, honest empty states.
+  const hasActiveFilters = selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 5000;
   
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -149,17 +153,25 @@ export function CollectionPage({ title, description, products }: CollectionPageP
           {/* Product Grid */}
           <div className="flex-1">
             {filteredProducts.length === 0 ? (
-              <div className="text-center py-24 bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] shadow-md rounded-2xl flex flex-col items-center p-8">
-                <Filter className="w-12 h-12 text-[var(--theme-color-accent)]/40 mb-4" />
-                <h2 className="font-serif text-2xl text-[var(--theme-color-text)] mb-2 font-bold">No products match your filters</h2>
-                <p className="text-[var(--theme-color-text-muted)] text-xs mb-6">Try adjusting your filters or clearing them to explore our collection.</p>
-                <button 
-                  onClick={() => { setSelectedCategories([]); setPriceRange([0, 5000]); }} 
-                  className="px-6 py-3 bg-[var(--theme-color-jewel)] text-white text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors rounded-xl border border-[var(--theme-color-border)] shadow-md"
-                >
-                  Clear All Filters
-                </button>
-              </div>
+              hasActiveFilters ? (
+                <div className="text-center py-24 bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] shadow-md rounded-2xl flex flex-col items-center p-8">
+                  <Filter className="w-12 h-12 text-[var(--theme-color-accent)]/40 mb-4" />
+                  <h2 className="font-serif text-2xl text-[var(--theme-color-text)] mb-2 font-bold">No products match your filters</h2>
+                  <p className="text-[var(--theme-color-text-muted)] text-xs mb-6">Try adjusting your filters or clearing them to explore our collection.</p>
+                  <button 
+                    onClick={() => { setSelectedCategories([]); setPriceRange([0, 5000]); }} 
+                    className="px-6 py-3 bg-[var(--theme-color-jewel)] text-white text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors rounded-xl border border-[var(--theme-color-border)] shadow-md"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center py-24 bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] shadow-md rounded-2xl flex flex-col items-center p-8">
+                  <Sparkles className="w-12 h-12 text-[var(--theme-color-accent)]/40 mb-4" />
+                  <h2 className="font-serif text-2xl text-[var(--theme-color-text)] mb-2 font-bold">Our catalogue is being updated</h2>
+                  <p className="text-[var(--theme-color-text-muted)] text-xs">No products are available to display right now.</p>
+                </div>
+              )
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                 {filteredProducts.map((product) => (

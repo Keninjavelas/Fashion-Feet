@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { AnimationReadyProvider } from "@/components/providers/AnimationReadyProvider";
+import { JudyWidget } from "@/components/judy/JudyWidget";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -56,6 +57,9 @@ export default function RootLayout({
         <AuthProvider>
           <AnimationReadyProvider>
             {children}
+            {/* Judy, the storefront assistant. Mounted once, rendered fixed, and
+                hidden by the widget itself on /admin routes. */}
+            <JudyWidget />
           </AnimationReadyProvider>
         </AuthProvider>
       </body>

@@ -21,7 +21,7 @@ export function RoyalFootprintsAndColorMeshBackground() {
   const currentStepIndex = Math.max(3, Math.min(totalSteps, Math.floor((scrollY + 200) / 200)));
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
+    <div aria-hidden="true" className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
       {/* Multi-Color Ambient Mesh Glow Orbs */}
       <div 
         className={`absolute top-[-5%] left-[-5%] w-[650px] h-[650px] rounded-full blur-[130px] transition-all duration-1000 opacity-40 animate-pulse ${

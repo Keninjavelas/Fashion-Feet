@@ -39,8 +39,7 @@ export default function PrivacyPolicy() {
               </ul>
               
               <div className="mt-12 p-6 bg-[var(--color-brand-50)] text-sm italic">
-                Note: This is a placeholder Privacy Policy template for demonstration purposes. Before deploying to production, 
-                this document should be reviewed and updated by legal counsel.
+                Note: This policy is pending final legal review. It is published here in its current form and will be updated once that review is complete.
               </div>
             </div>
           </div>

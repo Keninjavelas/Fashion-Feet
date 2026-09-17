@@ -151,9 +151,11 @@ export function ShopClient({ initialProducts, initialCategory }: { initialProduc
               <Filter className="w-4 h-4 text-[#D4AF37]" />
               <span>Filters {activeFilterCount > 0 && `(${activeFilterCount})`}</span>
             </button>
-            <p className="text-xs font-medium text-white/60 hidden sm:block">
-              Showing <span className="font-bold text-white">{filteredProducts.length}</span> handcrafted footwear pairs
-            </p>
+            {products.length > 0 && (
+              <p className="text-xs font-medium text-white/60 hidden sm:block">
+                Showing <span className="font-bold text-white">{filteredProducts.length}</span> handcrafted footwear pairs
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-2 relative">
@@ -174,17 +176,25 @@ export function ShopClient({ initialProducts, initialCategory }: { initialProduc
 
         {/* Product Grid */}
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-20 bg-[#1C1412] border border-white/10 shadow-xl rounded-2xl flex flex-col items-center p-6 space-y-3">
-            <Filter className="w-12 h-12 text-[#D4AF37]/40 mb-2" />
-            <h3 className="font-serif text-xl font-bold text-white">No products found</h3>
-            <p className="text-xs text-white/60">Try adjusting your filters or price limit.</p>
-            <button 
-              onClick={clearFilters}
-              className="px-6 py-2.5 bg-[#8A1538] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#A81B45] transition-colors rounded-xl border border-[#D4AF37]/30"
-            >
-              Reset Filters
-            </button>
-          </div>
+          activeFilterCount > 0 ? (
+            <div className="text-center py-20 bg-[#1C1412] border border-white/10 shadow-xl rounded-2xl flex flex-col items-center p-6 space-y-3">
+              <Filter className="w-12 h-12 text-[#D4AF37]/40 mb-2" />
+              <h3 className="font-serif text-xl font-bold text-white">No products found</h3>
+              <p className="text-xs text-white/60">Try adjusting your filters or price limit.</p>
+              <button 
+                onClick={clearFilters}
+                className="px-6 py-2.5 bg-[#8A1538] text-white text-xs font-bold uppercase tracking-widest hover:bg-[#A81B45] transition-colors rounded-xl border border-[#D4AF37]/30"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-[#1C1412] border border-white/10 shadow-xl rounded-2xl flex flex-col items-center p-6 space-y-3">
+              <Sparkles className="w-12 h-12 text-[#D4AF37]/40 mb-2" />
+              <h3 className="font-serif text-xl font-bold text-white">Our catalogue is being updated</h3>
+              <p className="text-xs text-white/60">No products are available to display right now.</p>
+            </div>
+          )
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProducts.map((product) => (

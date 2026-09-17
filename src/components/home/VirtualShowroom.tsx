@@ -123,7 +123,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
                 href="/stores"
                 className="px-6 py-3.5 bg-[var(--theme-color-bg)] text-[var(--theme-color-text)] font-bold text-xs uppercase tracking-widest hover:border-[var(--theme-color-accent)] transition-all rounded-xl border border-[var(--theme-color-border)]"
               >
-                Find Experience Store
+                Experience Stores Coming Soon
               </Link>
             </div>
           </div>

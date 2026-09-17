@@ -36,8 +36,7 @@ export default function TermsOfService() {
               </p>
               
               <div className="mt-12 p-6 bg-[var(--color-brand-50)] text-sm italic">
-                Note: This is a placeholder Terms of Service template for demonstration purposes. Before deploying to production, 
-                this document should be reviewed and updated by legal counsel.
+                Note: These terms are pending final legal review. They are published here in their current form and will be updated once that review is complete.
               </div>
             </div>
           </div>
