@@ -160,8 +160,8 @@ JUDY_TIMEOUT_MS=10000   # optional 1000–30000
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/fashion-feet.git
-cd fashion-feet
+git clone https://github.com/Keninjavelas/Fashion-Feet.git
+cd Fashion-Feet
 
 # Install dependencies
 npm install
