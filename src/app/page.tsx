@@ -44,11 +44,7 @@ export default async function Home() {
   return (
     <StorefrontLayout activeFestivalTheme={activeFestival?.theme || "default"}>
       <FestivalOverlay activeFestival={activeFestival} />
-      <Hero 
-        heroImage={activeHeroImage} 
-        artisanImage1={artisanImage1} 
-        artisanImage2={artisanImage2} 
-      />
+      <Hero />
       <CraftsmanshipScrollStory />
       <HeritageArtistrySection 
         artisanImage1={artisanImage1} 

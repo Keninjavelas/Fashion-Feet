@@ -3,18 +3,10 @@
 import Link from "next/link";
 import { Sparkles, ArrowRight, Compass } from "lucide-react";
 import { SwayingSilkHeroBackground } from "./SwayingSilkHeroBackground";
-import { Real3DJuttiHeroCanvas } from "./Real3DJuttiHeroCanvas";
+import { ThreeJuttiHeroCanvas } from "../three/ThreeJuttiHeroCanvas";
 import { useFestival } from "@/components/providers/FestivalProvider";
 
-export function Hero({ 
-  heroImage, 
-  artisanImage1, 
-  artisanImage2 
-}: { 
-  heroImage?: string; 
-  artisanImage1?: string; 
-  artisanImage2?: string; 
-}) {
+export function Hero() {
   const { activeFestival } = useFestival();
   const isDiwali = activeFestival === "diwali" || activeFestival === "baisakhi" || activeFestival === "lohri";
 
@@ -82,7 +74,7 @@ export function Hero({
 
         {/* Right High-Res Real 3D Jutti Hero Canvas */}
         <div className="lg:col-span-5 flex justify-center">
-          <Real3DJuttiHeroCanvas fallbackImage={heroImage} />
+          <ThreeJuttiHeroCanvas aspectRatio={4 / 3} />
         </div>
       </div>
 

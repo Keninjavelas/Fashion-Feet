@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
 import crypto from "crypto";
+import argon2 from "argon2";
 
 // Base32 alphabet for TOTP secrets
 const BASE32_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -132,13 +133,13 @@ export function verifyMfaToken(token: string, secret: string): boolean {
   return verifyMfaTokenWithStep(token, secret).valid;
 }
 
-export function generateRecoveryCodes(count: number = 8): { rawCodes: string[]; hashedCodes: string[] } {
+export async function generateRecoveryCodes(count: number = 8): Promise<{ rawCodes: string[]; hashedCodes: string[] }> {
   const rawCodes: string[] = [];
   const hashedCodes: string[] = [];
 
   for (let i = 0; i < count; i++) {
     const raw = crypto.randomBytes(5).toString("hex").toUpperCase(); // e.g. "A1B2C3D4E5"
-    const hash = hashRecoveryCode(raw);
+    const hash = await hashRecoveryCode(raw);
     rawCodes.push(raw);
     hashedCodes.push(hash);
   }
@@ -146,6 +147,33 @@ export function generateRecoveryCodes(count: number = 8): { rawCodes: string[]; 
   return { rawCodes, hashedCodes };
 }
 
-export function hashRecoveryCode(code: string): string {
-  return crypto.createHash("sha256").update(code.trim().toUpperCase()).digest("hex");
+export async function hashRecoveryCode(code: string): Promise<string> {
+  return await argon2.hash(code.trim().toUpperCase(), {
+    type: argon2.argon2id,
+    memoryCost: 65536,
+    timeCost: 3,
+    parallelism: 4,
+  });
+}
+
+export async function verifyRecoveryCode(code: string, storedHash: string): Promise<{ valid: boolean; needsRehash: boolean }> {
+  if (!storedHash || !code) return { valid: false, needsRehash: false };
+
+  const trimmed = code.trim().toUpperCase();
+
+  if (storedHash.startsWith("$argon2")) {
+    try {
+      const valid = await argon2.verify(storedHash, trimmed);
+      return { valid, needsRehash: false };
+    } catch {
+      return { valid: false, needsRehash: false };
+    }
+  }
+
+  const sha256Hash = crypto.createHash("sha256").update(trimmed).digest("hex");
+  if (storedHash === sha256Hash) {
+    return { valid: true, needsRehash: true };
+  }
+
+  return { valid: false, needsRehash: false };
 }

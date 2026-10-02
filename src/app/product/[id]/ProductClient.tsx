@@ -10,6 +10,11 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EnquiryModal } from "@/components/shop/EnquiryModal";
 import { toggleWishlist } from "@/app/actions/wishlist";
 import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
+import { ThreeJuttiHeroCanvas } from "@/components/three/ThreeJuttiHeroCanvas";
+import {
+  FOOTWEAR_DESIGN_TOKENS,
+  type AccentSwatchName,
+} from "@/components/three/ProceduralPunjabiJutti";
 
 function Accordion({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -45,10 +50,13 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
   const [selectedSize, setSelectedSize] = useState("");
   const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
-  
+
   const [showError, setShowError] = useState(false);
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const [activeViewerMode, setActiveViewerMode] = useState<"3d" | "photos">("3d");
+  const [activeAccent, setActiveAccent] = useState<AccentSwatchName>("crimson");
 
   // Guarantee top position scroll on load
   useEffect(() => {
@@ -57,22 +65,27 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
 
   // Pre-select user's saved size if available
   const savedUserSize = (session?.user as any)?.size || "";
+  const savedUkSize = useMemo(() => {
+    if (!savedUserSize) return "";
+    const match = savedUserSize.match(/UK\s*\d+/i);
+    return match ? match[0].toUpperCase() : "";
+  }, [savedUserSize]);
+
   useEffect(() => {
-    if (savedUserSize && !selectedSize) {
-      // Extract numeric UK size from saved string e.g. "UK 7 / EU 40" -> "UK 7"
-      const match = savedUserSize.match(/UK\s*\d+/i);
-      if (match) {
-        setSelectedSize(match[0].toUpperCase());
-      }
+    if (savedUkSize && selectedSize === "") {
+      setSelectedSize(savedUkSize);
     }
-  }, [savedUserSize, selectedSize]);
+  }, [savedUkSize, selectedSize]);
 
 
 
-  const images = product.images?.length > 0 
-    ? product.images.map((img: any) => img.url) 
-    : [PLACEHOLDER_PRODUCT_IMAGE, 
-       PLACEHOLDER_PRODUCT_IMAGE];
+  const images = useMemo(
+    () =>
+      product.images?.length > 0
+        ? product.images.map((img: any) => img.url)
+        : [PLACEHOLDER_PRODUCT_IMAGE, PLACEHOLDER_PRODUCT_IMAGE],
+    [product.images]
+  );
        
   const activeImage = images[activeImageIndex];
   const sizes = ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"];
@@ -121,25 +134,96 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
       />
 
       <div className="flex flex-col lg:flex-row gap-16">
-        {/* Images Section */}
+        {/* Images + 3D Section */}
         <div className="w-full lg:w-1/2 flex flex-col gap-4">
-          <div 
-            className="relative aspect-[4/5] bg-[var(--theme-color-surface)] rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-[var(--theme-color-border)]"
+          <div
+            role="tablist"
+            aria-label="Product viewer mode"
+            className="flex gap-2 p-1 bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] rounded-2xl w-fit mx-auto lg:mx-0"
           >
-             <Image src={activeImage} alt={product.title} fill className="object-cover transition-transform duration-700" sizes="(max-width: 1024px) 100vw, 50vw" priority />
+            {(["3d", "photos"] as const).map((mode) => {
+              const isActive = activeViewerMode === mode;
+              return (
+                <button
+                  key={mode}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveViewerMode(mode)}
+                  className={`px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 ${
+                    isActive
+                      ? "bg-[var(--theme-color-jewel)] text-white shadow-md"
+                      : "text-[var(--theme-color-text-muted)] hover:text-[var(--theme-color-text)]"
+                  }`}
+                >
+                  {mode === "3d" ? "Interactive 3D" : "Product Photos"}
+                </button>
+              );
+            })}
           </div>
-          
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            {images.map((img: string, i: number) => (
-              <button 
-                key={i} 
-                onClick={() => setActiveImageIndex(i)}
-                className={`relative w-20 h-24 flex-shrink-0 bg-[var(--theme-color-surface)] rounded-xl border-2 transition-all ${activeImageIndex === i ? 'border-[var(--theme-color-accent)] scale-105 shadow-md' : 'border-[var(--theme-color-border)] opacity-70 hover:opacity-100'}`}
+
+          {activeViewerMode === "3d" ? (
+            <div className="flex flex-col gap-4">
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-xl border border-[var(--theme-color-border)]">
+                <ThreeJuttiHeroCanvas
+                  className="!aspect-auto !w-full !h-full"
+                  aspectRatio={4 / 5}
+                  accent={activeAccent}
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3" role="radiogroup" aria-label="Velvet accent colour">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--theme-color-text-muted)]">
+                  Colourway
+                </span>
+                {Object.entries(FOOTWEAR_DESIGN_TOKENS.accentSwatches).map(([name, hex]) => {
+                  const isActive = name === activeAccent;
+                  const colour = `#${hex.toString(16).padStart(6, "0")}`;
+                  return (
+                    <button
+                      key={name}
+                      role="radio"
+                      aria-checked={isActive}
+                      aria-label={`${name} velvet`}
+                      onClick={() => setActiveAccent(name as AccentSwatchName)}
+                      className={`w-8 h-8 rounded-full transition-all shadow-md border-2 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/60 ${
+                        isActive ? "border-[var(--theme-color-accent)] scale-110" : "border-[var(--theme-color-border)]"
+                      }`}
+                      style={{ backgroundColor: colour }}
+                      title={`${name.charAt(0).toUpperCase()}${name.slice(1)} velvet`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <>
+              <div
+                className="relative aspect-[4/5] bg-[var(--theme-color-surface)] rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-[var(--theme-color-border)]"
               >
-                <Image src={img} alt={`${product.title} view ${i}`} fill className="object-cover rounded-lg" sizes="80px" />
-              </button>
-            ))}
-          </div>
+                <Image src={activeImage} alt={product.title} fill className="object-cover transition-transform duration-700" sizes="(max-width: 1024px) 100vw, 50vw" priority />
+              </div>
+
+              <div className="flex gap-3 overflow-x-auto pb-2" role="listbox" aria-label="Product image gallery thumbnails">
+                {images.map((img: string, i: number) => {
+                  const isActive = activeImageIndex === i;
+                  return (
+                    <button
+                      key={i}
+                      role="option"
+                      aria-selected={isActive}
+                      aria-label={`View product image ${i + 1}`}
+                      onClick={() => setActiveImageIndex(i)}
+                      className={`relative w-20 h-24 flex-shrink-0 bg-[var(--theme-color-surface)] rounded-xl border-2 transition-all focus:outline-none focus:ring-2 focus:ring-[var(--theme-color-accent)]/40 ${
+                        isActive ? 'border-[var(--theme-color-accent)] scale-105 shadow-md' : 'border-[var(--theme-color-border)] opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <Image src={img} alt={`${product.title} view ${i + 1}`} fill className="object-cover rounded-lg" sizes="80px" />
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
 
         {/* Details Section */}
@@ -189,22 +273,25 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
               </Link>
             </div>
             
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {sizes.map(size => {
                 const isSaved = savedUserSize.toUpperCase().includes(size);
+                const isSelected = selectedSize === size;
                 return (
                   <button
                     key={size}
                     onClick={() => { setSelectedSize(size); setShowError(false); }}
-                    className={`py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all border relative ${
-                      selectedSize === size
+                    aria-pressed={isSelected}
+                    aria-label={`Select size ${size}`}
+                    className={`py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all border relative focus:outline-none focus:ring-2 focus:ring-[var(--theme-color-accent)]/40 ${
+                      isSelected
                         ? "bg-[var(--theme-color-jewel)] text-white border-[var(--theme-color-accent)] shadow-lg"
                         : "bg-[var(--theme-color-surface)] text-[var(--theme-color-text)] border-[var(--theme-color-border)] hover:border-[var(--theme-color-accent)]"
                     }`}
                   >
                     {size}
                     {isSaved && (
-                      <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" title="Your Saved Profile Size"></span>
+                      <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" aria-hidden="true" title="Your Saved Profile Size"></span>
                     )}
                   </button>
                 );
@@ -223,7 +310,8 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
                 }
                 setEnquiryOpen(true);
               }}
-              className="w-full py-4 bg-[var(--theme-color-jewel)] text-white font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all rounded-xl shadow-xl border border-[var(--theme-color-border)] flex items-center justify-center gap-2"
+              aria-label={selectedSize ? `Open product enquiry for size ${selectedSize}` : 'Select a size before inquiring'}
+              className="w-full py-4 bg-[var(--theme-color-jewel)] text-white font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all rounded-xl shadow-xl border border-[var(--theme-color-border)] flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[var(--theme-color-accent)]/40"
             >
               <MessageSquare className="w-4 h-4 text-[var(--theme-color-accent)]" /> Submit Product Enquiry
             </button>

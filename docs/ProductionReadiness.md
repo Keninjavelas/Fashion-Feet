@@ -89,9 +89,9 @@ If database corruption or accidental deletion occurs:
 ## 6. Pre-Flight Deployment Checklist
 
 Before deploying to production:
-- [x] Run versioned database migrations: `npx prisma migrate status` (3 migrations applied).
+- [x] Run versioned database migrations: `npx prisma migrate status` (4 migrations applied, schema up to date).
 - [x] Verify full test harness: `npm run test:acceptance` (All phases A–E passed).
-- [x] Verify real-rendered browser suite: `npm run test:gate2` (69/69 viewports, editor, seasonal modes, studio passed).
+- [x] Verify real-rendered browser suite: `npm run test:gate2` (72/72 assertions passed).
 - [x] Run strict TypeScript type check: `npx tsc --noEmit` (0 errors).
 - [x] Compile production bundle: `npm run build` (45 static and dynamic routes compiled).
 

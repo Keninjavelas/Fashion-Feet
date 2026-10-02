@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { hashPassword, verifyPassword, createAdminSession, getAuthenticatedAdmin, revokeAdminSession } from "../lib/adminAuth";
-import { generateMfaSecret, generateTotpCode, verifyMfaToken, generateRecoveryCodes, hashRecoveryCode } from "../lib/mfa";
+import { generateMfaSecret, generateTotpCode, verifyMfaToken, generateRecoveryCodes, verifyRecoveryCode } from "../lib/mfa";
 import { logAdminAudit } from "../lib/audit";
 import { getPublishedAsset } from "../lib/media";
 
@@ -63,7 +63,7 @@ async function runPhaseATests() {
   }
 
   // Generate 8 Recovery Codes
-  const { rawCodes, hashedCodes } = generateRecoveryCodes(8);
+  const { rawCodes, hashedCodes } = await generateRecoveryCodes(8);
   await prisma.adminRecoveryCode.createMany({
     data: hashedCodes.map(hash => ({ adminId: superAdmin.id, codeHash: hash }))
   });
@@ -79,11 +79,19 @@ async function runPhaseATests() {
   // 4. One-Time Recovery Code Test
   console.log("\n🔑 4. Testing Single-Use Recovery Code Authentication...");
   const sampleRawCode = rawCodes[0];
-  const sampleHash = hashRecoveryCode(sampleRawCode);
 
-  const matchedCode = await prisma.adminRecoveryCode.findFirst({
-    where: { adminId: superAdmin.id, codeHash: sampleHash, used: false }
+  const candidateCodes = await prisma.adminRecoveryCode.findMany({
+    where: { adminId: superAdmin.id, used: false }
   });
+
+  let matchedCode = null;
+  for (const candidate of candidateCodes) {
+    const result = await verifyRecoveryCode(sampleRawCode, candidate.codeHash);
+    if (result.valid) {
+      matchedCode = candidate;
+      break;
+    }
+  }
 
   if (!matchedCode) {
     throw new Error("Recovery code match failed!");
@@ -97,11 +105,19 @@ async function runPhaseATests() {
   await logAdminAudit({ adminId: superAdmin.id, action: "RECOVERY_CODE_USED", resourceType: "AdminRecoveryCode", resourceId: matchedCode.id });
 
   // Verify second attempt fails
-  const reuseCheck = await prisma.adminRecoveryCode.findFirst({
-    where: { adminId: superAdmin.id, codeHash: sampleHash, used: false }
+  const reuseCandidates = await prisma.adminRecoveryCode.findMany({
+    where: { adminId: superAdmin.id, used: false }
   });
+  let reuseMatched = false;
+  for (const candidate of reuseCandidates) {
+    const result = await verifyRecoveryCode(sampleRawCode, candidate.codeHash);
+    if (result.valid) {
+      reuseMatched = true;
+      break;
+    }
+  }
 
-  if (reuseCheck) {
+  if (reuseMatched) {
     throw new Error("Recovery code reuse vulnerability detected!");
   }
   console.log("✅ One-time recovery code used, invalidated, and single-use enforced.");

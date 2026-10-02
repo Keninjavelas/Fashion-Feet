@@ -4,6 +4,19 @@ import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
 import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
+import { ThreeJuttiCompactCard } from "@/components/three/ThreeJuttiCompactCard";
+import type { AccentSwatchName } from "@/components/three/ProceduralPunjabiJutti";
+
+type CollectionWithAccent = {
+  title: string;
+  subtitle: string;
+  desc: string;
+  image: string;
+  href: string;
+  tag: string;
+  accent: AccentSwatchName;
+  interactive: "hover-rotate" | "hover-tilt" | "idle-rotate";
+};
 
 export function FeaturedCollections({
   collectionWedding,
@@ -14,14 +27,16 @@ export function FeaturedCollections({
   collectionFestive?: string;
   collectionCasual?: string;
 }) {
-  const collections = [
+  const collections: CollectionWithAccent[] = [
     {
       title: "Wedding Collection",
       subtitle: "Bridal Zari & Dabka Grandeur",
       desc: "Royal crimson silk velvet juttis stitched thread-by-thread with gold zari yarn for wedding ceremonies.",
       image: collectionWedding || PLACEHOLDER_HOMEPAGE_IMAGE,
       href: "/shop?category=Wedding",
-      tag: "Bridal Couture"
+      tag: "Bridal Couture",
+      accent: "crimson",
+      interactive: "hover-rotate"
     },
     {
       title: "Festive Collection",
@@ -29,7 +44,9 @@ export function FeaturedCollections({
       desc: "Vibrant festive pairs designed for Diwali, Eid, and Anand Karaj celebrations.",
       image: collectionFestive || PLACEHOLDER_HOMEPAGE_IMAGE,
       href: "/shop?category=Festive",
-      tag: "Festive Season"
+      tag: "Festive Season",
+      accent: "emerald",
+      interactive: "hover-tilt"
     },
     {
       title: "Everyday Luxury Mojaris",
@@ -37,7 +54,9 @@ export function FeaturedCollections({
       desc: "Genuine leather slip-ons with velvet arch padding for daily ease.",
       image: collectionCasual || PLACEHOLDER_HOMEPAGE_IMAGE,
       href: "/shop?category=Casual",
-      tag: "Everyday Comfort"
+      tag: "Everyday Comfort",
+      accent: "ivory",
+      interactive: "idle-rotate"
     }
   ];
 
@@ -59,15 +78,21 @@ export function FeaturedCollections({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {collections.map((col) => (
-            <StorefrontTiltCard key={col.title} className="bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all group flex flex-col justify-between">
+            <StorefrontTiltCard
+              key={col.title}
+              className="bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all group flex flex-col justify-between"
+            >
               <div className="relative h-72 sm:h-80 overflow-hidden bg-black/5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={col.image}
-                  alt={col.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                <ThreeJuttiCompactCard
+                  className="absolute inset-0 !rounded-none !border-0"
+                  accent={col.accent}
+                  interactive={col.interactive}
+                  tiltStrength={0.55}
+                  spinSpeed={0.014}
+                  label={col.title}
+                  aspectRatio={4 / 3}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-6 flex flex-col justify-end text-white">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent p-6 flex flex-col justify-end text-white pointer-events-none">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">{col.tag}</span>
                   <h3 className="font-serif text-2xl font-bold">{col.title}</h3>
                   <p className="text-xs text-white/80 font-light mt-1">{col.subtitle}</p>
@@ -92,3 +117,4 @@ export function FeaturedCollections({
     </section>
   );
 }
+

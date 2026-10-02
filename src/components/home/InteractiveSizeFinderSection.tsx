@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
 import { updateUserProfile } from "@/app/actions/users";
+import { AnatomicalFootCanvas } from "../three/AnatomicalFootCanvas";
 
 export function InteractiveSizeFinderSection() {
   const { data: session } = useSession();
@@ -164,13 +165,24 @@ export function InteractiveSizeFinderSection() {
                 </span>
               </div>
 
-              {/* Visual Diagram */}
-              <div className="h-40 bg-[var(--theme-color-bg)] rounded-xl border border-[var(--theme-color-border)] flex items-center justify-center p-4 relative overflow-hidden">
-                <div className="text-center space-y-1">
-                  <span className="text-5xl">🦶</span>
-                  <p className="font-serif text-sm font-bold text-[var(--theme-color-text)]">Recommended Size: UK {ukSize} / EU {euSize}</p>
-                  <p className="text-[11px] text-[var(--theme-color-text-muted)] font-medium">Anatomical fit suited for Punjabi Juttis ({footLengthCm} cm)</p>
-                </div>
+              {/* Visual Diagram — Live 3D Anatomical Foot Model */}
+              <div className="relative w-full overflow-hidden rounded-xl border border-[var(--theme-color-border)]">
+                <AnatomicalFootCanvas
+                  footLengthCm={footLengthCm}
+                  gender={gender}
+                  ukSize={ukSize}
+                  aspectRatio={4 / 3}
+                  className="!rounded-none !border-0"
+                />
+              </div>
+
+              <div className="flex items-center justify-center gap-2 px-3 py-2 bg-[var(--theme-color-bg)] rounded-xl border border-[var(--theme-color-border)] text-xs font-bold uppercase tracking-widest text-[var(--theme-color-text-muted)]">
+                <RotateCw className="w-3.5 h-3.5 text-[var(--theme-color-accent)]" />
+                Recommended Size: UK {ukSize} / EU {euSize}
+              </div>
+
+              <div className="px-1 text-[11px] text-[var(--theme-color-text-muted)] font-medium text-center">
+                Scaled live for {footLengthCm} cm · {gender === 'women' ? "Women's" : "Men's"} fit profile
               </div>
 
               <div className="space-y-3 text-xs text-[var(--theme-color-text-muted)]">

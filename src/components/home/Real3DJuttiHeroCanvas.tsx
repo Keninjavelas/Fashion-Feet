@@ -184,15 +184,22 @@ export function Real3DJuttiHeroCanvas({ fallbackImage }: { fallbackImage?: strin
   return (
     <StorefrontTiltCard className="w-full max-w-md bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] p-6 rounded-3xl shadow-2xl space-y-4">
       {/* 3D WebGL / Photo Viewport */}
-      <div 
-        className="relative h-64 sm:h-72 rounded-2xl overflow-hidden border border-[var(--theme-color-border)] bg-black/10 cursor-grab active:cursor-grabbing select-none"
+      <div
+        role="img"
+        aria-label={
+          viewMode === "3d"
+            ? "Interactive 3D preview of a Royal Crimson Zari Jutti. Drag horizontally to rotate 360 degrees, or switch to editorial photo view."
+            : "Editorial photograph of a Royal Crimson Zari Jutti. Switch to 3D view to inspect the embroidery in the round."
+        }
+        className="relative h-64 sm:h-72 rounded-2xl overflow-hidden border border-[var(--theme-color-border)] bg-black/10 cursor-grab active:cursor-grabbing select-none focus:outline-none focus:ring-2 focus:ring-[var(--theme-color-accent)]/50"
         onMouseDown={viewMode === "3d" ? handleMouseDown : undefined}
         onMouseMove={viewMode === "3d" ? handleMouseMove : undefined}
         onMouseUp={viewMode === "3d" ? handleMouseUp : undefined}
         onMouseLeave={viewMode === "3d" ? handleMouseUp : undefined}
+        tabIndex={0}
       >
         {viewMode === "3d" ? (
-          <canvas ref={canvasRef} className="w-full h-full block" />
+          <canvas ref={canvasRef} className="w-full h-full block" aria-hidden="true" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -212,10 +219,13 @@ export function Real3DJuttiHeroCanvas({ fallbackImage }: { fallbackImage?: strin
 
         {/* Toggle Mode Button */}
         <button
+          type="button"
           onClick={() => setViewMode(viewMode === "3d" ? "photo" : "3d")}
-          className="absolute top-3 right-3 px-3 py-1 bg-[var(--theme-color-surface)] text-[var(--theme-color-text)] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[var(--theme-color-border)] flex items-center gap-1.5 shadow-md hover:border-[var(--theme-color-accent)] transition-all"
+          aria-pressed={viewMode === "photo"}
+          aria-label={viewMode === "3d" ? "Switch to editorial photo view" : "Switch to 3D inspectable mesh view"}
+          className="absolute top-3 right-3 px-3 py-1 bg-[var(--theme-color-surface)] text-[var(--theme-color-text)] text-[10px] font-bold uppercase tracking-widest rounded-full border border-[var(--theme-color-border)] flex items-center gap-1.5 shadow-md hover:border-[var(--theme-color-accent)] transition-all focus:outline-none focus:ring-2 focus:ring-[var(--theme-color-accent)]/50"
         >
-          {viewMode === "3d" ? <ImageIcon className="w-3 h-3 text-[var(--theme-color-accent)]" /> : <Sparkles className="w-3 h-3 text-[var(--theme-color-accent)]" />}
+          {viewMode === "3d" ? <ImageIcon className="w-3 h-3 text-[var(--theme-color-accent)]" aria-hidden="true" /> : <Sparkles className="w-3 h-3 text-[var(--theme-color-accent)]" aria-hidden="true" />}
           {viewMode === "3d" ? "View Photo" : "View 3D"}
         </button>
 

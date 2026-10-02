@@ -23,7 +23,7 @@ export default function RecentlyViewedPage() {
       </div>
 
       {recentProducts.length > 0 ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {recentProducts.map((product) => (
             <Link key={product.id} href={`/product/${product.id}`} className="group block bg-white border border-black/5 shadow-sm overflow-hidden">
               <div className="relative aspect-square overflow-hidden bg-[var(--color-brand-50)]">

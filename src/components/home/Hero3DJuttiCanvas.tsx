@@ -131,14 +131,17 @@ export function Hero3DJuttiCanvas() {
   };
 
   return (
-    <div 
-      className="relative w-full aspect-[4/3] rounded-3xl bg-gradient-to-br from-black/80 via-[#1C1412] to-black/90 border border-[#D4AF37]/30 shadow-2xl overflow-hidden flex flex-col items-center justify-center cursor-grab active:cursor-grabbing group"
+    <div
+      role="img"
+      aria-label={`Interactive 3D preview of a Punjabi Jutti — royal crimson velvet with gold zari embroidery, leather sole. Current rotation angle ${Math.round((rotationY * 180) / Math.PI)} degrees. ${isDragging ? 'Being dragged.' : 'Drag to rotate 360 degrees.'}`}
+      className="relative w-full aspect-[4/3] rounded-3xl bg-gradient-to-br from-black/80 via-[#1C1412] to-black/90 border border-[#D4AF37]/30 shadow-2xl overflow-hidden flex flex-col items-center justify-center cursor-grab active:cursor-grabbing group focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/60"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
+      tabIndex={0}
     >
-      <canvas ref={canvasRef} className="w-full h-full pointer-events-none" />
+      <canvas ref={canvasRef} className="w-full h-full pointer-events-none" aria-hidden="true" />
 
       {/* 3D Controls Badge */}
       <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full text-[#D4AF37] text-[10px] uppercase tracking-widest font-bold border border-[#D4AF37]/30 shadow">

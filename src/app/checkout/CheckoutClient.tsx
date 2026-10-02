@@ -58,34 +58,34 @@ export default function CheckoutClient() {
               <h2 className="font-serif text-2xl text-[var(--color-brand-900)] mb-6 border-b border-black/10 pb-4">Contact Information</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">Email Address</label>
-                  <input type="email" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]" placeholder="Email" />
+                  <label htmlFor="checkout_email" className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">Email Address</label>
+                  <input id="checkout_email" name="email" type="email" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)] rounded-xl" placeholder="you@example.com" />
                 </div>
               </div>
             </section>
 
             <section>
               <h2 className="font-serif text-2xl text-[var(--color-brand-900)] mb-6 border-b border-black/10 pb-4">Shipping Address</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-1">
-                  <label className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">First Name</label>
-                  <input type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="checkout_first_name" className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">First Name</label>
+                  <input id="checkout_first_name" name="firstName" type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)] rounded-xl" />
                 </div>
-                <div className="col-span-1">
-                  <label className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">Last Name</label>
-                  <input type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]" />
+                <div>
+                  <label htmlFor="checkout_last_name" className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">Last Name</label>
+                  <input id="checkout_last_name" name="lastName" type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)] rounded-xl" />
                 </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">Address</label>
-                  <input type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]" placeholder="123 Main St" />
+                <div className="md:col-span-2">
+                  <label htmlFor="checkout_address" className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">Address</label>
+                  <input id="checkout_address" name="address" type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)] rounded-xl" placeholder="123 Main St" />
                 </div>
-                <div className="col-span-2 md:col-span-1">
-                  <label className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">City</label>
-                  <input type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]" />
+                <div>
+                  <label htmlFor="checkout_city" className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">City</label>
+                  <input id="checkout_city" name="city" type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)] rounded-xl" />
                 </div>
-                <div className="col-span-2 md:col-span-1">
-                  <label className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">Postal Code</label>
-                  <input type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]" />
+                <div>
+                  <label htmlFor="checkout_postal_code" className="block text-sm font-medium uppercase tracking-widest text-gray-700 mb-2">Postal Code</label>
+                  <input id="checkout_postal_code" name="postalCode" type="text" required className="w-full p-4 border border-black/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)] rounded-xl" />
                 </div>
               </div>
             </section>

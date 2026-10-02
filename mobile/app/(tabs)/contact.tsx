@@ -14,17 +14,22 @@ import { useStores } from '../../src/api/hooks';
 import { Notice } from '../../src/components/StateView';
 import { useTheme } from '../../src/site/SiteProvider';
 import { SPACING } from '../../src/theme/theme';
+import { API_BASE_URL, IS_USING_FALLBACK_BASE_URL } from '../../src/api/client';
 
 /**
  * Contact.
  *
- * IMPORTANT, and stated on screen as well as here: /api/v1 is read-only (GET
- * only) and this app has no other backend, so the enquiry form does NOT send
- * anything anywhere. It validates locally and then says so. There is deliberately
- * no "message sent" confirmation, because nothing is sent.
+ * /api/v1 is read-only (GET only) and this app has no other backend,
+ * so the mobile contact form cannot transmit an enquiry by itself.
+ * Instead, once the customer's details are valid, the "Submit" button
+ * opens the studio website /contact page with the entered fields
+ * pre-filled via query parameters. That is the ONLY channel that
+ * actually delivers an enquiry (the web form POSTs through the
+ * src/app/actions/enquiries.ts server action).
  *
- * The real contact channels are the store phone/email/WhatsApp values published
- * by /api/v1/stores, which is why they are pulled in below.
+ * If the app is using the localhost development fallback URL, the
+ * button stays disabled for submission and the customer is directed to
+ * the published store phone/email/WhatsApp links instead.
  */
 export default function ContactScreen() {
   const theme = useTheme();
@@ -34,16 +39,30 @@ export default function ContactScreen() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [attempted, setAttempted] = useState(false);
+  const [redirected, setRedirected] = useState(false);
 
   const nameError = name.trim().length === 0 ? 'Please enter your name.' : null;
   const emailError = EMAIL_PATTERN.test(email.trim()) ? null : 'Please enter a valid email address.';
   const messageError = message.trim().length === 0 ? 'Please write a short message.' : null;
   const isValid = nameError === null && emailError === null && messageError === null;
+  const canRedirect = isValid && !IS_USING_FALLBACK_BASE_URL;
 
   const contactStore =
     (stores.data ?? []).find(
       (store) => store.email !== null || store.phone !== null || store.whatsapp !== null
     ) ?? null;
+
+  const handleSubmit = () => {
+    setAttempted(true);
+    if (!canRedirect) return;
+    const params = new URLSearchParams();
+    params.set('name', name.trim());
+    params.set('email', email.trim());
+    params.set('message', message.trim());
+    const url = `${API_BASE_URL}/contact?${params.toString()}`;
+    setRedirected(true);
+    void Linking.openURL(url).catch(() => setRedirected(false));
+  };
 
   return (
     <KeyboardAvoidingView
@@ -56,8 +75,8 @@ export default function ContactScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Notice
-          title="This form does not send anything yet"
-          message="The public API this app talks to is read-only (GET only), so there is no endpoint to deliver an enquiry. Submitting below only checks your details on this device — nothing is transmitted and nothing is stored. Use the studio contact details in this screen instead."
+          title="Enquiries are delivered through the studio website"
+          message="The catalogue app is read-only. Submitting below opens Fashion Feet's published contact page with your name, email and message pre-filled so you can confirm and send in one tap."
         />
 
         <View
@@ -106,23 +125,73 @@ export default function ContactScreen() {
 
           <Pressable
             accessibilityRole="button"
-            onPress={() => setAttempted(true)}
+            accessibilityState={{ disabled: !canRedirect }}
+            onPress={handleSubmit}
             style={({ pressed }) => [
               styles.submit,
-              { backgroundColor: theme.primary, borderRadius: theme.buttonRadius, opacity: pressed ? 0.85 : 1 },
+              {
+                backgroundColor: canRedirect ? theme.primary : theme.surfaceMuted,
+                borderRadius: theme.buttonRadius,
+                opacity: pressed ? 0.85 : 1,
+              },
             ]}
+            disabled={!canRedirect}
           >
-            <Text style={[styles.submitLabel, { color: theme.onPrimary }]}>Submit enquiry</Text>
+            <Text
+              style={[
+                styles.submitLabel,
+                { color: canRedirect ? theme.onPrimary : theme.textMuted },
+              ]}
+            >
+              {IS_USING_FALLBACK_BASE_URL
+                ? 'Website contact not reachable in dev build'
+                : 'Open contact page & send'}
+            </Text>
           </Pressable>
-          <Text style={[styles.caption, { color: theme.textMuted }]}>
-            Submitting validates the form only. No message leaves this device.
-          </Text>
 
-          {attempted && isValid ? (
+          {IS_USING_FALLBACK_BASE_URL ? (
+            <Text style={[styles.caption, { color: theme.textMuted }]}>
+              This development build points at the Android emulator loopback
+              address. Set EXPO_PUBLIC_API_BASE_URL to the published studio
+              website domain and the button above will open the real contact
+              form. In the meantime, use the phone / email / WhatsApp
+              channels below when they are published.
+            </Text>
+          ) : (
+            <Text style={[styles.caption, { color: theme.textMuted }]}>
+              Tapping opens the Fashion Feet website contact page in your
+              browser with the fields above pre-filled — confirm and send
+              there and the studio will receive your enquiry.
+            </Text>
+          )}
+
+          {attempted && isValid && redirected ? (
+            <Notice
+              tone="info"
+              title="Opening the website contact page…"
+              message="Your enquiry is not sent from this app itself. Finish the
+              one-tap confirm in the browser tab and the studio will reply
+              via the email address you entered."
+            />
+          ) : null}
+          {attempted && isValid && !IS_USING_FALLBACK_BASE_URL && !redirected ? (
             <Notice
               tone="warning"
-              title="Not sent"
-              message="Your details are valid, but this build has nowhere to deliver them. Nothing was transmitted. Please use the phone, email or WhatsApp details below."
+              title="Browser could not be opened"
+              message="Your details are valid, but the device would not open a
+              browser window. Please use the direct phone, email or WhatsApp
+              channels below, or visit the studio website's /contact page
+              manually."
+              actionLabel="Retry"
+              onAction={handleSubmit}
+            />
+          ) : null}
+          {attempted && !isValid ? (
+            <Notice
+              tone="warning"
+              title="Please fix the highlighted fields"
+              message="All three fields are required before the website contact
+              page can open with your details pre-filled."
             />
           ) : null}
         </View>

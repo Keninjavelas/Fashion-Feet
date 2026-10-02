@@ -82,13 +82,15 @@ export function FaqClient({ faqs }: { faqs: FaqItem[] }) {
 
           {hasFaqs && (
             <div className="relative max-w-2xl mx-auto">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <label htmlFor="faq-search" className="sr-only">Search frequently asked questions</label>
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" aria-hidden="true" />
               <input
+                id="faq-search"
                 type="text"
                 placeholder="Search your question..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-[var(--color-brand-50)] border border-[var(--color-brand-100)] text-black focus:outline-none focus:border-[var(--color-brand-900)] text-base transition-colors rounded-2xl"
+                className="w-full pl-12 pr-4 py-4 bg-[var(--color-brand-50)] border border-[var(--color-brand-100)] text-black focus:outline-none focus:border-[var(--color-brand-900)] focus:ring-2 focus:ring-[var(--color-accent-gold)]/40 text-base transition-colors rounded-2xl"
               />
             </div>
           )}
@@ -130,22 +132,35 @@ export function FaqClient({ faqs }: { faqs: FaqItem[] }) {
               <div className="space-y-4">
                 {section.items.map((item) => {
                   const isOpen = openId === item.id;
+                  const buttonId = `faq-button-${item.id}`;
+                  const panelId = `faq-panel-${item.id}`;
 
                   return (
                     <div key={item.id} className="border border-black/10 bg-white rounded-2xl overflow-hidden shadow-sm">
-                      <button
-                        onClick={() => toggleAccordion(item.id)}
-                        className="w-full flex justify-between items-center p-6 text-left hover:bg-[var(--color-brand-50)] transition-colors"
-                      >
-                        <span className={`font-serif text-lg font-bold pr-8 ${isOpen ? 'text-[var(--color-brand-900)]' : 'text-gray-900'}`}>
-                          {item.question}
-                        </span>
-                        <ChevronDown className={`w-5 h-5 flex-shrink-0 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[var(--color-brand-900)]' : ''}`} />
-                      </button>
+                      <h3>
+                        <button
+                          id={buttonId}
+                          onClick={() => toggleAccordion(item.id)}
+                          aria-expanded={isOpen}
+                          aria-controls={panelId}
+                          className="w-full flex justify-between items-center p-6 text-left hover:bg-[var(--color-brand-50)] transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]/40 focus:z-10"
+                        >
+                          <span className={`font-serif text-lg font-bold pr-8 ${isOpen ? 'text-[var(--color-brand-900)]' : 'text-gray-900'}`}>
+                            {item.question}
+                          </span>
+                          <ChevronDown
+                            aria-hidden="true"
+                            className={`w-5 h-5 flex-shrink-0 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[var(--color-brand-900)]' : ''}`}
+                          />
+                        </button>
+                      </h3>
 
                       <AnimatePresence>
                         {isOpen && (
                           <motion.div
+                            id={panelId}
+                            role="region"
+                            aria-labelledby={buttonId}
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}

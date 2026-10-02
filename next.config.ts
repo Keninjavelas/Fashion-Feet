@@ -28,11 +28,19 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=()"
   },
   {
-    // Baseline CSP. These directives deliberately do not restrict script/style
-    // loading, so they harden framing, object embedding, base-tag hijacking and
-    // cross-origin form targets without breaking the Next.js runtime. A
-    // nonce-based script-src policy requires build-time plumbing and remains a
-    // deployment-time task — see docs/SecurityHardening.md.
+    // Structural Content-Security-Policy directives that are safe to emit on
+    // every response (API routes, static files, placeholders, image routes).
+    // These harden framing, object embedding, base-tag hijacking and cross-
+    // origin form targets without affecting the script-style loading graph.
+    //
+    // Page-document HTML responses (i.e. the browser top-level /__document__
+    // render) receive a SUPERSSET of this policy generated dynamically by
+    // src/app/proxy.ts: a per-request cryptographic nonce is generated, and
+    // the nonce is referenced in a `script-src 'nonce-<value>' 'strict-dynamic'
+    // https:` directive that supersedes the structural CSP header below — a
+    // single Content-Security-Policy header is emitted on those responses.
+    //
+    // See src/app/proxy.ts + docs/SecurityHardening.md §12.
     key: "Content-Security-Policy",
     value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"
   },

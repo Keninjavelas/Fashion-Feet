@@ -8,12 +8,19 @@ import { QuickViewModal } from "@/components/ui/QuickViewModal";
 import { toggleWishlist } from "@/app/actions/wishlist";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
 import { useFestival } from "@/components/providers/FestivalProvider";
+import { ThreeJuttiCompactCard } from "@/components/three/ThreeJuttiCompactCard";
+import {
+  FOOTWEAR_DESIGN_TOKENS,
+  type AccentSwatchName
+} from "@/components/three/ProceduralPunjabiJutti";
+
+const ACCENT_POOL: AccentSwatchName[] = Object.keys(
+  FOOTWEAR_DESIGN_TOKENS.accentSwatches
+) as AccentSwatchName[];
 
 export function TrendingProductsClient({ products }: { products: any[] }) {
   const { preset } = useFestival();
 
-  // With an empty catalogue there is nothing to showcase: rendering the heading
-  // over an empty grid would leave a stranded title and a blank `py-24` band.
   if (!products || products.length === 0) {
     return null;
   }
@@ -36,7 +43,12 @@ export function TrendingProductsClient({ products }: { products: any[] }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} cardBadge={preset.decorations.cardBadge} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              index={index}
+              cardBadge={preset.decorations.cardBadge}
+            />
           ))}
         </div>
       </div>
@@ -44,35 +56,63 @@ export function TrendingProductsClient({ products }: { products: any[] }) {
   );
 }
 
-function ProductCard({ product, index, cardBadge }: { product: any; index: number; cardBadge?: string }) {
+function ProductCard({
+  product,
+  index,
+  cardBadge
+}: {
+  product: any;
+  index: number;
+  cardBadge?: string;
+}) {
   const [isHovered, setIsHovered] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
 
+  const accentSwatch = ACCENT_POOL[index % ACCENT_POOL.length];
+
   return (
     <>
       <StorefrontTiltCard className="bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all group flex flex-col justify-between">
-        <div 
+        <div
           className="relative aspect-[4/5] bg-black/5 overflow-hidden"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {/* Image */}
-          {product.images && product.images.length > 0 ? (
-            <Image 
-              src={product.images[0].url} 
-              alt={product.title} 
-              fill 
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-105" 
+          <div className="absolute inset-0">
+            <ThreeJuttiCompactCard
+              className="!rounded-none !border-0 h-full w-full"
+              accent={accentSwatch}
+              aspectRatio={4 / 5}
+              interactive="hover-rotate"
+              spinSpeed={0.016}
+              tiltStrength={0.4}
+              label={product.title}
             />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-               <span className="font-serif text-[var(--theme-color-accent)] opacity-50 text-2xl rotate-45 transform">JUTTI</span>
+          </div>
+          {(product.images && product.images.length > 0) && (
+            <div
+              className={`absolute inset-0 transition-opacity duration-500 pointer-events-none ${
+                isHovered ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              <Image
+                src={product.images[0].url}
+                alt={product.title}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                className="object-cover mix-blend-multiply opacity-70"
+              />
             </div>
           )}
-          
-          {/* Badges */}
+          {(!product.images || product.images.length === 0) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/5 pointer-events-none opacity-0 group-hover:opacity-0">
+              <span className="font-serif text-[var(--theme-color-accent)] opacity-50 text-2xl rotate-45 transform">
+                JUTTI
+              </span>
+            </div>
+          )}
+
           <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
             {cardBadge && (
               <span className="bg-[var(--theme-color-accent)] text-slate-900 text-[9px] font-bold px-2.5 py-0.5 uppercase tracking-widest rounded-full shadow-md">
@@ -87,12 +127,11 @@ function ProductCard({ product, index, cardBadge }: { product: any; index: numbe
             )}
           </div>
 
-          {/* Wishlist Button */}
-          <button 
-            onClick={async (e) => { 
-              e.preventDefault(); 
+          <button
+            onClick={async (e) => {
+              e.preventDefault();
               const prev = isWishlisted;
-              setIsWishlisted(!isWishlisted); 
+              setIsWishlisted(!isWishlisted);
               try {
                 const res = await toggleWishlist(product.id);
                 if (res?.error) {
@@ -106,13 +145,22 @@ function ProductCard({ product, index, cardBadge }: { product: any; index: numbe
             className="absolute top-3 right-3 z-10 p-2 rounded-full bg-[var(--theme-color-surface)] text-[var(--theme-color-text)] hover:text-[var(--theme-color-accent)] transition-all shadow-md border border-[var(--theme-color-border)]"
             aria-label="Add to wishlist"
           >
-            <Heart className={`w-4 h-4 transition-colors ${isWishlisted ? "fill-rose-500 text-rose-500" : ""}`} />
+            <Heart
+              className={`w-4 h-4 transition-colors ${
+                isWishlisted ? "fill-rose-500 text-rose-500" : ""
+              }`}
+            />
           </button>
 
-          {/* Quick View Button */}
           <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewOpen(true); }}
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 p-3.5 rounded-full bg-[var(--theme-color-surface)] shadow-xl text-[var(--theme-color-text)] hover:text-[var(--theme-color-accent)] transition-all duration-300 transform ${isHovered ? 'scale-100 opacity-100' : 'scale-75 opacity-0'}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setQuickViewOpen(true);
+            }}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 p-3.5 rounded-full bg-[var(--theme-color-surface)] shadow-xl text-[var(--theme-color-text)] hover:text-[var(--theme-color-accent)] transition-all duration-300 transform ${
+              isHovered ? "scale-100 opacity-100" : "scale-75 opacity-0"
+            }`}
             aria-label="Quick view"
           >
             <Maximize2 className="w-4 h-4" />
@@ -136,3 +184,4 @@ function ProductCard({ product, index, cardBadge }: { product: any; index: numbe
     </>
   );
 }
+

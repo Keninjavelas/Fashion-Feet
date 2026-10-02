@@ -12,6 +12,7 @@ import type {
   SiteHomepageSection,
   Store,
 } from './types';
+import { apiCache, buildCacheKey } from './cache';
 
 /**
  * The one and only HTTP client for the Fashion Feet public API.
@@ -111,7 +112,20 @@ const DEFAULT_TIMEOUT_MS = 15_000;
 type QueryValue = string | number | undefined | null;
 type QueryParams = Record<string, QueryValue>;
 
+function buildQueryString(params: QueryParams): string {
+  return Object.entries(params)
+    .filter(([, value]) => {
+      if (value === undefined || value === null) return false;
+      return String(value).trim().length > 0;
+    })
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+    .join('&');
+}
+
 async function requestJson(path: string, params: QueryParams = {}, externalSignal?: AbortSignal): Promise<unknown> {
+  const queryString = buildQueryString(params);
+  const cacheKey = buildCacheKey(path, queryString);
+
   const controller = new AbortController();
   let timedOut = false;
   const timeoutId = setTimeout(() => {
@@ -125,15 +139,20 @@ async function requestJson(path: string, params: QueryParams = {}, externalSigna
     else externalSignal.addEventListener('abort', forwardAbort);
   }
 
+  let lastError: unknown = null;
+
   try {
-    const response = await fetch(buildUrl(path, params), {
+    const response = await fetch(buildUrl(path, queryString), {
       method: 'GET',
       headers: { Accept: 'application/json' },
       signal: controller.signal,
     });
     if (!response.ok) throw await toHttpError(response);
-    return await readJsonBody(response);
+    const body = await readJsonBody(response);
+    await apiCache.write(cacheKey, body, response.status);
+    return body;
   } catch (error) {
+    lastError = error;
     if (error instanceof ApiError) throw error;
     if (externalSignal?.aborted) throw new ApiError('Request cancelled.', { aborted: true });
     if (timedOut) {
@@ -149,18 +168,21 @@ async function requestJson(path: string, params: QueryParams = {}, externalSigna
   } finally {
     clearTimeout(timeoutId);
     externalSignal?.removeEventListener('abort', forwardAbort);
+
+    if (lastError !== null && !(lastError instanceof ApiError && lastError.aborted)) {
+      const cached = await apiCache.read(cacheKey);
+      if (cached.entry !== null) {
+        const parsed = apiCache.parseBody<unknown>(cached.entry);
+        if (parsed !== null) {
+          return parsed;
+        }
+      }
+    }
   }
 }
 
-function buildUrl(path: string, params: QueryParams): string {
-  const search = Object.entries(params)
-    .filter(([, value]) => {
-      if (value === undefined || value === null) return false;
-      return String(value).trim().length > 0;
-    })
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
-    .join('&');
-  return search.length > 0 ? `${API_BASE_URL}${path}?${search}` : `${API_BASE_URL}${path}`;
+function buildUrl(path: string, queryString: string): string {
+  return queryString.length > 0 ? `${API_BASE_URL}${path}?${queryString}` : `${API_BASE_URL}${path}`;
 }
 
 async function readJsonBody(response: Response): Promise<unknown> {
@@ -480,3 +502,5 @@ export function resolveImageUrl(value: string | null | undefined): string | null
   if (trimmed.startsWith('//')) return `https:${trimmed}`;
   return `${API_BASE_URL}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
 }
+
+export { apiCache } from './cache';

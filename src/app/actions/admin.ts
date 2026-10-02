@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { hashPassword, verifyPassword, createAdminSession, getAuthenticatedAdmin, revokeAdminSession, ADMIN_COOKIE_NAME } from "@/lib/adminAuth";
-import { generateMfaSecret, generateQrCodeUrl, buildOtpauthUrl, verifyMfaTokenWithStep, generateRecoveryCodes, hashRecoveryCode } from "@/lib/mfa";
+import { generateMfaSecret, generateQrCodeUrl, buildOtpauthUrl, verifyMfaTokenWithStep, generateRecoveryCodes, verifyRecoveryCode, hashRecoveryCode } from "@/lib/mfa";
 import { logAdminAudit } from "@/lib/audit";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -188,14 +188,30 @@ export async function verifyAdminMfa(code: string, isRecoveryCode: boolean = fal
   let matchedTimeStep: number | null = null;
 
   if (isRecoveryCode) {
-    const codeHash = hashRecoveryCode(code);
-    const recoveryCode = await prisma.adminRecoveryCode.findFirst({
-      where: { adminId: admin.id, codeHash, used: false }
+    const candidateCodes = await prisma.adminRecoveryCode.findMany({
+      where: { adminId: admin.id, used: false }
     });
 
-    if (recoveryCode) {
-      verified = true;
-      usedRecoveryCodeId = recoveryCode.id;
+    let rehashCandidateId: string | null = null;
+
+    for (const candidate of candidateCodes) {
+      const result = await verifyRecoveryCode(code, candidate.codeHash);
+      if (result.valid) {
+        verified = true;
+        usedRecoveryCodeId = candidate.id;
+        if (result.needsRehash) {
+          rehashCandidateId = candidate.id;
+        }
+        break;
+      }
+    }
+
+    if (verified && rehashCandidateId !== null) {
+      const upgradedHash = await hashRecoveryCode(code);
+      await prisma.adminRecoveryCode.update({
+        where: { id: rehashCandidateId },
+        data: { codeHash: upgradedHash }
+      }).catch(() => null);
     }
   } else {
     if (!admin.mfaSecret) return { error: "MFA secret not initialized." };
@@ -235,7 +251,7 @@ export async function verifyAdminMfa(code: string, isRecoveryCode: boolean = fal
     }
 
     if (!admin.mfaEnabled) {
-      const generated = generateRecoveryCodes(8);
+      const generated = await generateRecoveryCodes(8);
       rawRecoveryCodes = generated.rawCodes;
 
       await prisma.adminRecoveryCode.deleteMany({ where: { adminId: admin.id } });

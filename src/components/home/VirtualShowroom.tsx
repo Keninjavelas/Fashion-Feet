@@ -5,10 +5,12 @@ import { Sparkles, ArrowRight, Info, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
 import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
+import { CraftHotspotsCanvas } from "../three/CraftHotspotsCanvas";
+import { ThreeJuttiCompactCard } from "../three/ThreeJuttiCompactCard";
+import type { AccentSwatchName } from "../three/ProceduralPunjabiJutti";
 
 export function VirtualShowroom({ products = [] }: { products?: any[] }) {
   const [activePavilion, setActivePavilion] = useState<"wedding" | "everyday" | "vault" | "craft">("wedding");
-  const [activeHotspot, setActiveHotspot] = useState<number | null>(null);
 
   const pavilions = [
     {
@@ -18,7 +20,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       subtitle: "Royal Zari & Dabka Embroidered Bridal Collections",
       desc: "Immerse yourself in handcrafted silk velvet and golden zari threadwork designed for royal wedding celebrations, sangeet nights, and festive grandeur.",
       banner: PLACEHOLDER_HOMEPAGE_IMAGE,
-      accent: "#C5A059"
+      accent: "crimson" as AccentSwatchName,
     },
     {
       id: "everyday",
@@ -27,7 +29,7 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       subtitle: "Genuine Leather Mojaris & Casual Luxury",
       desc: "Designed for day-long comfort with supple leather that molds naturally to your feet.",
       banner: PLACEHOLDER_HOMEPAGE_IMAGE,
-      accent: "#8A1538"
+      accent: "ivory" as AccentSwatchName,
     },
     {
       id: "vault",
@@ -36,23 +38,17 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
       subtitle: "Limited-Edition Handcrafted Heritage Pairs",
       desc: "Bespoke Punjabi Juttis featuring sequin embroidery, pearl embellishments, and artisanal velvet lining.",
       banner: PLACEHOLDER_HOMEPAGE_IMAGE,
-      accent: "#C5A059"
+      accent: "rose" as AccentSwatchName,
     },
     {
       id: "craft",
       title: "Craftsmanship Corner",
       icon: "👞",
       subtitle: "Interactive Anatomical & Artistry Hotspots",
-      desc: "Explore the craft behind every pair — from hand-punched leather soles to padded velvet arch support.",
+      desc: "Explore the craft behind every pair — from hand-punched leather soles to padded velvet arch support — in a live 3D dissection view.",
       banner: PLACEHOLDER_HOMEPAGE_IMAGE,
-      accent: "#8A1538"
+      accent: "emerald" as AccentSwatchName,
     }
-  ];
-
-  const hotspots = [
-    { id: 1, top: "35%", left: "45%", title: "Hand Zari & Dabka Sequin Work", desc: "Stitched thread-by-thread by master Punjabi artisans with metallic gold yarn." },
-    { id: 2, top: "65%", left: "30%", title: "Double-Padded Velvet Cushioning", desc: "Arch padding designed for all-day ease." },
-    { id: 3, top: "75%", left: "65%", title: "Genuine Leather Sole", desc: "Flexible, breathable vegetable-tanned leather sole that molds to your natural foot shape." }
   ];
 
   const currentPavilion = pavilions.find(p => p.id === activePavilion)!;
@@ -131,43 +127,22 @@ export function VirtualShowroom({ products = [] }: { products?: any[] }) {
           {/* Right Display Column */}
           <div className="lg:col-span-7">
             {activePavilion === "craft" ? (
-              <div className="relative w-full h-[380px] sm:h-[440px] rounded-2xl overflow-hidden border border-[var(--theme-color-border)] bg-black/5 shadow-xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={currentPavilion.banner}
-                  alt="Craftsmanship Corner"
-                  className="w-full h-full object-cover"
-                />
-                {hotspots.map(spot => (
-                  <div
-                    key={spot.id}
-                    className="absolute"
-                    style={{ top: spot.top, left: spot.left }}
-                  >
-                    <button
-                      onClick={() => setActiveHotspot(activeHotspot === spot.id ? null : spot.id)}
-                      className="w-8 h-8 rounded-full bg-[var(--theme-color-jewel)] text-white flex items-center justify-center font-bold text-xs shadow-2xl border border-white animate-pulse"
-                    >
-                      {spot.id}
-                    </button>
-                    {activeHotspot === spot.id && (
-                      <div className="absolute left-10 top-0 w-64 bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] text-[var(--theme-color-text)] p-4 rounded-xl shadow-2xl z-20 space-y-1 text-xs">
-                        <p className="font-serif font-bold text-[var(--theme-color-accent)]">{spot.title}</p>
-                        <p className="text-[var(--theme-color-text-muted)] text-[11px] leading-relaxed">{spot.desc}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <CraftHotspotsCanvas
+                accent={currentPavilion.accent}
+                aspectRatio={16 / 10}
+              />
             ) : (
               <StorefrontTiltCard className="relative w-full h-[380px] sm:h-[440px] rounded-2xl overflow-hidden border border-[var(--theme-color-border)] shadow-xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={currentPavilion.banner}
-                  alt={currentPavilion.title}
-                  className="w-full h-full object-cover"
+                <ThreeJuttiCompactCard
+                  accent={currentPavilion.accent}
+                  aspectRatio={16 / 10}
+                  interactive="hover-rotate"
+                  spinSpeed={0.014}
+                  tiltStrength={0.55}
+                  label={currentPavilion.title}
+                  className="absolute inset-0 !rounded-none !border-0 h-full w-full"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-6 flex flex-col justify-end text-white">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent p-6 flex flex-col justify-end text-white pointer-events-none">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">Fashion Feet Atelier</span>
                   <p className="font-serif text-2xl font-bold">{currentPavilion.subtitle}</p>
                 </div>
