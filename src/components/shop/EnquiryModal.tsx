@@ -16,6 +16,7 @@ interface EnquiryModalProps {
     id: string;
     title: string;
     productCode?: string;
+    sku?: string | null;
     price?: number;
     category?: string;
     images?: any[];
@@ -49,10 +50,10 @@ export function EnquiryModal({ product, selectedSize, selectedColor, isOpen, onC
   const isLoggedIn = status === "authenticated" && !!session?.user;
 
   // DYNAMIC PRODUCT VALUES
-  const productSku = product.productCode || `FF-${product.id.slice(-6).toUpperCase()}`;
+  const productSku = product.sku || product.productCode || `FF-${product.id.slice(-6).toUpperCase()}`;
   const thumbnail = product.images?.[0]?.url || PLACEHOLDER_PRODUCT_IMAGE;
   const displaySize = selectedSize || "Not Selected (Fitting Assistance)";
-  const displayColor = selectedColor || "Standard Color";
+  const displayColor = selectedColor || "Not selected";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

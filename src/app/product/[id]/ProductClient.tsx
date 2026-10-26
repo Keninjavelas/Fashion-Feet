@@ -10,11 +10,6 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EnquiryModal } from "@/components/shop/EnquiryModal";
 import { toggleWishlist } from "@/app/actions/wishlist";
 import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
-import { ThreeJuttiHeroCanvas } from "@/components/three/ThreeJuttiHeroCanvas";
-import {
-  FOOTWEAR_DESIGN_TOKENS,
-  type AccentSwatchName,
-} from "@/components/three/ProceduralPunjabiJutti";
 
 function Accordion({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -55,8 +50,6 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  const [activeViewerMode, setActiveViewerMode] = useState<"3d" | "photos">("3d");
-  const [activeAccent, setActiveAccent] = useState<AccentSwatchName>("crimson");
 
   // Guarantee top position scroll on load
   useEffect(() => {
@@ -72,10 +65,10 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
   }, [savedUserSize]);
 
   useEffect(() => {
-    if (savedUkSize && selectedSize === "") {
+    if (savedUkSize && selectedSize === "" && sizes.some((size) => size.toUpperCase() === savedUkSize)) {
       setSelectedSize(savedUkSize);
     }
-  }, [savedUkSize, selectedSize]);
+  }, [savedUkSize, selectedSize, product.sizes]);
 
 
 
@@ -83,12 +76,16 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
     () =>
       product.images?.length > 0
         ? product.images.map((img: any) => img.url)
-        : [PLACEHOLDER_PRODUCT_IMAGE, PLACEHOLDER_PRODUCT_IMAGE],
+        : [PLACEHOLDER_PRODUCT_IMAGE],
     [product.images]
   );
        
   const activeImage = images[activeImageIndex];
-  const sizes = ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"];
+  const sizes = String(product.sizes || "").split(",").map((size) => size.trim()).filter(Boolean);
+  const promoPrice = Number(product.promoPrice);
+  const hasPromo = Number.isFinite(promoPrice) && promoPrice > 0 && promoPrice < product.price;
+  const displayPrice = hasPromo ? promoPrice : product.price;
+  const discountPercent = hasPromo ? Math.round((1 - promoPrice / product.price) * 100) : 0;
 
   useEffect(() => {
     try {
@@ -134,69 +131,9 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
       />
 
       <div className="flex flex-col lg:flex-row gap-16">
-        {/* Images + 3D Section */}
+        {/* Real product photography */}
         <div className="w-full lg:w-1/2 flex flex-col gap-4">
-          <div
-            role="tablist"
-            aria-label="Product viewer mode"
-            className="flex gap-2 p-1 bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] rounded-2xl w-fit mx-auto lg:mx-0"
-          >
-            {(["3d", "photos"] as const).map((mode) => {
-              const isActive = activeViewerMode === mode;
-              return (
-                <button
-                  key={mode}
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => setActiveViewerMode(mode)}
-                  className={`px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 ${
-                    isActive
-                      ? "bg-[var(--theme-color-jewel)] text-white shadow-md"
-                      : "text-[var(--theme-color-text-muted)] hover:text-[var(--theme-color-text)]"
-                  }`}
-                >
-                  {mode === "3d" ? "Interactive 3D" : "Product Photos"}
-                </button>
-              );
-            })}
-          </div>
-
-          {activeViewerMode === "3d" ? (
-            <div className="flex flex-col gap-4">
-              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-xl border border-[var(--theme-color-border)]">
-                <ThreeJuttiHeroCanvas
-                  className="!aspect-auto !w-full !h-full"
-                  aspectRatio={4 / 5}
-                  accent={activeAccent}
-                />
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3" role="radiogroup" aria-label="Velvet accent colour">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--theme-color-text-muted)]">
-                  Colourway
-                </span>
-                {Object.entries(FOOTWEAR_DESIGN_TOKENS.accentSwatches).map(([name, hex]) => {
-                  const isActive = name === activeAccent;
-                  const colour = `#${hex.toString(16).padStart(6, "0")}`;
-                  return (
-                    <button
-                      key={name}
-                      role="radio"
-                      aria-checked={isActive}
-                      aria-label={`${name} velvet`}
-                      onClick={() => setActiveAccent(name as AccentSwatchName)}
-                      className={`w-8 h-8 rounded-full transition-all shadow-md border-2 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/60 ${
-                        isActive ? "border-[var(--theme-color-accent)] scale-110" : "border-[var(--theme-color-border)]"
-                      }`}
-                      style={{ backgroundColor: colour }}
-                      title={`${name.charAt(0).toUpperCase()}${name.slice(1)} velvet`}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <>
+          <>
               <div
                 className="relative aspect-[4/5] bg-[var(--theme-color-surface)] rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-[var(--theme-color-border)]"
               >
@@ -222,8 +159,7 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
                   );
                 })}
               </div>
-            </>
-          )}
+          </>
         </div>
 
         {/* Details Section */}
@@ -247,18 +183,20 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
           <h1 className="font-serif text-4xl md:text-5xl text-[var(--theme-color-text)] mb-4 font-bold tracking-tight">{product.title}</h1>
           
           <div className="flex items-center gap-4 mb-8 border-b border-[var(--theme-color-border)] pb-8">
-            <span className="font-sans text-3xl font-bold text-[var(--theme-color-text)]">₹{product.price.toLocaleString('en-IN')}</span>
-            {(product.discount ?? 0) > 0 && (
+            <span className="font-sans text-3xl font-bold text-[var(--theme-color-text)]">₹{displayPrice.toLocaleString('en-IN')}</span>
+            {hasPromo && (
               <>
-                <span className="font-sans text-lg text-[var(--theme-color-text-muted)] line-through">₹{Math.round(product.price * (1 + product.discount/100)).toLocaleString('en-IN')}</span>
+                <span className="font-sans text-lg text-[var(--theme-color-text-muted)] line-through">₹{product.price.toLocaleString('en-IN')}</span>
                 <span className="text-xs font-bold uppercase tracking-widest text-white bg-[var(--theme-color-jewel)] px-2.5 py-1 rounded border border-[var(--theme-color-border)] shadow-sm">
-                  {product.discount}% Offer
+                  {discountPercent}% Offer
                 </span>
               </>
             )}
           </div>
 
-          <div className="mb-8 space-y-3">
+          {product.description && <p className="mb-8 leading-relaxed text-[var(--theme-color-text-muted)]">{product.description}</p>}
+
+          {sizes.length > 0 && <div className="mb-8 space-y-3">
             <div className="flex justify-between items-end">
               <div className="space-y-0.5">
                 <h3 className="font-sans font-bold uppercase tracking-widest text-xs text-[var(--theme-color-accent)]">Select Size</h3>
@@ -298,19 +236,19 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
               })}
             </div>
             {showError && <p className="text-xs text-rose-500 mt-2 font-bold">Please select a size before inquiring.</p>}
-          </div>
+          </div>}
 
           {/* Product Inquiry CTA */}
           <div className="space-y-4 mb-8">
             <button 
               onClick={() => {
-                if (!selectedSize) {
+                if (sizes.length > 0 && !selectedSize) {
                   setShowError(true);
                   return;
                 }
                 setEnquiryOpen(true);
               }}
-              aria-label={selectedSize ? `Open product enquiry for size ${selectedSize}` : 'Select a size before inquiring'}
+              aria-label={selectedSize ? `Open product enquiry for size ${selectedSize}` : sizes.length > 0 ? 'Select a size before inquiring' : 'Open product enquiry'}
               className="w-full py-4 bg-[var(--theme-color-jewel)] text-white font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all rounded-xl shadow-xl border border-[var(--theme-color-border)] flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[var(--theme-color-accent)]/40"
             >
               <MessageSquare className="w-4 h-4 text-[var(--theme-color-accent)]" /> Submit Product Enquiry
@@ -321,26 +259,24 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
               <div className="flex items-center gap-2 text-[var(--theme-color-accent)] font-bold">
                 <Info className="w-4 h-4" /> Why Fashion Feet offers product enquiries:
               </div>
-              <p className="leading-relaxed font-light">
-                Handcrafted Punjabi Juttis mold specifically to the shape of your foot over time. We believe luxury footwear should be experienced in person or discussed directly with master craftsmen.
-              </p>
+              <p className="leading-relaxed font-light">Ask us about this pair, available sizes, and fitting before making a decision.</p>
             </div>
           </div>
 
           {/* Accordion Specs */}
-          <div className="space-y-2">
-            <Accordion title="Artisanal Craftsmanship & Materials" defaultOpen={true}>
-              <ul className="space-y-2 list-disc list-inside">
-                <li>100% Genuine vegetable-tanned leather sole</li>
-                <li>Hand-stitched zari & dabka embroidery by Punjabi artisans</li>
-                <li>Padded velvet arch cushioning</li>
-                <li>Hypoallergenic inner lining</li>
-              </ul>
-            </Accordion>
-            <Accordion title="Craft Guarantee">
-              <p>Every Fashion Feet pair is guaranteed for artisanal craftsmanship and durability. Support and fitting adjustments are provided by our master craftsmen.</p>
-            </Accordion>
-          </div>
+          {(product.material || product.craftsmanship || product.colors || product.care || product.sizeGuide) && <div className="space-y-2">
+            {(product.material || product.craftsmanship || product.colors) && <Accordion title="Product details" defaultOpen={true}>
+              <dl className="space-y-2">
+                {product.material && <div><dt className="font-semibold">Materials</dt><dd>{product.material}</dd></div>}
+                {product.colors && <div><dt className="font-semibold">Colours</dt><dd>{product.colors}</dd></div>}
+                {product.craftsmanship && <div><dt className="font-semibold">Craftsmanship</dt><dd>{product.craftsmanship}</dd></div>}
+              </dl>
+            </Accordion>}
+            {(product.care || product.sizeGuide) && <Accordion title="Care and sizing">
+              {product.care && <p>{product.care}</p>}
+              {product.sizeGuide && <p>{product.sizeGuide}</p>}
+            </Accordion>}
+          </div>}
         </div>
       </div>
 

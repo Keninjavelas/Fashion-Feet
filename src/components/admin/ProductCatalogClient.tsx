@@ -74,7 +74,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
   // Form State
   const [formTitle, setFormTitle] = useState("");
   const [formSku, setFormSku] = useState("");
-  const [formGender, setFormGender] = useState("Men");
+  const [formGender, setFormGender] = useState("");
   const [formCategory, setFormCategory] = useState("");
   const [formOccasion, setFormOccasion] = useState("");
   const [formCollectionId, setFormCollectionId] = useState("");
@@ -83,8 +83,8 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
   const [formDescription, setFormDescription] = useState("");
   const [formCraftsmanship, setFormCraftsmanship] = useState("");
   const [formMaterial, setFormMaterial] = useState("");
-  const [formColors, setFormColors] = useState("Gold, Crimson");
-  const [formSizes, setFormSizes] = useState("6, 7, 8, 9, 10, 11");
+  const [formColors, setFormColors] = useState("");
+  const [formSizes, setFormSizes] = useState("");
   const [formCare, setFormCare] = useState("");
   const [formStatus, setFormStatus] = useState("DRAFT");
   const [formImages, setFormImages] = useState<string[]>([]);
@@ -103,27 +103,26 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
   const openNewEditor = async () => {
     setEditingProduct(null);
     setFormTitle("");
-    setFormGender("Men");
-    setFormCategory(categories[0]?.name || "Men");
-    setFormOccasion(occasions[0]?.name || "Wedding");
+    setFormGender("");
+    setFormCategory("");
+    setFormOccasion("");
     setFormCollectionId("");
     setFormPrice("");
     setFormPromoPrice("");
     setFormDescription("");
     setFormCraftsmanship("");
-    setFormMaterial("Silk Velvet & Genuine Leather Sole");
-    setFormColors("Antique Gold, Zari Red");
-    setFormSizes("6, 7, 8, 9, 10, 11");
-    setFormCare("Store in cotton dust bag. Dry clean only.");
+    setFormMaterial("");
+    setFormColors("");
+    setFormSizes("");
+    setFormCare("");
     setFormStatus("DRAFT");
     setFormImages([]);
     setFormFeatured(false);
-    setFormNewArrival(true);
+    setFormNewArrival(false);
     setFormBestSeller(false);
     setActiveTab("general");
 
-    const skuRes = await generateSkuAction("Men", categories[0]?.name || "Men");
-    if (skuRes.sku) setFormSku(skuRes.sku);
+    setFormSku("");
     setEditorOpen(true);
   };
 
@@ -436,11 +435,11 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-bold text-gray-700 uppercase mb-1">Product Title *</label>
-                      <input type="text" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} placeholder="e.g. Royal Zardozi Velvet Mojari" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#C5A059]" />
+                      <input type="text" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} placeholder="Use the product's actual name" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#C5A059]" />
                     </div>
 
                     <div>
-                      <label className="block font-bold text-gray-700 uppercase mb-1">Product SKU Code *</label>
+                      <label className="block font-bold text-gray-700 uppercase mb-1">Product SKU Code (optional)</label>
                       <div className="flex gap-2">
                         <input type="text" value={formSku} onChange={(e) => setFormSku(e.target.value)} placeholder="FF-M-WED-0001" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-mono focus:outline-none focus:border-[#C5A059]" />
                         <button type="button" onClick={async () => { const res = await generateSkuAction(formGender, formCategory); if (res.sku) setFormSku(res.sku); }} className="px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl shrink-0">Auto SKU</button>
@@ -452,8 +451,10 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                     <div>
                       <label className="block font-bold text-gray-700 uppercase mb-1">Gender</label>
                       <select value={formGender} onChange={(e) => setFormGender(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
+                        <option value="">Select fit category</option>
                         <option value="Men">Men</option>
                         <option value="Women">Women</option>
+                        <option value="Unisex">Unisex</option>
                       </select>
                     </div>
 
@@ -472,6 +473,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                     <div>
                       <label className="block font-bold text-gray-700 uppercase mb-1">Occasion</label>
                       <select value={formOccasion} onChange={(e) => setFormOccasion(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
+                        <option value="">Select occasion (optional)</option>
                         {occasions.map((o) => (<option key={o.id} value={o.name}>{o.name}</option>))}
                       </select>
                     </div>
@@ -539,12 +541,12 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                 <div className="space-y-4">
                   <div>
                     <label className="block font-bold text-gray-700 uppercase mb-1">Description</label>
-                    <textarea rows={3} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} placeholder="Handcrafted Punjabi Jutti featuring intricate dabka and zari embroidery..." className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
+                    <textarea rows={3} value={formDescription} onChange={(e) => setFormDescription(e.target.value)} placeholder="Describe this product using verified details" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
                   </div>
 
                   <div>
                     <label className="block font-bold text-gray-700 uppercase mb-1">Craftsmanship Details</label>
-                    <textarea rows={2} value={formCraftsmanship} onChange={(e) => setFormCraftsmanship(e.target.value)} placeholder="Hand-stitched leather sole by master artisans..." className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
+                    <textarea rows={2} value={formCraftsmanship} onChange={(e) => setFormCraftsmanship(e.target.value)} placeholder="Add confirmed craftsmanship details, if available" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

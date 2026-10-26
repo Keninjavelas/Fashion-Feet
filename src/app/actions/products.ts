@@ -28,8 +28,8 @@ export async function createProductAction(formData: FormData) {
     const discount = parseFloat(formData.get("discount") as string) || 0;
     const description = (formData.get("description") as string || "").trim();
     const craftsmanship = (formData.get("craftsmanship") as string || "").trim() || null;
-    const category = (formData.get("category") as string || "Men").trim();
-    const gender = (formData.get("gender") as string || "Men").trim();
+    const category = (formData.get("category") as string || "").trim();
+    const gender = (formData.get("gender") as string || "").trim();
     const material = (formData.get("material") as string || "").trim() || null;
     const colors = (formData.get("colors") as string || "").trim() || null;
     const occasion = (formData.get("occasion") as string || "").trim() || null;
@@ -61,8 +61,11 @@ export async function createProductAction(formData: FormData) {
     }
     imageUrls = imageValidation.urls;
 
-    if (!title || !price) {
+    if (!title || !Number.isFinite(price) || price <= 0) {
       return { error: "Product Title and Display Price are required." };
+    }
+    if (status === "PUBLISHED" && (!category || !gender || imageUrls.length === 0)) {
+      return { error: "Choose a product category, fit category, and at least one real product image before publishing." };
     }
 
     if (!sku) {
@@ -137,7 +140,7 @@ export async function updateProductAction(productId: string, formData: FormData)
     const description = (formData.get("description") as string || "").trim();
     const craftsmanship = (formData.get("craftsmanship") as string || "").trim() || null;
     const category = (formData.get("category") as string || "Men").trim();
-    const gender = (formData.get("gender") as string || "Men").trim();
+    const gender = (formData.get("gender") as string || "").trim();
     const material = (formData.get("material") as string || "").trim() || null;
     const colors = (formData.get("colors") as string || "").trim() || null;
     const occasion = (formData.get("occasion") as string || "").trim() || null;
@@ -169,8 +172,11 @@ export async function updateProductAction(productId: string, formData: FormData)
     }
     imageUrls = imageValidation.urls;
 
-    if (!title || !price) {
+    if (!title || !Number.isFinite(price) || price <= 0) {
       return { error: "Product Title and Display Price are required." };
+    }
+    if (status === "PUBLISHED" && (!category || !gender || imageUrls.length === 0)) {
+      return { error: "Choose a product category, fit category, and at least one real product image before publishing." };
     }
 
     const existingProduct = await prisma.product.findUnique({ where: { id: productId } });
