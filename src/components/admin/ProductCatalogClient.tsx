@@ -351,7 +351,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                       <td className="p-4">
                         <div className="space-y-0.5">
                           <span className="font-bold text-gray-900 block text-sm">{p.title}</span>
-                          <span className="text-[11px] text-gray-500">{p.gender} &bull; {p.collection?.title || "No Collection"}</span>
+                          <span className="text-[11px] text-gray-500">{p.gender || "Fit not set"} &bull; {p.occasion || "No Catalogue"}</span>
                         </div>
                       </td>
                       <td className="p-4">
