@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
     const allProducts = await prisma.product.findMany({
       where: {
         archived: false,
+        published: true,
         hidden: false
       },
       include: {

@@ -55,15 +55,16 @@ export class PublicApiError extends Error {
   }
 }
 
-export function jsonOk(data: unknown, cacheSeconds = 60): NextResponse {
+export function jsonOk(data: unknown, cacheSeconds = 0): NextResponse {
   return NextResponse.json(data, {
     status: 200,
     headers: {
       ...PUBLIC_CORS_HEADERS,
-      // Public read-only content: safe to cache at the edge, and cheap to serve
-      // stale while revalidating. No `private`/`no-store` because there is no
-      // per-user data on this surface at all.
-      "Cache-Control": `public, max-age=${cacheSeconds}, stale-while-revalidate=300`,
+      // Public catalogue and appearance data can change in the separate admin
+      // deployment. A zero lifetime makes the next request see that publish.
+      "Cache-Control": cacheSeconds > 0
+        ? `public, max-age=${cacheSeconds}, stale-while-revalidate=300`
+        : "no-store",
       "X-Content-Type-Options": "nosniff",
     },
   });
@@ -125,7 +126,7 @@ export async function publicGet(
   }
 
   try {
-    return jsonOk(await handler(), options.cacheSeconds ?? 60);
+    return jsonOk(await handler(), options.cacheSeconds ?? 0);
   } catch (error) {
     if (error instanceof PublicApiError) {
       return jsonError(error.status, error.message);

@@ -28,10 +28,8 @@ import {
   Plus
 } from "lucide-react";
 import { 
-  createMediaAssetAction, 
   updateMediaAssetAction, 
   publishMediaAssetAction, 
-  replaceMediaAssetAction, 
   deleteMediaAssetAction, 
   toggleMediaFavoriteAction 
 } from "@/app/actions/mediaActions";
@@ -80,11 +78,10 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
   const [editAltText, setEditAltText] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
-
-  const selectedAsset = assets.find((a) => a.id === selectedAssetId) || assets[0];
 
   // Filter Assets
   const filteredAssets = assets.filter((asset) => {
@@ -110,58 +107,54 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
 
     return matchesSearch;
   });
+  const selectedAsset = filteredAssets.find((asset) => asset.id === selectedAssetId) || filteredAssets[0];
 
   // Handle New Asset Upload
-  const handleUploadFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      if (typeof reader.result === "string") {
-        setLoading(true);
-        const folder = selectedFolder !== "all" && selectedFolder !== "trash" && selectedFolder !== "favorites" ? selectedFolder : "branding";
-        
-        const sizeKb = `${Math.round(file.size / 1024)} KB`;
-        const res = await createMediaAssetAction({
-          name: file.name.replace(/\.[^/.]+$/, ""),
-          filename: file.name,
-          url: reader.result,
-          altText: file.name,
-          folder: folder,
-          fileSize: sizeKb,
-          dimensions: "1024 x 1024",
-          status: "DRAFT" // New uploads enter DRAFT mode
-        });
+  const uploadFile = async (file: File, replaceAssetId?: string): Promise<MediaAssetItem> => {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("folder", selectedFolder !== "all" && selectedFolder !== "trash" && selectedFolder !== "favorites" ? selectedFolder : "branding");
+    form.append("status", "DRAFT");
+    if (replaceAssetId) form.append("replaceAssetId", replaceAssetId);
+    const response = await fetch("/api/upload", { method: "POST", body: form });
+    const result = await response.json();
+    if (!response.ok || !result.asset) throw new Error(result.error || "Image upload failed.");
+    return result.asset as MediaAssetItem;
+  };
 
-        setLoading(false);
-        if (res.asset) {
-          setAssets([res.asset as any, ...assets]);
-          setSelectedAssetId(res.asset.id);
-          setSuccessMsg("Asset uploaded as DRAFT. Click 'Publish' when ready to go live.");
-          setTimeout(() => setSuccessMsg(null), 4000);
-        }
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleUploadFile = async (file: File) => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const asset = await uploadFile(file);
+      setAssets((current) => [asset, ...current]);
+      setSelectedAssetId(asset.id);
+      setSuccessMsg("Asset uploaded as a private draft. Publish it, then attach it to content.");
+    } catch (error) {
+      setErrorMsg(error instanceof Error ? error.message : "Image upload failed.");
+    } finally {
+      setLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   // Handle Replace File
-  const handleReplaceFile = (file: File) => {
+  const handleReplaceFile = async (file: File) => {
     if (!selectedAsset) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      if (typeof reader.result === "string") {
-        setLoading(true);
-        const sizeKb = `${Math.round(file.size / 1024)} KB`;
-        const res = await replaceMediaAssetAction(selectedAsset.id, reader.result, "1024 x 1024", sizeKb);
-        setLoading(false);
-
-        if (res.asset) {
-          setAssets(assets.map(a => a.id === selectedAsset.id ? (res.asset as any) : a));
-          setSuccessMsg("Asset replaced as DRAFT. Preview storefront or click 'Publish' to push live.");
-          setTimeout(() => setSuccessMsg(null), 4000);
-        }
-      }
-    };
-    reader.readAsDataURL(file);
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const asset = await uploadFile(file, selectedAsset.id);
+      setAssets((current) => current.map((item) => item.id === asset.id ? asset : item));
+      setSuccessMsg(asset.status === "PUBLISHED"
+        ? "Image replaced. Attached storefront content uses the new image on refresh."
+        : "Draft image replaced. Publish and attach it when ready.");
+    } catch (error) {
+      setErrorMsg(error instanceof Error ? error.message : "Image replacement failed.");
+    } finally {
+      setLoading(false);
+      if (replaceInputRef.current) replaceInputRef.current.value = "";
+    }
   };
 
   // Publish Asset
@@ -173,7 +166,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
 
     if (res.asset) {
       setAssets(assets.map(a => a.id === selectedAsset.id ? { ...a, status: "PUBLISHED" } : a));
-      setSuccessMsg("Published! Entire storefront immediately updated.");
+      setSuccessMsg("Asset published. Attach it to a page or product to show it on the storefront.");
       setTimeout(() => setSuccessMsg(null), 3000);
     }
   };
@@ -207,7 +200,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
   const handleDeleteAsset = async () => {
     if (!selectedAsset) return;
     if (selectedAsset.status !== "TRASH") {
-      const usedInList = JSON.parse(selectedAsset.usedIn || "[]");
+      const usedInList = JSON.parse(selectedAsset.usedIn || "[]").filter((location: string) => location !== "Media Library");
       if (usedInList.length > 0) {
         if (!confirm(`Warning: This asset is currently used in ${usedInList.join(", ")}. Moving it to trash may affect storefront display. Proceed?`)) return;
       }
@@ -223,12 +216,15 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
         setSelectedAssetId(assets.find(a => a.id !== selectedAsset.id)?.id || null);
       } else {
         setAssets(assets.map(a => a.id === selectedAsset.id ? { ...a, status: "TRASH" } : a));
+        setSelectedAssetId(assets.find(a => a.id !== selectedAsset.id && a.status !== "TRASH")?.id || null);
       }
     }
   };
 
   // Parse Used In
-  const usedInLocations: string[] = selectedAsset?.usedIn ? JSON.parse(selectedAsset.usedIn) : [];
+  const usedInLocations: string[] = selectedAsset?.usedIn
+    ? JSON.parse(selectedAsset.usedIn).filter((location: string) => location !== "Media Library")
+    : [];
 
   return (
     <div className="space-y-6">
@@ -244,7 +240,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
             type="file"
             ref={fileInputRef}
             onChange={(e) => e.target.files?.[0] && handleUploadFile(e.target.files[0])}
-            accept="image/*,video/*"
+            accept="image/jpeg,image/png,image/webp,image/avif"
             className="hidden"
           />
           <button
@@ -263,6 +259,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
           <Check className="w-4 h-4 text-emerald-600 shrink-0" /> {successMsg}
         </div>
       )}
+      {errorMsg && <p role="alert" className="rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800">{errorMsg}</p>}
 
       {/* Google Drive / Lightroom 3-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[700px]">
@@ -401,7 +398,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
                         </p>
                         <div className="flex items-center justify-between text-[10px] text-gray-500 font-semibold">
                           <span className="uppercase text-[var(--color-accent-gold)]">{asset.folder}</span>
-                          <span>{asset.fileSize || "120 KB"}</span>
+                          <span>{asset.fileSize || "Unknown size"}</span>
                         </div>
                       </div>
                     </div>
@@ -522,11 +519,11 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
                 <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 rounded-xl text-[11px] font-medium text-gray-600 border border-black/5">
                   <div>
                     <span className="text-[9px] uppercase font-bold text-gray-400 block">Dimensions</span>
-                    <span className="font-mono text-black font-bold">{selectedAsset.dimensions || "1024 x 1024"}</span>
+                    <span className="font-mono text-black font-bold">{selectedAsset.dimensions || "Unknown"}</span>
                   </div>
                   <div>
                     <span className="text-[9px] uppercase font-bold text-gray-400 block">File Size</span>
-                    <span className="font-mono text-black font-bold">{selectedAsset.fileSize || "145 KB"}</span>
+                    <span className="font-mono text-black font-bold">{selectedAsset.fileSize || "Unknown"}</span>
                   </div>
                   <div>
                     <span className="text-[9px] uppercase font-bold text-gray-400 block">Folder</span>
@@ -544,7 +541,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
                 <div className="p-3.5 bg-amber-500/10 rounded-xl border border-amber-500/20 space-y-2 text-xs">
                   <div className="flex items-center gap-1.5 text-amber-800 font-bold text-[11px] uppercase tracking-wider">
                     <CheckCircle className="w-4 h-4 text-amber-600" />
-                    <span>Used In Storefront ({usedInLocations.length})</span>
+                    <span>Linked Content ({usedInLocations.length})</span>
                   </div>
 
                   {usedInLocations.length === 0 ? (
@@ -571,7 +568,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
                     className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
                   >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    Publish to Storefront
+                    Publish Asset
                   </button>
                 )}
 
@@ -579,7 +576,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
                   type="file"
                   ref={replaceInputRef}
                   onChange={(e) => e.target.files?.[0] && handleReplaceFile(e.target.files[0])}
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/avif"
                   className="hidden"
                 />
                 <button
@@ -587,7 +584,7 @@ export function MediaManagerClient({ initialAssets = [] }: { initialAssets: Medi
                   disabled={loading}
                   className="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold uppercase tracking-widest rounded-xl transition-all border border-black/10 flex items-center justify-center gap-2"
                 >
-                  <RefreshCw className="w-4 h-4 text-gray-600" /> Replace Image (Draft)
+                  <RefreshCw className="w-4 h-4 text-gray-600" /> Replace Image
                 </button>
 
                 <button

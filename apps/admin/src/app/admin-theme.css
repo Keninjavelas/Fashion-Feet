@@ -1,0 +1,201 @@
+/* The admin app has one visual theme. Scope legacy management screens here so
+   storefront styles and the already-dark Studio canvas keep their own design. */
+body.admin-app {
+  color-scheme: dark;
+  background: #0e090f;
+  color: #f7f1e8;
+}
+
+.admin-workspace {
+  color-scheme: dark;
+  --admin-surface: #1d151e;
+  --admin-surface-raised: #281b27;
+  --admin-border: #48313f;
+  --admin-text: #f7f1e8;
+  --admin-muted: #c0b0b8;
+}
+
+.admin-workspace :is(
+  [class~="bg-white"],
+  [class~="bg-[#FFFCF8]"],
+  [class~="bg-[#FFFCF7]"],
+  [class~="bg-[#FFF8F2]"]
+) {
+  background-color: var(--admin-surface);
+}
+
+.admin-workspace :is(
+  [class~="bg-gray-50"],
+  [class~="bg-gray-50/80"],
+  [class~="bg-slate-50"],
+  [class~="bg-[#F8F3EE]"]
+) {
+  background-color: #201720;
+}
+
+.admin-workspace :is(
+  [class~="bg-gray-100"],
+  [class~="bg-gray-200"],
+  [class~="bg-slate-100"],
+  [class~="bg-slate-200"],
+  [class~="bg-[#F7F3EC]"]
+) {
+  background-color: var(--admin-surface-raised);
+}
+
+.admin-workspace :is(
+  [class~="bg-[#F8E9ED]"],
+  [class~="bg-[#F6E8E9]"],
+  [class~="bg-rose-50"],
+  [class~="bg-rose-100"],
+  [class~="bg-red-50"]
+) {
+  background-color: #341c29;
+}
+
+.admin-workspace :is([class~="bg-amber-50"], [class~="bg-amber-50/40"], [class~="bg-amber-50/60"], [class~="bg-amber-100"], [class~="bg-yellow-50"]) {
+  background-color: #34291c;
+}
+
+.admin-workspace :is([class~="bg-emerald-50"], [class~="bg-emerald-100"]) {
+  background-color: #183429;
+}
+
+.admin-workspace [class~="bg-blue-50"] {
+  background-color: #1a2d40;
+}
+
+.admin-workspace :is(
+  [class~="text-gray-900"],
+  [class~="text-gray-800"],
+  [class~="text-gray-700"],
+  [class~="text-slate-900"],
+  [class~="text-black"],
+  [class~="text-[#2B2023]"],
+  [class~="text-[#311D26]"],
+  [class~="text-[#321820]"],
+  [class~="text-[#392731]"],
+  [class~="text-[#442D36]"]
+) {
+  color: var(--admin-text);
+}
+
+.admin-workspace :is(
+  [class~="text-gray-600"],
+  [class~="text-gray-500"],
+  [class~="text-gray-400"],
+  [class~="text-slate-700"],
+  [class~="text-slate-600"],
+  [class~="text-[#857477]"],
+  [class~="text-[#897779]"],
+  [class~="text-[#8A7779]"],
+  [class~="text-[#9A6D70]"],
+  [class~="text-[#9B6C70]"],
+  [class~="text-[#9C8A89]"]
+) {
+  color: var(--admin-muted);
+}
+
+.admin-workspace :is(
+  [class~="text-[#8A1538]"],
+  [class~="text-[#6D203C]"],
+  [class~="text-[#6C283E]"]
+) {
+  color: #eeb1c3;
+}
+
+.admin-workspace :is([class~="text-emerald-900"], [class~="text-emerald-800"], [class~="text-emerald-700"], [class~="text-emerald-600"]) {
+  color: #9de8bd;
+}
+
+.admin-workspace :is([class~="text-amber-900"], [class~="text-amber-800"], [class~="text-amber-700"], [class~="text-amber-600"]) {
+  color: #f0d391;
+}
+
+.admin-workspace :is([class~="text-rose-900"], [class~="text-rose-800"], [class~="text-rose-700"], [class~="text-rose-600"], [class~="text-red-700"]) {
+  color: #f4a4b6;
+}
+
+.admin-workspace [class~="text-blue-700"] {
+  color: #a8cafa;
+}
+
+.admin-workspace :is(
+  [class~="border-gray-100"],
+  [class~="border-gray-200"],
+  [class~="border-gray-300"],
+  [class~="border-slate-200"],
+  [class~="border-slate-300"],
+  [class~="border-[#E8DED3]"],
+  [class~="border-[#EADFD5]"],
+  [class~="border-[#EEE4DA]"],
+  [class~="border-[#E3C8CB]"],
+  [class~="border-[#D7B7A9]"]
+) {
+  border-color: var(--admin-border);
+}
+
+.admin-workspace :is([class~="border-rose-200"], [class~="border-rose-300"], [class~="border-red-200"]) {
+  border-color: #78465b;
+}
+
+.admin-workspace :is([class~="border-emerald-200"], [class~="border-emerald-300"]) {
+  border-color: #416d59;
+}
+
+.admin-workspace :is([class~="border-amber-200"], [class~="border-amber-300"]) {
+  border-color: #75613d;
+}
+
+.admin-workspace :is(
+  [class~="hover:bg-white"],
+  [class~="hover:bg-gray-50"],
+  [class~="hover:bg-gray-50/50"],
+  [class~="hover:bg-gray-50/60"],
+  [class~="hover:bg-gray-50/80"],
+  [class~="hover:bg-gray-100"],
+  [class~="hover:bg-gray-200"],
+  [class~="hover:bg-gray-300"],
+  [class~="hover:bg-[#FFF8F2]"],
+  [class~="hover:bg-[#F8E9ED]"]
+):hover {
+  background-color: #342430;
+}
+
+.admin-workspace :is([class~="hover:bg-rose-50"], [class~="hover:bg-rose-100"]):hover {
+  background-color: #492435;
+}
+
+.admin-workspace :is([class~="hover:bg-amber-50"], [class~="hover:bg-amber-100"]):hover {
+  background-color: #493522;
+}
+
+.admin-workspace [class~="hover:bg-emerald-50"]:hover {
+  background-color: #214936;
+}
+
+.admin-workspace :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  color-scheme: dark;
+  background-color: #150f17;
+  border-color: #54404b;
+  color: var(--admin-text);
+}
+
+.admin-workspace :is(input, textarea)::placeholder {
+  color: #a3949d;
+}
+
+.admin-workspace select option {
+  background: #1d151e;
+  color: var(--admin-text);
+}
+
+/* Keep dark ink on the intentionally bright gold call-to-action. */
+.admin-workspace [class~="bg-[#E8C684]"] {
+  color: #321820;
+}
+
+.admin-workspace ::selection {
+  background: #8a1538;
+  color: white;
+}

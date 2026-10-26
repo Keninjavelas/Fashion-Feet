@@ -1,27 +1,7 @@
-# Centralized Media System Specification
+# Media and brand assets
 
-## Single Source of Truth Architecture
+The production admin upload endpoint lives only in `apps/admin` and uses Vercel Blob. The shared `MediaAsset` table stores asset metadata and URLs. `src/lib/media.ts` resolves published assets and identifies where a URL is used before replacement or deletion. An upload alone does not place an image on a public page; a published product, collection, festival, setting, or Studio section must reference it.
 
-Media assets across Fashion Feet are managed dynamically through the `MediaAsset` model and `SiteSetting` key-value pairs instead of hardcoding raw image paths.
+The official brand logo is checked into `public/branding/fashion-feet-official.png` and rendered by `BrandLogo`. Two user-supplied past-exhibition photographs are checked into `public/exhibitions/` and rendered by `PastExhibitions`. These are authentic exhibition images; do not substitute them for product-specific catalogue photography.
 
-## Key Modules (`src/lib/media.ts`)
-
-1. **`getPublishedAsset(keyOrFolder, fallbackUrl)`**:
-   - Resolves asset URL dynamically.
-   - 1st precedence: `SiteSetting` key (e.g. `branding.primaryLogo`).
-   - 2nd precedence: Published `MediaAsset` matching name or folder.
-   - 3rd precedence: Supplied `fallbackUrl`.
-
-2. **`calculateUsedInLocations(url, folder)`**:
-   - Calculates dependent storefront locations for any asset before deletion or replacement (e.g. "Header Logo", "Homepage Hero Canvas", "Product Gallery").
-
-## Standard Folders
-
-- `branding`: Primary, dark & light logos, favicons
-- `homepage`: Hero banners, scroll story visuals
-- `products`: Product galleries & 360° frames
-- `collections`: Curated collection banners
-- `festivals`: Festive campaign graphics
-- `stores`: Showroom photos
-- `backgrounds`: Zari patterns & texture overlays
-- `icons`: Badges & seals
+Local SQLite development can use local uploads, but production must retain the Blob integration and its `BLOB_READ_WRITE_TOKEN` on the admin Vercel project. Never commit upload credentials or user-uploaded media from the local `public/uploads/` directory.

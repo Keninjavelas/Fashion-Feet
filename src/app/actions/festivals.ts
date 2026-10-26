@@ -18,69 +18,25 @@ function sanitizeText(input?: string | null): string {
 }
 
 /**
- * Resolves the currently active festival experience:
- * 1. Highest priority: Explicitly manually enabled festival (`enabled: true`).
- * 2. Second priority: Auto-activating scheduled campaign within valid temporal window (`startDate <= now <= endDate`).
- * 3. Fallback: null (maps to Default Atelier mode).
- */
-export async function getActiveFestival() {
-  try {
-    const now = new Date();
-
-    // 1. Check for manually enabled active festival
-    const manualActive = await prisma.festival.findFirst({
-      where: { enabled: true },
-      include: { mediaAsset: true }
-    });
-
-    if (manualActive) {
-      // If manual active has autoDisable enabled and time has elapsed, auto-revert to disabled
-      if (manualActive.autoDisable && manualActive.endDate < now) {
-        await prisma.festival.update({
-          where: { id: manualActive.id },
-          data: { enabled: false, status: "COMPLETED" }
-        }).catch(() => null);
-      } else {
-        return manualActive;
-      }
-    }
-
-    // 2. Check for scheduled festival with autoActivate within date window
-    const scheduledActive = await prisma.festival.findFirst({
-      where: {
-        autoActivate: true,
-        startDate: { lte: now },
-        endDate: { gte: now }
-      },
-      orderBy: { startDate: "desc" },
-      include: { mediaAsset: true }
-    });
-
-    if (scheduledActive) {
-      return scheduledActive;
-    }
-
-    return null;
-  } catch (error) {
-    console.error("Error resolving active festival:", error);
-    return null;
-  }
-}
-
-/**
  * Retrieves the comprehensive list of 7 seasonal atmospheres for the Studio UI.
  */
 export async function getFestivalStudioList() {
+  const admin = await getAuthenticatedAdmin();
+  if (!admin) throw new Error("Unauthorized");
+
   try {
     const dbFestivals = await prisma.festival.findMany({
       include: { mediaAsset: true },
       orderBy: { createdAt: "asc" }
     });
 
-    const dbMap = new Map(dbFestivals.map((f) => [f.theme.toLowerCase(), f]));
+    const dbMap = new Map<string, (typeof dbFestivals)[number]>();
+    for (const festival of dbFestivals) {
+      if (!dbMap.has(festival.theme.toLowerCase())) dbMap.set(festival.theme.toLowerCase(), festival);
+    }
 
     // Return complete list ensuring all 7 supported themes exist
-    return SUPPORTED_SEASONAL_KEYS.map((key) => {
+    const primaryCampaigns = SUPPORTED_SEASONAL_KEYS.map((key) => {
       const existing = dbMap.get(key);
       const canonical = SEASONAL_ATMOSPHERES[key];
 
@@ -125,6 +81,8 @@ export async function getFestivalStudioList() {
         updatedAt: new Date()
       };
     });
+    const additionalCampaigns = dbFestivals.filter((festival) => dbMap.get(festival.theme.toLowerCase())?.id !== festival.id);
+    return [...primaryCampaigns, ...additionalCampaigns];
   } catch (error) {
     console.error("Error retrieving festival studio list:", error);
     return [];
@@ -201,7 +159,7 @@ export async function saveFestivalStudioAction(data: any) {
       productIds: Array.isArray(productIds) ? JSON.stringify(productIds) : (productIds || "[]"),
       autoActivate: autoActivate !== false,
       autoDisable: autoDisable !== false,
-      status: status || "SCHEDULED"
+      status: status === "ACTIVE" ? "ACTIVE" : status === "DRAFT" ? "DRAFT" : "SCHEDULED"
     };
 
     let festival;
@@ -259,20 +217,43 @@ export async function activateFestivalNowAction(id: string) {
       return { error: "Unauthorized. Super Admin role required to activate seasonal experiences live." };
     }
 
-    // Deactivate all others first (single active festival rule)
-    await prisma.festival.updateMany({
-      where: { enabled: true },
-      data: { enabled: false, status: "INACTIVE" }
-    });
+    const festival = await prisma.$transaction(async (tx) => {
+      let target = id.startsWith("virtual-")
+        ? await tx.festival.findFirst({ where: { theme: id.slice("virtual-".length) } })
+        : await tx.festival.findUnique({ where: { id } });
 
-    // Activate selected festival
-    const festival = await prisma.festival.update({
-      where: { id },
-      data: {
-        enabled: true,
-        status: "ACTIVE"
-      },
-      include: { mediaAsset: true }
+      if (!target && id.startsWith("virtual-")) {
+        const theme = id.slice("virtual-".length) as SeasonalThemeKey;
+        if (theme === "default" || !SUPPORTED_SEASONAL_KEYS.includes(theme)) {
+          throw new Error("Select a supported festival atmosphere.");
+        }
+        const canonical = SEASONAL_ATMOSPHERES[theme];
+        target = await tx.festival.create({
+          data: {
+            name: canonical.label,
+            theme,
+            startDate: new Date(),
+            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            accentColor: canonical.accentColor,
+            badgeText: canonical.badgeText,
+            offerHeading: `${canonical.label} Boutique Experience`,
+            autoActivate: false,
+            autoDisable: true,
+            status: "DRAFT"
+          }
+        });
+      }
+
+      if (!target) throw new Error("Festival campaign not found.");
+      await tx.festival.updateMany({
+        where: { enabled: true, id: { not: target.id } },
+        data: { enabled: false, status: "INACTIVE" }
+      });
+      return tx.festival.update({
+        where: { id: target.id },
+        data: { enabled: true, status: "ACTIVE" },
+        include: { mediaAsset: true }
+      });
     });
 
     await logAdminAudit({
@@ -310,7 +291,8 @@ export async function deactivateFestivalAction(id: string) {
       where: { id },
       data: {
         enabled: false,
-        status: "INACTIVE"
+        status: "INACTIVE",
+        autoActivate: false
       }
     });
 

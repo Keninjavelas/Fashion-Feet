@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Inbox, Search, Mail, Phone, Clock, User, Send, CheckCircle2, AlertCircle, ShoppingBag } from "lucide-react";
 import { updateEnquiryStatusAction, assignEnquiryAction, addEnquiryNoteAction } from "@/app/actions/enquiries";
+import { formatAdminDate, formatAdminDateTime } from "@/lib/adminDate";
 
 interface InternalNote {
   id: string;
@@ -158,7 +159,7 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
 
                     <div className="flex items-center justify-between text-[10px] text-gray-400 font-medium">
                       <span>{e.product ? `Pair: ${e.product.title}` : e.productSku || "General Enquiry"}</span>
-                      <span>{new Date(e.createdAt).toLocaleDateString()}</span>
+                      <span>{formatAdminDate(e.createdAt)}</span>
                     </div>
                   </div>
                 );
@@ -257,7 +258,7 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
                         <div key={n.id} className="p-3 bg-gray-50 rounded-xl border text-xs space-y-1">
                           <div className="flex items-center justify-between text-[10px] text-gray-400">
                             <span className="font-bold text-gray-900">{n.authorName}</span>
-                            <span>{new Date(n.createdAt).toLocaleString()}</span>
+                            <span>{formatAdminDateTime(n.createdAt)}</span>
                           </div>
                           <p className="text-gray-700">{n.text}</p>
                         </div>

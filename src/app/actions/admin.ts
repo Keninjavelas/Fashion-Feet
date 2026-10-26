@@ -6,73 +6,18 @@ import { generateMfaSecret, generateQrCodeUrl, buildOtpauthUrl, verifyMfaTokenWi
 import { logAdminAudit } from "@/lib/audit";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import crypto from "crypto";
-import { resolveAuthSecret } from "@/lib/authSecret";
+import { getPreMfaAdmin, PRE_MFA_COOKIE, signPreMfaHandle } from "@/lib/preMfaAdmin";
+import { createHash } from "node:crypto";
 
-const PRE_MFA_COOKIE = "ff_admin_premfa";
-const PRE_MFA_TTL_MS = 5 * 60 * 1000;
+// Audit rows make throttling work across Vercel's independent function instances.
+const LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const MAX_FAILURES = 5;
 
-/**
- * The pre-MFA cookie carries an HMAC-signed handle rather than a bare admin id,
- * so it cannot be forged or tampered with to skip the password factor.
- */
-function signPreMfaHandle(adminId: string): string {
-  const issuedAt = Date.now();
-  const payload = `${adminId}.${issuedAt}`;
-  const signature = crypto.createHmac("sha256", resolveAuthSecret()).update(payload).digest("hex");
-  return `${payload}.${signature}`;
-}
-
-function readPreMfaHandle(value: string | undefined): string | null {
-  if (!value) return null;
-  const parts = value.split(".");
-  if (parts.length !== 3) return null;
-
-  const [adminId, issuedAtRaw, signature] = parts;
-  const issuedAt = Number(issuedAtRaw);
-  if (!adminId || !Number.isFinite(issuedAt)) return null;
-  if (Date.now() - issuedAt > PRE_MFA_TTL_MS) return null;
-
-  const expected = crypto
-    .createHmac("sha256", resolveAuthSecret())
-    .update(`${adminId}.${issuedAt}`)
-    .digest("hex");
-  const provided = Buffer.from(signature, "hex");
-  const computed = Buffer.from(expected, "hex");
-  if (provided.length !== computed.length || !crypto.timingSafeEqual(provided, computed)) {
-    return null;
-  }
-
-  return adminId;
-}
-
-// Rate-limiting in memory map for invalid login/MFA attempts
-const failedAttemptsMap = new Map<string, { count: number; lockUntil: number }>();
-
-function checkRateLimit(key: string): { allowed: boolean; remainingSeconds?: number } {
-  const record = failedAttemptsMap.get(key);
-  if (!record) return { allowed: true };
-  if (record.lockUntil > Date.now()) {
-    const remainingSeconds = Math.ceil((record.lockUntil - Date.now()) / 1000);
-    return { allowed: false, remainingSeconds };
-  }
-  if (record.lockUntil <= Date.now()) {
-    failedAttemptsMap.delete(key);
-  }
-  return { allowed: true };
-}
-
-function recordFailedAttempt(key: string) {
-  const record = failedAttemptsMap.get(key) || { count: 0, lockUntil: 0 };
-  record.count += 1;
-  if (record.count >= 5) {
-    record.lockUntil = Date.now() + 15 * 60 * 1000; // 15 minutes lockout
-  }
-  failedAttemptsMap.set(key, record);
-}
-
-function clearRateLimit(key: string) {
-  failedAttemptsMap.delete(key);
+async function checkRateLimit(where: { action: string | { in: string[] }; resourceId?: string; adminId?: string }) {
+  const failures = await prisma.adminAuditLog.count({
+    where: { ...where, createdAt: { gte: new Date(Date.now() - LIMIT_WINDOW_MS) } },
+  });
+  return failures < MAX_FAILURES;
 }
 
 export async function adminLogin(formData: FormData) {
@@ -83,16 +28,15 @@ export async function adminLogin(formData: FormData) {
     return { error: "Email and password are required." };
   }
 
-  const rateCheck = checkRateLimit(email);
-  if (!rateCheck.allowed) {
-    return { error: `Too many failed attempts. Account locked for ${rateCheck.remainingSeconds} seconds.` };
+  const emailKey = createHash("sha256").update(email).digest("hex");
+  if (!(await checkRateLimit({ action: "ADMIN_LOGIN_FAILED", resourceId: emailKey }))) {
+    return { error: "Too many failed attempts. Try again in 15 minutes." };
   }
 
   const admin = await prisma.adminUser.findUnique({ where: { email } });
   const isPasswordValid = admin ? await verifyPassword(password, admin.passwordHash) : false;
   if (!admin || !isPasswordValid) {
-    recordFailedAttempt(email);
-    await logAdminAudit({ action: "ADMIN_LOGIN_FAILED", resourceType: "AdminUser", metadata: { email } });
+    await logAdminAudit({ action: "ADMIN_LOGIN_FAILED", resourceType: "AdminUser", resourceId: emailKey });
     return { error: "Invalid administrator credentials." };
   }
 
@@ -118,18 +62,6 @@ export async function adminLogin(formData: FormData) {
     mfaRequired: true,
     mfaEnabled: admin.mfaEnabled,
   };
-}
-
-export async function getPreMfaAdmin() {
-  try {
-    const cookieStore = await cookies();
-    const adminId = readPreMfaHandle(cookieStore.get(PRE_MFA_COOKIE)?.value);
-    if (!adminId) return null;
-
-    return await prisma.adminUser.findUnique({ where: { id: adminId } });
-  } catch {
-    return null;
-  }
 }
 
 export async function setupMfaSecret() {
@@ -178,9 +110,8 @@ export async function verifyAdminMfa(code: string, isRecoveryCode: boolean = fal
   const admin = await getPreMfaAdmin();
   if (!admin) return { error: "Unauthorized or expired login session." };
 
-  const rateCheck = checkRateLimit(admin.id);
-  if (!rateCheck.allowed) {
-    return { error: `Too many invalid MFA attempts. Locked for ${rateCheck.remainingSeconds} seconds.` };
+  if (!(await checkRateLimit({ action: { in: ["MFA_VERIFICATION_FAILED", "MFA_CODE_REPLAY_REJECTED"] }, adminId: admin.id }))) {
+    return { error: "Too many invalid MFA attempts. Try again in 15 minutes." };
   }
 
   let verified = false;
@@ -225,18 +156,15 @@ export async function verifyAdminMfa(code: string, isRecoveryCode: boolean = fal
   // rejects reuse within the same 30s window, so an administrator who signs out
   // and immediately back in must wait for the authenticator to roll over.
   if (verified && matchedTimeStep !== null && admin.mfaLastUsedStep !== null && matchedTimeStep <= admin.mfaLastUsedStep) {
-    recordFailedAttempt(admin.id);
     await logAdminAudit({ adminId: admin.id, action: "MFA_CODE_REPLAY_REJECTED", resourceType: "AdminUser" });
     return { error: "Invalid authentication code. Please check your authenticator app." };
   }
 
   if (!verified) {
-    recordFailedAttempt(admin.id);
     await logAdminAudit({ adminId: admin.id, action: "MFA_VERIFICATION_FAILED", resourceType: "AdminUser" });
     return { error: "Invalid authentication code. Please check your authenticator app." };
   }
 
-  clearRateLimit(admin.id);
 
   let rawRecoveryCodes: string[] = [];
 
@@ -310,6 +238,58 @@ export async function adminLogout() {
   }
 
   revalidatePath("/admin");
+  return { success: true };
+}
+
+export async function changeAdminPassword(formData: FormData) {
+  const admin = await getAuthenticatedAdmin();
+  if (!admin || !admin.mfaEnabled) return { error: "Your admin session has expired. Sign in again." };
+
+  const currentPassword = formData.get("currentPassword");
+  const newPassword = formData.get("newPassword");
+  const confirmPassword = formData.get("confirmPassword");
+
+  if (typeof currentPassword !== "string" || typeof newPassword !== "string" || typeof confirmPassword !== "string") {
+    return { error: "Complete all password fields." };
+  }
+  if (newPassword.length < 16 || newPassword.length > 128 || newPassword !== newPassword.trim()) {
+    return { error: "Use 16 to 128 characters without spaces at the beginning or end." };
+  }
+  if (newPassword !== confirmPassword) return { error: "New passwords do not match." };
+
+  if (!(await checkRateLimit({ action: "ADMIN_PASSWORD_CHANGE_FAILED", adminId: admin.id }))) {
+    return { error: "Too many attempts. Try again in 15 minutes." };
+  }
+
+  const account = await prisma.adminUser.findUnique({
+    where: { id: admin.id },
+    select: { passwordHash: true },
+  });
+  if (!account) return { error: "Your admin session has expired. Sign in again." };
+
+  if (!(await verifyPassword(currentPassword, account.passwordHash))) {
+    await logAdminAudit({ adminId: admin.id, action: "ADMIN_PASSWORD_CHANGE_FAILED", resourceType: "AdminUser" });
+    return { error: "Current password is incorrect." };
+  }
+  if (await verifyPassword(newPassword, account.passwordHash)) {
+    return { error: "Choose a new password different from the current one." };
+  }
+
+  const newHash = await hashPassword(newPassword);
+  const changed = await prisma.$transaction(async (tx) => {
+    const updated = await tx.adminUser.updateMany({
+      where: { id: admin.id, passwordHash: account.passwordHash },
+      data: { passwordHash: newHash },
+    });
+    if (updated.count !== 1) return false;
+    await tx.adminSession.deleteMany({ where: { adminId: admin.id } });
+    return true;
+  });
+
+  if (!changed) return { error: "Your password changed in another session. Sign in again." };
+
+  await logAdminAudit({ adminId: admin.id, action: "ADMIN_PASSWORD_CHANGED", resourceType: "AdminUser" });
+  (await cookies()).delete(ADMIN_COOKIE_NAME);
   return { success: true };
 }
 
@@ -424,11 +404,11 @@ export async function resetAdminMfa(adminId: string) {
   return { success: true };
 }
 
-export async function revokeSessionAction(token: string) {
+export async function revokeSessionAction(sessionId: string) {
   const currentAdmin = await getAuthenticatedAdmin();
   if (!currentAdmin) return { error: "Unauthorized." };
 
-  const target = await prisma.adminSession.findUnique({ where: { token } });
+  const target = await prisma.adminSession.findUnique({ where: { id: sessionId } });
   if (!target) return { error: "Session not found." };
 
   // An administrator may only revoke their own session. Revoking another
@@ -438,7 +418,12 @@ export async function revokeSessionAction(token: string) {
     return { error: "Unauthorized. Super Admin role required to revoke another administrator's session." };
   }
 
-  await revokeAdminSession(token);
+  const currentToken = (await cookies()).get(ADMIN_COOKIE_NAME)?.value;
+  if (currentToken === target.token) {
+    await revokeAdminSession(target.token);
+  } else {
+    await prisma.adminSession.delete({ where: { id: target.id } });
+  }
 
   await logAdminAudit({
     adminId: currentAdmin.id,

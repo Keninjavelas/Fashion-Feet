@@ -26,7 +26,7 @@ export function AnnouncementMarqueeBar() {
   const items = preset.decorations.announcementMessages;
 
   return (
-    <div className="bg-[var(--theme-color-surface)] text-[var(--theme-color-text)] py-1.5 border-b border-[var(--theme-color-border)] text-[11px] uppercase font-bold tracking-widest overflow-hidden relative z-50 flex items-center justify-between shadow-sm">
+    <div className="announcement-marquee bg-[var(--theme-color-surface)] text-[var(--theme-color-text)] py-1.5 border-b border-[var(--theme-color-border)] text-[11px] uppercase font-bold tracking-widest overflow-hidden relative z-50 flex items-center justify-between shadow-sm">
       <div className="flex-1 overflow-hidden">
         <div className="flex whitespace-nowrap animate-marquee hover:[animation-play-state:paused] cursor-pointer">
           {items.concat(items).map((text, idx) => (

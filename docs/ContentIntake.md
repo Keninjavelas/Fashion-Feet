@@ -1,9 +1,19 @@
 # Task 11 — Real Fashion Feet Content: Intake Manifest
 
+> **Historical intake report with a current addendum.** This document records an earlier local `dev.db` inventory and its defects. It is not a current production inventory. Since that pass, the owner supplied the official logo and two real exhibition photos, the site was split into separate Vercel deployments backed by Neon PostgreSQL, the contact form began saving actual enquiries, and 12 restored FAQs are now editable in the admin. Outbound email to `aryan.kapoor@fashionfeet.co.in` and the `fashionfeet.co.in` hostname still await GoDaddy DNS work. Review the restored FAQ answers and other business claims before treating them as verified. See [ProductionReadiness.md](ProductionReadiness.md) for the live status.
+
+> **Production update, 26 October 2026:** The 13 question-and-answer entries from
+> `0e58118:src/app/faq/FaqClient.tsx` were restored to the shared production PostgreSQL
+> `Faq` table at the owner's request. The question “Will you launch special festive
+> collections?” was then removed at the owner's request, leaving 12 public FAQs.
+> They are editable at `/admin/faq`.
+> Their business claims still need review. Counts below describe the earlier local
+> `dev.db` snapshot, which remains empty, and must not be read as current production counts.
+
 **Status: CONTENT LOADING BLOCKED on real-world inputs. Structural work COMPLETE. No content has been invented.**
 **Fabricated-content purge: COMPLETE** — every fabricated placeholder record has been removed from `dev.db`
 and from `prisma/seed.ts` (see the note below and §1).
-**Deployment level: localhost / not deployed** (unchanged from Task 10).
+**Original inventory environment: localhost / not yet deployed.**
 
 This file records the *verified current state* of storefront content and lists exactly what must be supplied
 to complete Task 11. It intentionally contains no fabricated Fashion Feet data.
@@ -210,7 +220,11 @@ checks.
    page currently renders its explicit empty state ("Our FAQs are being updated — please check back
    shortly.") instead of a stale hardcoded list.
 
-### 5.2 Open items — not fixed
+### 5.2 Items open at the original local snapshot
+
+The contact-form defect in item 2 has since been fixed: current web submissions create an `Enquiry`
+row and report email-delivery status honestly. The SQLite backup issue in item 1 is local-only;
+those controls are disabled on production PostgreSQL. Business claims in item 3 still need owner review.
 
 1. **A test run writes a real database snapshot into `backups/` as a side effect, so data that was deleted
    from the live database can be re-materialised on disk — and the file survives the run, untracked.**

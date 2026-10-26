@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Search, Calendar, X, Download, Eye, ShieldAlert } from "lucide-react";
 import { sanitizeAuditRecord } from "@/lib/auditSanitizer";
+import { formatAdminDateTime } from "@/lib/adminDate";
 
 interface AuditEntry {
   id: string;
@@ -219,7 +220,7 @@ export function AuditTimeline() {
                   return (
                     <tr key={log.id} className="hover:bg-gray-50/60 transition-colors font-mono">
                       <td className="px-6 py-3.5 text-[11px] text-gray-500 whitespace-nowrap">
-                        {new Date(log.createdAt).toLocaleString("en-IN")}
+                        {formatAdminDateTime(log.createdAt)}
                       </td>
                       <td className="px-6 py-3.5">
                         <span
@@ -305,7 +306,7 @@ export function AuditTimeline() {
               </div>
               <div className="p-3 bg-gray-50 rounded-xl border">
                 <span className="text-[10px] text-gray-400 uppercase font-bold block">Timestamp</span>
-                <span className="font-mono text-gray-700">{new Date(inspectedLog.createdAt).toLocaleString("en-IN")}</span>
+                <span className="font-mono text-gray-700">{formatAdminDateTime(inspectedLog.createdAt)}</span>
               </div>
               <div className="p-3 bg-gray-50 rounded-xl border">
                 <span className="text-[10px] text-gray-400 uppercase font-bold block">Actor</span>

@@ -1,17 +1,9 @@
-# API & Server Actions Contract
+# Public API and server actions
 
-## Endpoints
+The storefront serves a read-only, unauthenticated `/api/v1` JSON API for its Expo client. Routes exist for `products`, `products/[id]`, `categories`, `collections`, `occasions`, `stores`, `faqs`, and `site`. Product lookups accept a product ID or SKU. List endpoints filter to public/published data and return fields shaped by `src/lib/publicSerializers.ts`; do not expose raw Prisma models.
 
-1. **`GET /api/search?q={query}`**:
-   - Case-insensitive search across published products.
-   - Filters `title`, `productCode`, `gender`, `colors`, `material`, `category`, `occasion`, `description`.
+`src/lib/publicApi.ts` handles CORS, errors, and a best-effort per-instance rate limit. Responses are currently `Cache-Control: no-store` so admin publications appear on the next request. The mobile contract and response shapes are detailed in [MobileApp.md](MobileApp.md).
 
-2. **`POST /api/auth/[...nextauth]`**:
-   - Handles customer sign-in, session validation, and sign-out.
+Other storefront endpoints include `/api/search`, `/api/judy`, and the customer Auth.js route `/api/auth/[...nextauth]`. Admin audit/health and upload endpoints live only in the separate `apps/admin` deployment.
 
-## Server Actions (`src/app/actions/`)
-
-- **`createEnquiry(formData)`**: Validates customer session, parses product details & messages, creates `Enquiry` record.
-- **`toggleWishlist(productId)`**: Toggles item in customer's wishlist.
-- **`updateUserProfile(data)`**: Updates user `name`, `phone`, and saved `size` preference.
-- **`getSiteSettingsMap()`**: Returns key-value map of site branding & global settings.
+Contact and product enquiry forms call the `createEnquiry` Server Action in `src/app/actions/createEnquiry.ts`. It validates input, writes an `Enquiry`, then attempts a Resend notification to `aryan.kapoor@fashionfeet.co.in`. It reports whether the provider accepted the notification; the dashboard row remains available if email is unavailable. Outbound email is pending DNS verification and a production API key. Other admin actions reside in shared source files but are imported only by the admin application; verify with `npm run test:isolation`.

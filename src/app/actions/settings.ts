@@ -36,27 +36,3 @@ export async function saveSiteSettings(category: string, settingsObj: Record<str
     return { error: "Failed to save settings." };
   }
 }
-
-export async function getSiteSettingsMap() {
-  try {
-    const settingsMap: Record<string, string> = {};
-
-    if ((prisma as any).siteSetting) {
-      const settings = await (prisma as any).siteSetting.findMany().catch(() => []);
-      settings.forEach((s: any) => {
-        settingsMap[s.key] = s.value;
-      });
-    }
-
-    const companyContents = await prisma.companyContent.findMany().catch(() => []);
-    companyContents.forEach((c: any) => {
-      if (!settingsMap[c.key]) {
-        settingsMap[c.key] = c.content;
-      }
-    });
-
-    return settingsMap;
-  } catch (error) {
-    return {};
-  }
-}

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import HistoryDiffViewer from './HistoryDiffViewer';
+import { getVersionHistoryAction, rollbackVersionAction } from '@/app/actions/editor';
+import { formatAdminDate, formatAdminDateTime } from '@/lib/adminDate';
 
 interface HistoryRecord {
   id: string;
@@ -13,7 +15,7 @@ interface HistoryRecord {
 
 interface Props {
   page: string;
-  onRollbackSuccess: () => void; // callback to refresh editor after successful rollback
+  onRollbackSuccess: () => void | Promise<void>; // callback to refresh editor after successful rollback
 }
 
 export default function VersionHistoryPanel({ page, onRollbackSuccess }: Props) {
@@ -26,10 +28,15 @@ export default function VersionHistoryPanel({ page, onRollbackSuccess }: Props) 
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const res = await fetch(`/api/admin/history?page=${page}`);
-        if (!res.ok) throw new Error('Failed to fetch history');
-        const data = await res.json();
-        setHistory(data);
+        const result = await getVersionHistoryAction(page);
+        if (!result.history) throw new Error(result.error || 'Failed to fetch history');
+        setHistory(result.history.map((record) => ({
+          ...record,
+          publishedAt: new Date(record.publishedAt).toISOString(),
+          changelogNote: record.changelogNote ?? undefined,
+          publishedBy: record.publishedBy ?? undefined,
+        })));
+        setError(null);
         setLoading(false);
       } catch (e: any) {
         setError(e.message);
@@ -41,26 +48,24 @@ export default function VersionHistoryPanel({ page, onRollbackSuccess }: Props) 
 
   const handleRollback = async (record: HistoryRecord) => {
     const confirmed = window.confirm(
-      `Rollback to version v${record.version} (published on ${new Date(
-        record.publishedAt
-      ).toLocaleString()})? This will create a new history entry.`
+      `Rollback to version v${record.version} (published on ${formatAdminDateTime(record.publishedAt)})? This will create a new live version and history entry.`
     );
     if (!confirmed) return;
 
     try {
-      const res = await fetch('/api/admin/rollback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page, targetVersion: record.version })
-      });
-      if (!res.ok) throw new Error('Rollback failed');
-      alert('Rollback successful');
-      // Refresh history list
-      const refreshed = await fetch(`/api/admin/history?page=${page}`);
-      const refreshedData = await refreshed.json();
-      setHistory(refreshedData);
+      const result = await rollbackVersionAction(page, record.version);
+      if (!result.success) throw new Error(result.error || 'Rollback failed');
+      const refreshed = await getVersionHistoryAction(page);
+      if (!refreshed.history) throw new Error(refreshed.error || 'Failed to refresh history');
+      setHistory(refreshed.history.map((entry) => ({
+        ...entry,
+        publishedAt: new Date(entry.publishedAt).toISOString(),
+        changelogNote: entry.changelogNote ?? undefined,
+        publishedBy: entry.publishedBy ?? undefined,
+      })));
       setSelected(null);
-      onRollbackSuccess();
+      await onRollbackSuccess();
+      alert('Rollback successful');
     } catch (e: any) {
       alert(`Rollback error: ${e.message}`);
     }
@@ -89,7 +94,7 @@ export default function VersionHistoryPanel({ page, onRollbackSuccess }: Props) 
   }
 
   return (
-    <aside className="w-80 bg-[#12080C] border-l border-[#D4AF37]/20 overflow-y-auto flex flex-col">
+    <aside className="flex max-h-[70vh] w-full flex-col overflow-y-auto border-l border-[#D4AF37]/20 bg-[#12080C]">
       <header className="p-3 border-b border-white/10 flex items-center justify-between">
         <h3 className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
           Version History
@@ -112,7 +117,7 @@ export default function VersionHistoryPanel({ page, onRollbackSuccess }: Props) 
           >
             <div className="flex justify-between items-center">
               <span className="font-medium">v{rec.version}</span>
-              <span className="text-white/60">{new Date(rec.publishedAt).toLocaleDateString()}</span>
+              <span className="text-white/60">{formatAdminDate(rec.publishedAt)}</span>
             </div>
             <div className="text-white/40 truncate">{rec.changelogNote ?? 'No note'}</div>
           </li>

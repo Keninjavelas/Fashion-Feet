@@ -337,7 +337,7 @@ export function evaluateDatabaseConnectivity(
         state: "HEALTHY",
         summary: "Connected",
         detail:
-          detail ?? "The application can query the primary SQLite database.",
+          detail ?? "The application can query the primary database.",
       }
     : {
         state: "CRITICAL",

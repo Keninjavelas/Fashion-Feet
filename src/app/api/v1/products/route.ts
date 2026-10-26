@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  * GET /api/v1/products
  *
  * Public catalogue listing. Only products the storefront itself would show are
- * returned — the same `archived: false, published: true` predicate the homepage
+ * returned — the same public visibility predicate the homepage
  * uses — so this endpoint cannot become a back door onto drafts or archived SKUs.
  *
  * Query: ?category= ?occasion= ?collection= ?q= ?limit= ?offset=
@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   return publicGet(req, async (): Promise<ListEnvelope<PublicProduct>> => {
     const { limit, offset } = parsePagination(req);
-    const where: Prisma.ProductWhereInput = { archived: false, published: true };
+    const where: Prisma.ProductWhereInput = { archived: false, published: true, hidden: false };
 
     const categoryParam = readFilter(req, "category");
     if (categoryParam) {

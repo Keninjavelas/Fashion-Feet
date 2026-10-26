@@ -2,10 +2,11 @@
 
 import { Monitor, Smartphone, Trash2 } from "lucide-react";
 import { revokeSessionAction } from "@/app/actions/admin";
+import { AdminPasswordForm } from "@/components/admin/AdminPasswordForm";
+import { formatAdminDateTime, formatAdminTime } from "@/lib/adminDate";
 
 interface ActiveSession {
   id: string;
-  token: string;
   userAgent?: string | null;
   ipAddress?: string | null;
   createdAt: any;
@@ -13,9 +14,9 @@ interface ActiveSession {
 }
 
 export function ActiveSessionsView({ initialSessions, currentAdminEmail }: { initialSessions: ActiveSession[]; currentAdminEmail: string }) {
-  const handleRevoke = async (token: string) => {
+  const handleRevoke = async (sessionId: string) => {
     if (!confirm("Revoke this active session? The administrator will be logged out.")) return;
-    await revokeSessionAction(token);
+    await revokeSessionAction(sessionId);
     window.location.reload();
   };
 
@@ -23,8 +24,10 @@ export function ActiveSessionsView({ initialSessions, currentAdminEmail }: { ini
     <div className="space-y-6 font-sans">
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
         <h1 className="font-serif text-2xl font-bold text-gray-900">Admin Settings & Active Sessions</h1>
-        <p className="text-xs text-gray-500">View active login sessions for <strong className="text-gray-900 font-mono">{currentAdminEmail}</strong> and revoke unneeded devices.</p>
+        <p className="text-xs text-gray-500">Manage the password and active login sessions for <strong className="text-gray-900 font-mono">{currentAdminEmail}</strong>.</p>
       </div>
+
+      <AdminPasswordForm />
 
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
         <h3 className="font-serif text-lg font-bold text-gray-900">Active Sessions Log</h3>
@@ -39,18 +42,18 @@ export function ActiveSessionsView({ initialSessions, currentAdminEmail }: { ini
                 <div>
                   <span className="font-bold text-gray-900 block truncate max-w-xs">{session.userAgent || "Unknown Device"}</span>
                   <span className="text-gray-500 font-mono text-[11px]">
-                    IP: {session.ipAddress || "Internal"} &bull; Logged in: {new Date(session.createdAt).toLocaleString()}
+                    IP: {session.ipAddress || "Internal"} &bull; Logged in: {formatAdminDateTime(session.createdAt)}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
                 <span className="text-[10px] font-mono text-gray-400">
-                  Last active: {new Date(session.lastActiveAt).toLocaleTimeString()}
+                  Last active: {formatAdminTime(session.lastActiveAt)}
                 </span>
 
                 <button
-                  onClick={() => handleRevoke(session.token)}
+                  onClick={() => handleRevoke(session.id)}
                   className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold uppercase tracking-wider rounded-xl transition-all border border-rose-200 flex items-center gap-1"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Revoke

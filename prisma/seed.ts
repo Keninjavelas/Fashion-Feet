@@ -4,28 +4,29 @@ import { hashPassword } from '../src/lib/password';
 async function main() {
   console.log("🌱 Starting Fashion Feet database seeding...");
 
-  // 1. Seed or update Super Admin user in AdminUser table
-  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@fashionfeet.local').trim().toLowerCase();
-  const adminPassword = (process.env.ADMIN_PASSWORD || 'FashionFeet@2026').trim();
-  const adminPasswordHash = await hashPassword(adminPassword);
+  // 1. Bootstrap a Super Admin only when explicitly configured. Never reset
+  // an existing password, suspension, or role by rerunning the seed script.
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+  if (!adminEmail || !adminPassword || adminPassword.length < 12) {
+    throw new Error('Set ADMIN_EMAIL and a unique ADMIN_PASSWORD of at least 12 characters before seeding.');
+  }
 
-  const admin = await prisma.adminUser.upsert({
-    where: { email: adminEmail },
-    update: {
-      name: 'Super Admin',
-      role: 'SUPER_ADMIN',
-      passwordHash: adminPasswordHash,
-      suspended: false,
-    },
-    create: {
+  const existingAdmin = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
+  if (!existingAdmin) {
+    await prisma.adminUser.create({
+      data: {
       email: adminEmail,
       name: 'Super Admin',
-      passwordHash: adminPasswordHash,
+      passwordHash: await hashPassword(adminPassword),
       role: 'SUPER_ADMIN',
       suspended: false,
-    },
-  });
-  console.log(`✅ AdminUser seeded: ${admin.email} (${admin.role}) with Argon2id hash.`);
+      },
+    });
+    console.log('✅ Initial Super Admin created with an Argon2id password hash.');
+  } else {
+    console.log('ℹ️  Existing Super Admin left unchanged; use account management to rotate credentials.');
+  }
 
   // 2. Demo customer account
   //

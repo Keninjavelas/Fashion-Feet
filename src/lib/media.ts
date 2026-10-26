@@ -45,55 +45,59 @@ export async function getPublishedAsset(keyOrFolder: string, fallbackUrl: string
   }
 }
 
-/**
- * Calculates dependent storefront locations ("Used In") for any media asset to prevent accidental breakage.
- */
-export async function calculateUsedInLocations(url: string, folder: string): Promise<string[]> {
-  const locations: string[] = [];
-  if (!url) return locations;
+/** Resolve current content links in one set of database reads for a media library page. */
+export async function calculateMediaUsageMap(urls: ReadonlyArray<string>): Promise<Record<string, string[]>> {
+  const unique = Array.from(new Set(urls.filter(Boolean)));
+  const usage = new Map(unique.map((url) => [url, new Set<string>()]));
+  if (unique.length === 0) return {};
 
-  try {
-    // Check Site Settings usages
-    const settings = await prisma.siteSetting.findMany().catch(() => []);
-    settings.forEach(s => {
-      if (s.value === url) {
-        if (s.key.includes("primaryLogo")) locations.push("Header Logo", "Storefront Navbar");
-        else if (s.key.includes("darkLogo") || s.key.includes("lightLogo")) locations.push("Footer Logo", "Admin Sidebar");
-        else if (s.key.includes("favicon")) locations.push("Browser Favicon");
-        else if (s.key.includes("heroImage")) locations.push("Homepage Hero Canvas");
-        else if (s.key.includes("artisanImage")) locations.push("Craftsmanship Scroll Story");
-        else if (s.key.includes("collection")) locations.push("Curated Collections Section");
-        else locations.push(`Setting: ${s.key}`);
-      }
-    });
+  const add = (url: string | null | undefined, label: string) => {
+    if (url) usage.get(url)?.add(label);
+  };
+  const count = (values: Array<string | null | undefined>) => {
+    const counts = new Map<string, number>();
+    for (const value of values) if (value && usage.has(value)) counts.set(value, (counts.get(value) || 0) + 1);
+    return counts;
+  };
 
-    // Check Product Image usages
-    const productImages = await prisma.productImage.count({ where: { url: { equals: url } } }).catch(() => 0);
-    if (productImages > 0) {
-      locations.push(`Product Gallery (${productImages} Pair${productImages > 1 ? "s" : ""})`);
-    }
+  const [settings, images, collections, festivals, content, configs, stores] = await Promise.all([
+    prisma.siteSetting.findMany({ where: { value: { in: unique } }, select: { key: true, value: true } }).catch(() => []),
+    prisma.productImage.findMany({ where: { url: { in: unique } }, select: { url: true } }).catch(() => []),
+    prisma.collection.findMany({ select: { banner: true, thumbnail: true } }).catch(() => []),
+    prisma.festival.findMany({ select: { heroBanner: true } }).catch(() => []),
+    prisma.companyContent.findMany({ select: { content: true } }).catch(() => []),
+    prisma.storefrontConfig.findMany({ select: { sections: true } }).catch(() => []),
+    prisma.store.findMany({ select: { photos: true } }).catch(() => []),
+  ]);
 
-    // Check Collection Banner usages
-    const collections = await prisma.collection.count({ where: { banner: { equals: url } } }).catch(() => 0);
-    if (collections > 0) {
-      locations.push(`Collection Banner (${collections})`);
-    }
+  for (const setting of settings) {
+    const key = setting.key;
+    const label = key.includes("primaryLogo") ? "Header Logo"
+      : key.includes("darkLogo") || key.includes("lightLogo") ? "Footer Logo"
+      : key.includes("favicon") ? "Browser Favicon"
+      : key.includes("heroImage") ? "Homepage Hero Canvas"
+      : key.includes("artisanImage") ? "Craftsmanship Scroll Story"
+      : key.includes("collection") ? "Curated Collections Section"
+      : `Setting: ${key}`;
+    add(setting.value, label);
+  }
+  for (const [url, total] of count(images.map((image) => image.url))) add(url, `Product Gallery (${total})`);
+  for (const [url, total] of count(collections.map((collection) => collection.banner))) add(url, `Collection Banner (${total})`);
+  for (const [url, total] of count(collections.map((collection) => collection.thumbnail))) add(url, `Collection Thumbnail (${total})`);
+  for (const [url, total] of count(festivals.map((festival) => festival.heroBanner))) add(url, `Festival Banner (${total})`);
+  for (const [url, total] of count(content.map((entry) => entry.content))) add(url, `Company Content (${total})`);
 
-    // Folder default mapping if not directly linked yet
-    if (locations.length === 0) {
-      if (folder === "branding") locations.push("Global Branding System");
-      else if (folder === "homepage") locations.push("Homepage Visual Showcase");
-      else if (folder === "products") locations.push("Showroom Product Catalog");
-      else if (folder === "collections") locations.push("Curated Occasion Showcase");
-      else if (folder === "festivals") locations.push("Active Festival Theme Drop");
-      else if (folder === "stores") locations.push("Boutique Stores Finder");
-      else if (folder === "backgrounds") locations.push("Ambient Texture Overlay");
-    }
-  } catch (err) {
-    console.error("calculateUsedInLocations error:", err);
+  for (const url of unique) {
+    if (configs.some((config) => config.sections.includes(url))) add(url, "Storefront Studio");
+    if (stores.some((store) => store.photos?.includes(url))) add(url, "Store Photos");
   }
 
-  return Array.from(new Set(locations));
+  return Object.fromEntries(Array.from(usage, ([url, labels]) => [url, Array.from(labels)]));
+}
+
+export async function calculateUsedInLocations(url: string, _folder: string): Promise<string[]> {
+  if (!url) return [];
+  return (await calculateMediaUsageMap([url]))[url] || [];
 }
 
 export type ManagedUrlValidation =
@@ -132,12 +136,63 @@ export async function validateManagedImageUrls(
  */
 export async function refreshMediaUsage(urls: ReadonlyArray<string>): Promise<void> {
   const unique = Array.from(new Set(urls.filter(Boolean)));
+  const usage = await calculateMediaUsageMap(unique);
   for (const url of unique) {
     const asset = await prisma.mediaAsset.findFirst({ where: { url } }).catch(() => null);
     if (!asset) continue;
-    const usedIn = await calculateUsedInLocations(url, asset.folder);
+    const usedIn = usage[url] || [];
     await prisma.mediaAsset
       .update({ where: { id: asset.id }, data: { usedIn: JSON.stringify(usedIn) } })
       .catch(() => null);
   }
+}
+
+/** Replace a managed file and keep every current content reference pointing at it. */
+export async function replaceManagedMediaAsset(
+  assetId: string,
+  newUrl: string,
+  fileSize: string,
+  filename: string
+) {
+  const existing = await prisma.mediaAsset.findUnique({ where: { id: assetId } });
+  if (!existing || existing.status === "TRASH") throw new Error("Asset not found.");
+  const oldUrl = existing.url;
+
+  const asset = await prisma.$transaction(async (tx) => {
+    await tx.productImage.updateMany({ where: { url: oldUrl }, data: { url: newUrl } });
+    await tx.collection.updateMany({ where: { banner: oldUrl }, data: { banner: newUrl } });
+    await tx.collection.updateMany({ where: { thumbnail: oldUrl }, data: { thumbnail: newUrl } });
+    await tx.festival.updateMany({ where: { heroBanner: oldUrl }, data: { heroBanner: newUrl } });
+    await tx.siteSetting.updateMany({ where: { value: oldUrl }, data: { value: newUrl } });
+    await tx.companyContent.updateMany({ where: { content: oldUrl }, data: { content: newUrl } });
+
+    const configs = await tx.storefrontConfig.findMany({ where: { sections: { contains: oldUrl } } });
+    for (const config of configs) {
+      const sections = JSON.parse(config.sections) as Array<{ image?: string; mediaAssetId?: string }>;
+      let changed = false;
+      for (const section of sections) {
+        if (section.image === oldUrl || section.mediaAssetId === assetId) {
+          section.image = newUrl;
+          changed = true;
+        }
+      }
+      if (changed) await tx.storefrontConfig.update({ where: { id: config.id }, data: { sections: JSON.stringify(sections) } });
+    }
+
+    const stores = await tx.store.findMany({ where: { photos: { contains: oldUrl } } });
+    for (const store of stores) {
+      const photos = JSON.parse(store.photos || "[]") as string[];
+      if (Array.isArray(photos) && photos.includes(oldUrl)) {
+        await tx.store.update({ where: { id: store.id }, data: { photos: JSON.stringify(photos.map((url) => url === oldUrl ? newUrl : url)) } });
+      }
+    }
+
+    return tx.mediaAsset.update({
+      where: { id: assetId },
+      data: { url: newUrl, filename, fileSize }
+    });
+  });
+
+  await refreshMediaUsage([newUrl]);
+  return asset;
 }

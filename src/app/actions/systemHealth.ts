@@ -16,7 +16,11 @@ import {
   type MigrationStateResult,
 } from "@/lib/healthRules";
 
-const MIGRATIONS_DIR = path.join(process.cwd(), "prisma", "migrations");
+const managedPostgres = /^postgres(?:ql)?:\/\//.test(process.env.DATABASE_URL || "");
+const projectRoot = process.env.VERCEL && process.cwd().endsWith(path.join("apps", "admin"))
+  ? path.resolve(process.cwd(), "../..")
+  : process.cwd();
+const MIGRATIONS_DIR = path.join(projectRoot, "prisma", managedPostgres ? "postgres/migrations" : "migrations");
 const DB_PATH = path.join(process.cwd(), "dev.db");
 const RECENT_EVENT_LIMIT = 6;
 
@@ -113,7 +117,7 @@ function compareMigrations(
 
 export async function getSystemHealthMetrics() {
   const admin = await getAuthenticatedAdmin();
-  if (!admin) return { error: "Unauthorized." };
+  if (!admin || admin.role !== "SUPER_ADMIN") return { error: "Unauthorized." };
 
   try {
     const now = new Date();
@@ -121,13 +125,19 @@ export async function getSystemHealthMetrics() {
       now.getTime() - FAILED_BACKUP_WINDOW_HOURS * 60 * 60 * 1000
     );
 
-    let dbSizeBytes = 0;
+    let dbSizeBytes: number | null = null;
     try {
-      if (fs.existsSync(DB_PATH)) {
+      if (managedPostgres) {
+        const rows = await prisma.$queryRawUnsafe<Array<{ size_bytes: string }>>(
+          "SELECT pg_database_size(current_database())::text AS size_bytes"
+        );
+        const reportedSize = Number(rows[0]?.size_bytes);
+        if (Number.isFinite(reportedSize) && reportedSize >= 0) dbSizeBytes = reportedSize;
+      } else if (fs.existsSync(DB_PATH)) {
         dbSizeBytes = fs.statSync(DB_PATH).size;
       }
     } catch {
-      // Disk footprint is informational only; the connectivity probe below is authoritative.
+      // Size is informational; the connectivity probe below is authoritative.
     }
 
     let databaseConnected = true;
@@ -203,12 +213,9 @@ export async function getSystemHealthMetrics() {
 
     const backupHealth = rollupStatus([backupAge.state, failedBackups.state]);
 
-    const overall = rollupStatus([
-      connectivity.state,
-      backupAge.state,
-      failedBackups.state,
-      migrations.state,
-    ]);
+    const overall = rollupStatus(managedPostgres
+      ? [connectivity.state, migrations.state]
+      : [connectivity.state, backupAge.state, failedBackups.state, migrations.state]);
 
     const mfaAdoptionPercent =
       adminCount > 0 ? Math.round((adminMfaCount / adminCount) * 100) : 0;
@@ -266,20 +273,19 @@ export async function getSystemHealthMetrics() {
             summary: connectivity.summary,
             detail: connectivity.detail,
           },
-          {
+          ...(!managedPostgres ? [{
             key: "backupAge",
             label: "Backup Freshness",
             state: backupAge.state,
             summary: backupAge.summary,
             detail: backupAge.detail,
-          },
-          {
+          }, {
             key: "failedBackups",
             label: "Failed Backups",
             state: failedBackups.state,
             summary: failedBackups.summary,
             detail: failedBackups.detail,
-          },
+          }] : []),
           {
             key: "migrations",
             label: "Migration State",
@@ -292,9 +298,9 @@ export async function getSystemHealthMetrics() {
       database: {
         status: connectivity.state,
         connected: databaseConnected,
-        engine: "SQLite (WAL Mode via @prisma/adapter-better-sqlite3)",
+        engine: managedPostgres ? "PostgreSQL (managed)" : "SQLite (local)",
         sizeBytes: dbSizeBytes,
-        sizeMb: (dbSizeBytes / (1024 * 1024)).toFixed(2),
+        sizeMb: dbSizeBytes === null ? null : (dbSizeBytes / (1024 * 1024)).toFixed(2),
         totalBackups,
         lastBackupAt: lastSuccessfulBackup?.createdAt ?? null,
         lastBackupFilename: lastSuccessfulBackup?.filename ?? null,

@@ -132,7 +132,7 @@ export function StoreManagerClient({ initialStores, currentAdminRole }: { initia
     else window.location.reload();
   };
 
-  const publishedStoresCount = stores.filter((s) => s.status === "OPEN" || s.status === "COMING_SOON").length;
+  const publishedStoresCount = stores.filter((s) => s.status !== "DRAFT").length;
 
   return (
     <div className="space-y-6 font-sans">
@@ -150,7 +150,7 @@ export function StoreManagerClient({ initialStores, currentAdminRole }: { initia
       {publishedStoresCount === 0 && (
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-xs text-amber-900 font-medium">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
-          <span>No physical stores are currently published as OPEN. The public Storefront will automatically display <strong>"Stores Coming Soon"</strong>.</span>
+          <span>No physical stores are currently published. The public storefront will display <strong>"Stores Coming Soon"</strong>.</span>
         </div>
       )}
 
@@ -218,6 +218,7 @@ export function StoreManagerClient({ initialStores, currentAdminRole }: { initia
                 <div>
                   <label className="block font-bold text-gray-700 uppercase mb-1">Status</label>
                   <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-3.5 py-2.5 bg-gray-50 border rounded-xl focus:outline-none">
+                    <option value="DRAFT">Draft (private)</option>
                     <option value="OPEN">Open</option>
                     <option value="COMING_SOON">Coming Soon</option>
                     <option value="TEMPORARILY_CLOSED">Temporarily Closed</option>

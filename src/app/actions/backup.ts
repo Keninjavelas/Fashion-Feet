@@ -35,7 +35,7 @@ export async function createBackupAction() {
 
 export async function listBackupsAction() {
   const admin = await getAuthenticatedAdmin();
-  if (!admin) return { error: "Unauthorized." };
+  if (!admin || admin.role !== "SUPER_ADMIN") return { error: "Unauthorized." };
 
   try {
     const backups = await listDatabaseBackups();

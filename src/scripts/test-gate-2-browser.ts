@@ -1,6 +1,5 @@
 import { chromium } from "playwright";
 import { prisma } from "../lib/prisma";
-import { hashPassword } from "../lib/adminAuth";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
@@ -42,18 +41,9 @@ async function runGate2Acceptance() {
 
   // 1. Ensure Super Admin and Admin Session Exist
   const adminEmail = "admin@fashionfeet.com";
-  let admin = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
+  const admin = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
   if (!admin) {
-    const passwordHash = await hashPassword("SuperAdminPassword2026!");
-    admin = await prisma.adminUser.create({
-      data: {
-        email: adminEmail,
-        name: "Super Admin",
-        passwordHash,
-        role: "SUPER_ADMIN",
-        mfaEnabled: true,
-      }
-    });
+    throw new Error("Gate 2 requires an existing test administrator; it will not create one with a default password.");
   }
 
   const sessionToken = crypto.randomBytes(32).toString("hex");

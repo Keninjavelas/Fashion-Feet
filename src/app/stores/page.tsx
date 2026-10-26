@@ -4,9 +4,11 @@ import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
 import Image from "next/image";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function FindAStorePage() {
   const stores = await (prisma as any).store?.findMany({
-    where: { status: "OPEN" },
+    where: { status: { in: ["OPEN", "COMING_SOON", "TEMPORARILY_CLOSED"] } },
     orderBy: { displayOrder: "asc" }
   }).catch(() => []) || [];
 
@@ -112,7 +114,7 @@ export default async function FindAStorePage() {
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-between p-5 text-white">
                       <span className="px-3 py-1 bg-[var(--color-accent-gold)] text-[var(--color-brand-900)] text-[10px] font-bold uppercase tracking-widest rounded-full w-fit shadow">
-                        {store.type.replace("_", " ")}
+                        {store.status === "OPEN" ? store.type.replace("_", " ") : store.status.replaceAll("_", " ")}
                       </span>
                       <div>
                         <h2 className="font-serif text-2xl font-bold text-white drop-shadow">{store.name}</h2>
@@ -128,13 +130,13 @@ export default async function FindAStorePage() {
                       {store.street && (
                         <p className="leading-relaxed">{store.street}, {store.city} - {store.pinCode}</p>
                       )}
-                      {store.openingHours && (
+                      {store.status === "OPEN" && store.openingHours && (
                         <p className="flex items-center gap-2 font-medium text-gray-900 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                           <Clock className="w-4 h-4 text-[var(--color-accent-gold)] shrink-0" />
                           <span>{store.openingHours}</span>
                         </p>
                       )}
-                      {store.phone && (
+                      {store.status === "OPEN" && store.phone && (
                         <p className="flex items-center gap-2 font-medium text-gray-900">
                           <Phone className="w-4 h-4 text-[var(--color-accent-gold)] shrink-0" />
                           <span>{store.phone}</span>
@@ -155,7 +157,7 @@ export default async function FindAStorePage() {
                       </div>
                     )}
 
-                    {store.googleMapsUrl && (
+                    {store.status === "OPEN" && store.googleMapsUrl && (
                       <div className="pt-3 border-t border-black/5">
                         <Link
                           href={store.googleMapsUrl}

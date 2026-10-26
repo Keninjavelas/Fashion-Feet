@@ -35,7 +35,7 @@ export function RoyalFootprintsAndColorMeshBackground() {
       />
 
       {/* Prominent Royal Maroon Walking Footprints Trail (z-30, positioned in left side gutter) */}
-      <div className="absolute inset-y-0 left-4 sm:left-8 md:left-12 lg:left-16 w-24 flex flex-col justify-between py-24">
+      <div className="absolute inset-y-0 left-4 w-24 hidden flex-col justify-between py-24 2xl:flex">
         {Array.from({ length: totalSteps }).map((_, idx) => {
           const isLeftFoot = idx % 2 === 0;
           const isRevealed = idx <= currentStepIndex;

@@ -4,15 +4,18 @@ import { Sparkles, Compass, ShieldCheck, Award } from "lucide-react";
 import Link from "next/link";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
 import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
+import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
 
 export function HeritageArtistrySection({
   artisanImage1,
-  artisanImage2
+  artisanImage2,
+  section
 }: {
   artisanImage1?: string;
   artisanImage2?: string;
+  section?: StorefrontSection;
 }) {
-  const img1 = artisanImage1 || PLACEHOLDER_HOMEPAGE_IMAGE;
+  const img1 = section?.image && section.image !== PLACEHOLDER_HOMEPAGE_IMAGE ? section.image : artisanImage1 || PLACEHOLDER_HOMEPAGE_IMAGE;
   const img2 = artisanImage2 || PLACEHOLDER_HOMEPAGE_IMAGE;
 
   return (
@@ -23,15 +26,17 @@ export function HeritageArtistrySection({
           <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[var(--theme-color-surface)] text-[var(--theme-color-accent)] text-xs uppercase tracking-widest font-semibold border border-[var(--theme-color-border)] rounded-full shadow-sm">
               <Sparkles className="w-4 h-4 text-[var(--theme-color-accent)]" />
-              <span>Handcrafted in the Punjabi Tradition</span>
+              <span>{section?.badge || "Handcrafted in the Punjabi Tradition"}</span>
             </div>
 
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight text-[var(--theme-color-text)]">
-              Preserving the Royal Art of <span className="text-[var(--theme-color-accent)]">Zari & Dabka</span>
+              {section?.title || <>Preserving the Royal Art of <span className="text-[var(--theme-color-accent)]">Zari & Dabka</span></>}
             </h2>
 
+            {section?.subtitle && <p className="text-[var(--theme-color-accent)] text-sm font-semibold">{section.subtitle}</p>}
+
             <p className="text-[var(--theme-color-text-muted)] text-base md:text-lg leading-relaxed font-sans font-light">
-              Unlike mass-manufactured shoes, every pair of Fashion Feet Juttis is crafted by hand by Punjabi artisans using vegetable-tanned leather, silk velvet, and metallic threadwork.
+              {section?.description || "Unlike mass-manufactured shoes, every pair of Fashion Feet Juttis is crafted by hand by Punjabi artisans using vegetable-tanned leather, silk velvet, and metallic threadwork."}
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--theme-color-border)]">
@@ -52,10 +57,10 @@ export function HeritageArtistrySection({
 
             <div className="pt-4">
               <Link
-                href="/about"
+                href={section?.ctaLink || "/about"}
                 className="inline-flex items-center gap-2 px-6 py-3.5 bg-[var(--theme-color-surface)] text-[var(--theme-color-text)] font-bold text-xs uppercase tracking-widest rounded-xl hover:border-[var(--theme-color-accent)] transition-all border border-[var(--theme-color-border)] shadow-sm"
               >
-                Read Full Heritage Story <Compass className="w-4 h-4 text-[var(--theme-color-accent)]" />
+                {section?.ctaText || "Read Full Heritage Story"} <Compass className="w-4 h-4 text-[var(--theme-color-accent)]" />
               </Link>
             </div>
           </div>

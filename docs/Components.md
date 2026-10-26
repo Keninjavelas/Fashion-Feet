@@ -1,24 +1,13 @@
-# Storefront Component Inventory
+# Component guide
 
-## Key Components
+The source files are the detailed reference. These are the main UI entry points in the current codebase.
 
-1. **`Navbar` (`src/components/layout/Navbar.tsx`)**:
-   - Fixed header with brand logo, top links, active seasonal campaign badge, search trigger, profile link, wishlist counter, and Boutique Enquiry button.
+- `src/components/layout/StorefrontLayout.tsx` loads public settings, active festival, navigation data, and the published footer on each request.
+- `src/components/layout/BrandLogo.tsx` uses the official logo in `public/branding/fashion-feet-official.png`.
+- `src/components/layout/Navbar.tsx`, `Footer.tsx`, `CollectionsMegaMenu.tsx`, and `SearchModal.tsx` provide global navigation and contact links.
+- `src/components/home/Hero.tsx`, `PastExhibitions.tsx`, and other `src/components/home/` modules render homepage sections and seasonal effects.
+- `src/components/shop/EnquiryModal.tsx` submits product enquiries; `src/app/contact/ContactClient.tsx` submits general contact requests through the same Server Action.
+- `src/app/faq/FaqClient.tsx` renders FAQ rows passed by the server page from PostgreSQL.
+- `src/components/admin/AdminShell.tsx`, `AdminWorkspace.tsx`, and `AdminSidebar.tsx` frame the separate dashboard; managers under `src/components/admin/` handle products, collections, stores, FAQs, media, festivals, and Studio.
 
-2. **`CollectionsMegaMenu` (`src/components/layout/CollectionsMegaMenu.tsx`)**:
-   - Dropdown panel for `Wedding`, `Festive`, `Casual`, `Office`, `Luxury`, `Heritage`, `Best Sellers`.
-
-3. **`SearchModal` (`src/components/layout/SearchModal.tsx`)**:
-   - Search modal overlay querying `/api/search` with 500ms debouncing across title, SKU, gender, color, material, category, occasion, description.
-
-4. **`EnquiryModal` (`src/components/shop/EnquiryModal.tsx`)**:
-   - Fitting & product enquiry modal pre-populating dynamic product title, SKU, size, color, thumbnail, and enquiry subject options (*General Enquiry*, *Store Launch Updates*, *Virtual Assistance*).
-
-5. **`InteractiveSizeFinderSection` (`src/components/home/InteractiveSizeFinderSection.tsx`)**:
-   - Size Studio widget with Women/Men toggle, UK/US/EU/India size matrix, foot length cm slider, save to profile action, and handmade fit disclaimer.
-
-6. **`SeasonalAmbientOverlays` (`src/components/home/SeasonalAmbientOverlays.tsx`)**:
-   - HTML5 Canvas particle system rendering themed effects: `diyas`, `gulal`, `lanterns`, `snowfall`, `embers`, `wheat`.
-
-7. **`StorefrontTiltCard` (`src/components/storefront/StorefrontTiltCard.tsx`)**:
-   - 3D tilt card wrapper for product cards & feature showcases.
+The admin app imports shared components from `src/`, but its routes and Server Actions are built only in `apps/admin`. Run `npm run test:isolation` after changes to these boundaries.

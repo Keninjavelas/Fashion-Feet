@@ -9,7 +9,7 @@ import { toggleWishlist } from "@/app/actions/wishlist";
 import { StorefrontTiltCard } from "@/components/storefront/StorefrontTiltCard";
 
 type SortOption = "newest" | "price_asc" | "price_desc" | "popular";
-function FilterSidebar({ activeFilterCount, clearFilters, colors, selectedColors, toggleColor, priceRange, setPriceRange }: { activeFilterCount: number; clearFilters: () => void; colors: { name: string; value: string }[]; selectedColors: string[]; toggleColor: (color: string) => void; priceRange: [number, number]; setPriceRange: React.Dispatch<React.SetStateAction<[number, number]>>; }) {
+function FilterSidebar({ activeFilterCount, clearFilters, colors, selectedColors, toggleColor, priceRange, maxProductPrice, setPriceRange }: { activeFilterCount: number; clearFilters: () => void; colors: { name: string; value: string }[]; selectedColors: string[]; toggleColor: (color: string) => void; priceRange: [number, number]; maxProductPrice: number; setPriceRange: React.Dispatch<React.SetStateAction<[number, number]>>; }) {
   return (
     <div className="space-y-8 text-white">
       <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -48,7 +48,7 @@ function FilterSidebar({ activeFilterCount, clearFilters, colors, selectedColors
         <input
           type="range"
           min="0"
-          max="15000"
+          max={maxProductPrice}
           step="500"
           value={priceRange[1]}
           onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
@@ -61,21 +61,20 @@ function FilterSidebar({ activeFilterCount, clearFilters, colors, selectedColors
 }
 
 export function ShopClient({ initialProducts, initialCategory }: { initialProducts: any[], initialCategory?: string }) {
-  const [products] = useState(initialProducts);
+  const products = initialProducts;
+  const maxProductPrice = Math.max(15000, Math.ceil(Math.max(...products.map((product) => Number(product.price) || 0), 0) / 500) * 500);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
   
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 15000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, maxProductPrice]);
   const [sortOption, setSortOption] = useState<SortOption>("newest");
 
-  const colors = [
-    { name: "Red", value: "#dc2626" },
-    { name: "Black", value: "#171717" },
-    { name: "Gold", value: "#D4AF37" },
-    { name: "Brown", value: "#78350f" },
-    { name: "Royal Crimson", value: "#8A1538" },
-  ];
+  const colors = [...new Set(products.flatMap((product) => String(product.colors || "").split(",").map((color) => color.trim()).filter(Boolean)))].sort().map((name) => {
+    const lower = name.toLowerCase();
+    const value = lower.includes("gold") ? "#D4AF37" : lower.includes("red") || lower.includes("crimson") ? "#8A1538" : lower.includes("black") ? "#171717" : lower.includes("brown") ? "#78350f" : lower.includes("blue") ? "#2563eb" : lower.includes("green") ? "#15803d" : "#8b6f72";
+    return { name, value };
+  });
 
   const toggleColor = (color: string) => {
     setSelectedColors(prev => 
@@ -85,10 +84,10 @@ export function ShopClient({ initialProducts, initialCategory }: { initialProduc
 
   const clearFilters = () => {
     setSelectedColors([]);
-    setPriceRange([0, 15000]);
+    setPriceRange([0, maxProductPrice]);
   };
 
-  const activeFilterCount = selectedColors.length + (priceRange[0] > 0 || priceRange[1] < 15000 ? 1 : 0);
+  const activeFilterCount = selectedColors.length + (priceRange[0] > 0 || priceRange[1] < maxProductPrice ? 1 : 0);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -100,8 +99,8 @@ export function ShopClient({ initialProducts, initialCategory }: { initialProduc
 
     if (selectedColors.length > 0) {
       result = result.filter(p => {
-        const textToSearch = `${p.title} ${p.description} ${p.colors || ""}`.toLowerCase();
-        return selectedColors.some(color => textToSearch.includes(color.toLowerCase()));
+        const productColors = String(p.colors || "").split(",").map((color) => color.trim().toLowerCase());
+        return selectedColors.some(color => productColors.includes(color.toLowerCase()));
       });
     }
 
@@ -136,6 +135,7 @@ export function ShopClient({ initialProducts, initialCategory }: { initialProduc
           selectedColors={selectedColors}
           toggleColor={toggleColor}
           priceRange={priceRange}
+          maxProductPrice={maxProductPrice}
           setPriceRange={setPriceRange}
         />
       </aside>
@@ -204,6 +204,19 @@ export function ShopClient({ initialProducts, initialCategory }: { initialProduc
         )}
       </div>
 
+      {isMobileFilterOpen && (
+        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Shop filters">
+          <button type="button" className="absolute inset-0 bg-black/75" aria-label="Close filters" onClick={() => setIsMobileFilterOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-3xl border-t border-[#D4AF37]/30 bg-[#1C1412] p-6 shadow-2xl">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="font-serif text-xl text-white">Filter Collection</h2>
+              <button type="button" onClick={() => setIsMobileFilterOpen(false)} aria-label="Close filters" className="rounded-lg p-2 text-white"><X className="h-5 w-5" /></button>
+            </div>
+            <FilterSidebar activeFilterCount={activeFilterCount} clearFilters={clearFilters} colors={colors} selectedColors={selectedColors} toggleColor={toggleColor} priceRange={priceRange} maxProductPrice={maxProductPrice} setPriceRange={setPriceRange} />
+            <button type="button" onClick={() => setIsMobileFilterOpen(false)} className="mt-8 w-full rounded-xl bg-[#8A1538] px-5 py-3 text-xs font-bold uppercase tracking-widest text-white">Show {filteredProducts.length} products</button>
+          </div>
+        </div>
+      )}
       <QuickViewModal product={quickViewProduct} isOpen={!!quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </div>
   );

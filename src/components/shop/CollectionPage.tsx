@@ -6,19 +6,24 @@ import { Filter, ChevronDown, Heart, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { toggleWishlist } from "@/app/actions/wishlist";
 import { StorefrontTiltCard } from "@/components/storefront/StorefrontTiltCard";
+import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
 
 interface CollectionPageProps {
   title: string;
   description: string;
   products: any[];
+  section?: StorefrontSection;
+  hideHero?: boolean;
 }
 
 type SortOption = "newest" | "price_asc" | "price_desc" | "popular";
 
-export function CollectionPage({ title, description, products }: CollectionPageProps) {
+export function CollectionPage({ title, description, products, section, hideHero = false }: CollectionPageProps) {
+  const categories = [...new Set(products.map((product) => product.category).filter(Boolean))].sort() as string[];
+  const maxProductPrice = Math.max(5000, Math.ceil(Math.max(...products.map((product) => Number(product.price) || 0), 0) / 500) * 500);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, maxProductPrice]);
   const [sortOption, setSortOption] = useState<SortOption>("newest");
   
   const toggleCategory = (cat: string) => {
@@ -29,7 +34,7 @@ export function CollectionPage({ title, description, products }: CollectionPageP
 
   // Distinguishes "the visitor narrowed the results away" from "there is
   // nothing published yet", which need different, honest empty states.
-  const hasActiveFilters = selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 5000;
+  const hasActiveFilters = selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < maxProductPrice;
   
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -62,22 +67,25 @@ export function CollectionPage({ title, description, products }: CollectionPageP
   }, [products, selectedCategories, priceRange, sortOption]);
 
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-[var(--theme-color-bg)] text-[var(--theme-color-text)] transition-colors duration-300">
+    <div data-published-section="HERO_BANNER" data-style-preset={section?.stylePreset || "DARK_ROYAL"} data-motion-preset={section?.motionPreset || "NONE"} className="pt-24 pb-16 min-h-screen bg-[var(--theme-color-bg)] text-[var(--theme-color-text)] transition-colors duration-300">
       {/* Header */}
-      <div className="bg-[var(--theme-color-surface)] py-16 mb-12 border-b border-[var(--theme-color-border)] relative overflow-hidden shadow-sm">
+      {!hideHero && <div className="bg-[var(--theme-color-surface)] py-16 mb-12 border-b border-[var(--theme-color-border)] relative overflow-hidden shadow-sm">
+        {section?.image && <div className="absolute inset-0 opacity-15"><Image src={section.image} alt="" fill className="object-cover" /></div>}
         <div className="max-w-7xl mx-auto px-4 md:px-8 text-center space-y-4 relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[var(--theme-color-bg)] text-[var(--theme-color-accent)] rounded-full text-xs uppercase tracking-widest font-bold border border-[var(--theme-color-border)] shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Heritage Collection</span>
+            <span>{section?.badge || "Heritage Collection"}</span>
           </div>
           <h1 className="font-serif text-4xl md:text-6xl text-[var(--theme-color-text)] tracking-tight font-bold">
-            {title}
+            {section?.title || title}
           </h1>
           <p className="text-base md:text-lg text-[var(--theme-color-text-muted)] max-w-2xl mx-auto font-light leading-relaxed">
-            {description}
+            {section?.subtitle || description}
           </p>
+          {section?.description && <p className="mx-auto max-w-2xl text-sm text-[var(--theme-color-text-muted)]">{section.description}</p>}
+          {section?.ctaText && <Link href={section.ctaLink || "/shop"} className="inline-flex rounded-xl bg-[#8A1538] px-6 py-3 text-xs font-bold uppercase tracking-widest text-white">{section.ctaText}</Link>}
         </div>
-      </div>
+      </div>}
 
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Top Bar: Filter Toggle and Sort */}
@@ -118,7 +126,7 @@ export function CollectionPage({ title, description, products }: CollectionPageP
               <div>
                 <h3 className="font-serif text-lg font-bold mb-4 text-[var(--theme-color-accent)]">Category</h3>
                 <ul className="space-y-3 text-xs text-[var(--theme-color-text-muted)]">
-                  {["Wedding", "Casual", "Festive", "Office", "Women", "Men"].map(cat => (
+                  {categories.map(cat => (
                     <li key={cat} className="flex items-center">
                       <input 
                         type="checkbox" 
@@ -138,9 +146,9 @@ export function CollectionPage({ title, description, products }: CollectionPageP
                   <span>₹{priceRange[0]}</span>
                   <span>₹{priceRange[1]}</span>
                 </div>
-                <input 
+                  <input
                   type="range" 
-                  min="0" max="5000" step="500"
+                  min="0" max={maxProductPrice} step="500"
                   value={priceRange[1]}
                   onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
                   className="w-full accent-[var(--theme-color-jewel)]"
@@ -159,7 +167,7 @@ export function CollectionPage({ title, description, products }: CollectionPageP
                   <h2 className="font-serif text-2xl text-[var(--theme-color-text)] mb-2 font-bold">No products match your filters</h2>
                   <p className="text-[var(--theme-color-text-muted)] text-xs mb-6">Try adjusting your filters or clearing them to explore our collection.</p>
                   <button 
-                    onClick={() => { setSelectedCategories([]); setPriceRange([0, 5000]); }} 
+                    onClick={() => { setSelectedCategories([]); setPriceRange([0, maxProductPrice]); }}
                     className="px-6 py-3 bg-[var(--theme-color-jewel)] text-white text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors rounded-xl border border-[var(--theme-color-border)] shadow-md"
                   >
                     Clear All Filters

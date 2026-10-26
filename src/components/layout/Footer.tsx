@@ -1,11 +1,18 @@
 import Link from "next/link";
 import { MapPin, Mail } from "lucide-react";
 import { FooterNewsletterForm } from "./FooterNewsletterForm";
+import { BRAND_TAGLINE } from "@/lib/branding";
+import { BrandLogo } from "./BrandLogo";
+import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
+import { CONTACT_EMAIL } from "@/lib/contactDetails";
 
-export function Footer({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?: string; siteName?: string }) {
+export function Footer({ siteName = "Fashion Feet", section }: { siteName?: string; section?: StorefrontSection }) {
+  if (section?.visible === false) return null;
+
   return (
-    <footer className="bg-[#12080C] text-[#F6F2EB] pt-16 pb-8 border-t border-[#D4AF37]/20 relative z-20">
-      <div className="container mx-auto px-4 md:px-8">
+    <footer data-published-section="GLOBAL_FOOTER" data-style-preset={section?.stylePreset || "DARK_ROYAL"} data-motion-preset={section?.motionPreset || "NONE"} className="bg-[#12080C] text-[#F6F2EB] pt-16 pb-8 border-t border-[#D4AF37]/20 relative z-20">
+      {section?.image && <div className="pointer-events-none absolute inset-0 opacity-10">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={section.image} alt="" className="h-full w-full object-cover" /></div>}
+      <div className="container relative z-10 mx-auto px-4 md:px-8">
         
         {/* Newsletter Section */}
         <div className="bg-gradient-to-r from-[#1A0A10] via-[#240C12] to-[#1A0A10] rounded-2xl p-8 md:p-12 mb-16 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl border border-[#D4AF37]/30">
@@ -21,17 +28,15 @@ export function Footer({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand Info */}
           <div className="space-y-4">
-            <h3 className="font-serif text-2xl font-bold tracking-tight text-white">
-              {siteLogo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={siteLogo} alt={siteName} className="h-8 object-contain" />
-              ) : (
-                <span>{siteName}</span>
-              )}
-            </h3>
+            {section?.badge && <p className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">{section.badge}</p>}
+            <h3 className="font-serif text-lg font-bold text-white">{section?.title || siteName}</h3>
+            <BrandLogo className="h-auto w-full max-w-[240px] rounded-lg bg-white" sizes="240px" />
+            <p className="font-sans text-xs font-bold tracking-wider text-[#D4AF37]">{BRAND_TAGLINE}</p>
+            {section?.subtitle && <p className="text-xs text-white/70">{section.subtitle}</p>}
             <p className="text-white/70 leading-relaxed max-w-xs text-xs">
-              Traditional elegance meets modern comfort. Handcrafted Punjabi Juttis for every occasion, with heritage in every step.
+              {section?.description || "Traditional elegance meets modern comfort. Handcrafted Punjabi Juttis for every occasion, with heritage in every step."}
             </p>
+            {section?.ctaText && <Link href={section.ctaLink || "/contact"} className="inline-flex text-xs font-bold uppercase tracking-widest text-[#D4AF37] underline underline-offset-4">{section.ctaText}</Link>}
 
             {/* Social Icons */}
             <div className="flex space-x-4 pt-2">
@@ -64,6 +69,7 @@ export function Footer({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
             <h4 className="font-sans font-bold uppercase tracking-wider mb-6 text-[#D4AF37] text-xs">Company</h4>
             <ul className="space-y-3.5 text-xs">
               <li><Link href="/about" className="text-white/70 hover:text-[#D4AF37] transition-colors">About Us</Link></li>
+              <li><Link href="/#past-exhibitions" className="text-white/70 hover:text-[#D4AF37] transition-colors">Past Exhibitions</Link></li>
               <li><Link href="/stores" className="text-white/70 hover:text-[#D4AF37] transition-colors">Stores Coming Soon</Link></li>
               <li><Link href="/contact" className="text-white/70 hover:text-[#D4AF37] transition-colors">Contact Us</Link></li>
               <li><Link href="/faq" className="text-white/70 hover:text-[#D4AF37] transition-colors">FAQ</Link></li>
@@ -74,23 +80,19 @@ export function Footer({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
           <div>
             <h4 className="font-sans font-bold uppercase tracking-wider mb-6 text-[#D4AF37] text-xs">Get in Touch</h4>
             <ul className="space-y-3.5 text-xs">
-              {/* No phone number, street address or mailbox is published here on
-                  purpose. This block previously carried a fabricated phone number, a
-                  @fashionfeet.com address that is not ours, and a claimed head-office
-                  location. None of it was real, so it was removed rather than swapped
-                  for another invented value — contact goes through /contact. */}
+              {/* Physical location and telephone details remain unpublished. */}
               <li className="flex items-start space-x-3 text-white/70">
                 <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5 text-[#D4AF37]" />
                 <span>Physical boutiques opening soon</span>
               </li>
               <li className="flex items-start space-x-3 text-white/70">
                 <Mail className="w-4 h-4 flex-shrink-0 mt-0.5 text-[#D4AF37]" />
-                <Link
-                  href="/contact"
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
                   className="underline decoration-[#D4AF37]/40 underline-offset-2 hover:text-[#D4AF37] transition-colors"
                 >
-                  Enquiries via our contact form
-                </Link>
+                  {CONTACT_EMAIL}
+                </a>
               </li>
             </ul>
           </div>

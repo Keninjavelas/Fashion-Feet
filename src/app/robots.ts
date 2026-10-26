@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
+import { STOREFRONT_ORIGIN } from '@/lib/contactDetails';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://fashionfeet.com';
+  const baseUrl = STOREFRONT_ORIGIN;
 
   return {
     rules: [

@@ -5,7 +5,8 @@ import { createProductAction, updateProductAction, archiveProductAction, deleteP
 import { createCollectionAction, assignProductsToCollectionAction, deleteCollectionAction } from "../app/actions/collections";
 import { createCategoryAction, deleteCategoryAction, createOccasionAction, deleteOccasionAction } from "../app/actions/categories";
 import { createStoreAction, updateStoreAction, deleteStoreAction } from "../app/actions/stores";
-import { createEnquiry, updateEnquiryStatusAction, assignEnquiryAction, addEnquiryNoteAction } from "../app/actions/enquiries";
+import { createEnquiry } from "../app/actions/createEnquiry";
+import { updateEnquiryStatusAction, assignEnquiryAction, addEnquiryNoteAction } from "../app/actions/enquiries";
 
 async function runPhaseBTests() {
   console.log("==================================================");

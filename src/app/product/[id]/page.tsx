@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 
 // Deduplicated per request so generateMetadata and the page share one lookup.
 const getProduct = cache((id: string) =>
-  prisma.product.findUnique({ where: { id }, include: { images: true } })
+  prisma.product.findFirst({ where: { id, published: true, archived: false, hidden: false }, include: { images: true } })
 );
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {

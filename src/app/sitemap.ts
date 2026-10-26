@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { STOREFRONT_ORIGIN } from '@/lib/contactDetails';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXTAUTH_URL || 'https://fashionfeet.com';
+  const baseUrl = STOREFRONT_ORIGIN;
 
   const staticRoutes = [
     '',
@@ -27,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic Product URLs
   try {
     const products = await prisma.product.findMany({
-      where: { published: true, archived: false },
+      where: { published: true, archived: false, hidden: false },
       select: { id: true, createdAt: true },
       take: 500,
     });

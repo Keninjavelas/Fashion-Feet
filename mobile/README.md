@@ -1,5 +1,7 @@
 # Fashion Feet — native mobile app
 
+> **Current status, 26 October 2026:** This is Expo source code, not a released app. The public API now runs on the Vercel storefront against Neon PostgreSQL; use `https://fashion-feet-storefront.vercel.app` as `EXPO_PUBLIC_API_BASE_URL` when testing the deployed API until `fashionfeet.co.in` DNS is configured. Public API responses use `Cache-Control: no-store`. Older local database counts and test results below are snapshots, not production inventory. The mobile contact screen still does not submit an enquiry; use the website contact form for actual requests.
+
 A read-only, customer-facing mobile client for the **existing** Fashion Feet public REST API
 (`/api/v1`). Expo (React Native) + Expo Router + TypeScript (strict).
 
@@ -7,7 +9,7 @@ This directory is self-contained: its own `package.json`, its own dependency tre
 TypeScript config. It does not use npm workspaces, it does not touch the root `package.json`,
 and it does not import anything from the web app under `src/`.
 
-> **The API is not part of this deliverable.** It already exists and is already tested. Nothing
+> **The API is not part of this mobile directory.** It is served by the web storefront. Nothing
 > here modifies, extends or wraps it — this app only performs `GET` requests against it.
 
 ---
@@ -104,12 +106,12 @@ The types for all of the above live in a single file, **`src/api/types.ts`**, mi
 base URL, query building, timeouts, status handling, rate-limit messages, response guards and image
 URL resolution — lives in a single module, **`src/api/client.ts`**.
 
-### Data reality the UI is built around
+### Data assumptions and historical local snapshot
 
-- `sizes` and `colors` are currently **empty arrays for every seeded product**. The product screen
+- The original local seeded products had empty `sizes` and `colors` arrays. The product screen
   therefore renders the "Available sizes" and "Available colours" sections **only when the arrays
   are non-empty** — an empty list never produces an empty heading.
-- There are currently **zero collections**, and `/collections` may be empty by design. No screen
+- The original local snapshot had zero collections, and `/collections` may be empty by design. No screen
   depends on that endpoint, so an empty (or absent) set of collections cannot blank a screen.
 - `flags.featured` drives the Home "Featured pieces" row. `/products` has no `featured` filter
   parameter, so the flag is applied client-side to the first page. When nothing is flagged, the

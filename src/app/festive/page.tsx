@@ -4,7 +4,7 @@ import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
 
 export default async function FestiveCollection() {
   const products = await prisma.product.findMany({
-    where: { category: "Festive" },
+    where: { category: "Festive", published: true, archived: false, hidden: false },
     include: { images: { take: 1 } },
   });
 

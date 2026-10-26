@@ -32,19 +32,9 @@ async function runGate2Suite() {
 
   // 1. Setup Admin Session for Browser Context
   const adminEmail = "admin@fashionfeet.com";
-  let admin = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
+  const admin = await prisma.adminUser.findUnique({ where: { email: adminEmail } });
   if (!admin) {
-    const argon2 = require("argon2");
-    const passwordHash = await argon2.hash("SuperAdminPassword2026!");
-    admin = await prisma.adminUser.create({
-      data: {
-        email: adminEmail,
-        name: "Super Admin",
-        passwordHash,
-        role: "SUPER_ADMIN",
-        mfaEnabled: true,
-      }
-    });
+    throw new Error("Gate 2 requires an existing test administrator; it will not create one with a default password.");
   }
 
   const sessionToken = crypto.randomBytes(32).toString("hex");

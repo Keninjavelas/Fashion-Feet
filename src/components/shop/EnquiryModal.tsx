@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createEnquiry } from "@/app/actions/enquiries";
+import { createEnquiry } from "@/app/actions/createEnquiry";
 import { useCartStore } from "@/store/cart";
 import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
+import { CONTACT_EMAIL } from "@/lib/contactDetails";
 
 interface EnquiryModalProps {
   product: {
@@ -36,6 +37,7 @@ export function EnquiryModal({ product, selectedSize, selectedColor, isOpen, onC
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [notificationSent, setNotificationSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [noteMessage, setNoteMessage] = useState("");
   const [enquiryType, setEnquiryType] = useState(ENQUIRY_TYPES[0]);
@@ -75,6 +77,7 @@ export function EnquiryModal({ product, selectedSize, selectedColor, isOpen, onC
     setLoading(false);
 
     if (res.success) {
+      setNotificationSent(res.notificationSent === true);
       addItemToCartStore({
         productId: product.id,
         title: product.title,
@@ -189,9 +192,9 @@ export function EnquiryModal({ product, selectedSize, selectedColor, isOpen, onC
                 <div className="w-16 h-16 bg-emerald-500/10 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="font-serif text-2xl font-bold text-[var(--theme-color-text)]">Enquiry Sent & Saved!</h3>
+                <h3 className="font-serif text-2xl font-bold text-[var(--theme-color-text)]">Enquiry received</h3>
                 <p className="text-[var(--theme-color-text-muted)] text-xs max-w-sm mx-auto leading-relaxed">
-                  Thank you, <span className="font-bold text-[var(--theme-color-text)]">{session.user?.name}</span>! Your enquiry for <span className="font-bold text-[var(--theme-color-text)]">{product.title}</span> ({productSku}) has been saved and sent to our atelier team.
+                  Thank you, <span className="font-bold text-[var(--theme-color-text)]">{session.user?.name}</span>! Your enquiry for <span className="font-bold text-[var(--theme-color-text)]">{product.title}</span> ({productSku}) has been saved. {notificationSent ? `A copy was forwarded to ${CONTACT_EMAIL}.` : `Email delivery is temporarily unavailable; you can also contact ${CONTACT_EMAIL} directly.`}
                 </p>
 
                 <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">

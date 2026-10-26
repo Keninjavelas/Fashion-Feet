@@ -1,50 +1,22 @@
-# Storefront Architecture & Route Specification
+# Storefront
 
-## Information Architecture & Navigation
+The public site is deployed at `https://fashion-feet-storefront.vercel.app`. `fashionfeet.co.in` is the intended primary domain but is awaiting a GoDaddy A record. The public build does not contain the separate admin pages or upload API.
 
-Primary Header Navigation is frozen:
-1. `Home` (`/`)
-2. `Men` (`/men`)
-3. `Women` (`/women`)
-4. `Collections` (`/shop` with mega-dropdown: `Wedding`, `Festive`, `Casual`, `Office`, `Luxury`, `Heritage`, `Best Sellers`)
-5. `New Arrivals` (`/shop?type=new`)
-6. `Size Studio` (`/size-guide`)
-7. `About` (`/about`)
-8. Dynamic Seasonal Campaign Badge (e.g. `✨ Diwali Collection`) when a festival preset is active
+## Pages
 
-## Route Map
+- `/`: homepage with live storefront sections, official brand logo, and two photos from past exhibitions.
+- `/men`, `/women`, `/shop`, `/product/[id]`: catalogue browsing, product detail, favourites, and product enquiry.
+- `/size-guide`, `/about`, `/festive`, `/stores`: fit guidance, brand content, seasonal content, and store status.
+- `/contact`, `/faq`: contact form and database-backed FAQs. The FAQ page and `/api/v1/faqs` read the same PostgreSQL table.
+- `/login`, `/register`, `/profile/*`: customer account pages.
+- `/privacy`, `/terms`, `/accessibility`: customer information pages.
 
-| Route | Purpose | Key Components |
-|-------|---------|----------------|
-| `/` | Brand Homepage | `Hero`, `CraftsmanshipScrollStory`, `TrendingProductsClient`, `VirtualShowroom`, `InteractiveSizeFinderSection` |
-| `/men` | Men's Punjabi Jutti Catalog | `ShopClient` with `gender=Men` |
-| `/women` | Women's Punjabi Jutti Catalog | `ShopClient` with `gender=Women` |
-| `/shop` | Full Product Catalog & Filters | `ShopClient` with category, occasion, price & size filters |
-| `/product/[id]` | Product Details & Fitting Enquiry | `ProductClient`, `EnquiryModal`, `Accordion` |
-| `/size-guide` | Interactive Size & Fitting Studio | `InteractiveSizeFinderSection`, foot length cm slider, size conversion matrix |
-| `/profile` | Customer Profile & Favorites | Customer dashboard, saved size, favorites grid |
-| `/stores` | Boutiques Showcase | **Displays "Stores Coming Soon" with launch notification form** |
-| `/about` | Brand Heritage Narrative | 400-year Punjabi craftsmanship story |
-| `/contact` | Enquiries | Direct contact form & store concierge details |
-| `/faq` | Frequently Asked Questions | **1st Question: "Why doesn't Fashion Feet offer online shopping?"** |
-| `/privacy` | Privacy Policy | Customer data protection terms |
-| `/terms` | Terms of Service | Fitting terms |
-| `/accessibility` | Accessibility Statement | WCAG AA standards, contrast rules, & feedback details |
-| `/not-found` | 404 Route Error Page | Custom 404 view |
+`/cart` and `/checkout` exist as routes, but the current business flow is enquiry-led; do not describe them as a complete online purchase service. The store-launch notification form and footer newsletter form currently show UI without a persistent subscription backend and need separate implementation before being promoted as signup channels.
 
-## Storefront Content as Public JSON (`/api/v1`)
+## Live data and customer contact
 
-The storefront's published content is now also served, read-only, as public JSON for the native mobile client. Same source tables and the same published/active filters the pages use, with every response field whitelisted by `src/lib/publicSerializers.ts`:
+Product, collection, FAQ, store, festival, and published Studio content are read from shared PostgreSQL data. An admin change appears on a new request or refresh; Studio drafts need publication first.
 
-| v1 Route | Serves |
-|-------|--------|
-| `GET /api/v1/products` | Published catalogue. Query: `category`, `occasion`, `collection`, `q`, `limit` (default 24, max 60), `offset` — returns `pagination: { total, limit, offset, hasMore }` |
-| `GET /api/v1/products/:idOrSku` | One product by cuid **id** or unique **sku** — there is no slug; `404` → `{ error: "Product not found" }` |
-| `GET /api/v1/categories` | Active product types (Jutti, Mojari) |
-| `GET /api/v1/collections` | Visible + `PUBLISHED` collections — currently empty, so this legitimately returns `[]` |
-| `GET /api/v1/occasions` | Active occasions |
-| `GET /api/v1/stores` | `OPEN`, `COMING_SOON` and `TEMPORARILY_CLOSED` locations |
-| `GET /api/v1/faqs` | All FAQs, pinned first |
-| `GET /api/v1/site` | Appearance tokens plus the published homepage composition (`page`, `version`, `publishedAt`, `sections`) |
+Contact and product enquiry forms write `Enquiry` rows for the admin dashboard. They attempt an outbound notification to `aryan.kapoor@fashionfeet.co.in`; email delivery is pending Resend DNS verification and a production key. The on-screen response distinguishes a saved enquiry from accepted email delivery.
 
-`GET`/`OPTIONS` only, unauthenticated by design, rate-limited at 120 requests/min per IP, and cached `public, max-age=60` (120s for `/site`). The full contract and field lists are in [MobileApp.md](MobileApp.md).
+See [Architecture.md](Architecture.md), [API.md](API.md), and [AdminDeployment.md](AdminDeployment.md).

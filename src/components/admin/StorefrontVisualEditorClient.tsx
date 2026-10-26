@@ -5,9 +5,10 @@ import VersionHistoryPanel from '@/components/admin/VersionHistoryPanel';
 import {
   Monitor, Tablet, Smartphone, Sparkles, Save, Upload, RotateCcw, RotateCw,
   Eye, Layers, Image as ImageIcon, Settings, CheckCircle2, AlertCircle, Loader2,
-  ChevronUp, ChevronDown, Plus, Trash2, Sliders, Type, Layout
+  ChevronUp, ChevronDown, Plus, Trash2, Sliders, Type, Layout, ArrowLeft
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { StorefrontSection, DEFAULT_HOMEPAGE_SECTIONS } from "@/lib/storefrontConfigTypes";
 import { SUPPORTED_SEASONAL_KEYS, SEASONAL_ATMOSPHERES } from "@/lib/seasonalConstants";
 import { loadPageDraftAction, savePageDraftAction, publishPageConfigAction, discardPageDraftAction } from "@/app/actions/editor";
@@ -38,6 +39,7 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
   // Canvas Viewport & Seasonal Preview
   const [deviceViewport, setDeviceViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [seasonPreview, setSeasonPreview] = useState("default");
+  const [mobilePanel, setMobilePanel] = useState<"layers" | "preview" | "inspector">("preview");
 
   // Save & Publish Status
   const [draftStatus, setDraftStatus] = useState<"SAVED" | "DIRTY" | "SAVING" | "ERROR">("SAVED");
@@ -53,7 +55,7 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage(
         { type: "STOREFRONT_EDITOR_UPDATE", sections },
-        "*"
+        window.location.origin
       );
     }
   }, [sections, seasonPreview]);
@@ -63,7 +65,7 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
     if (iframeRef.current?.contentWindow && selectedSectionId) {
       iframeRef.current.contentWindow.postMessage(
         { type: "STOREFRONT_EDITOR_SELECT_SECTION", sectionId: selectedSectionId },
-        "*"
+        window.location.origin
       );
     }
   }, [selectedSectionId]);
@@ -71,8 +73,10 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
   // Listen for canvas selection postMessages
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== iframeRef.current?.contentWindow) return;
       if (event.data?.type === "STOREFRONT_CANVAS_SELECT_SECTION") {
         setSelectedSectionId(event.data.sectionId);
+        setMobilePanel("inspector");
       }
     };
     window.addEventListener("message", handleMessage);
@@ -144,7 +148,13 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
 
     setIsPublishing(true);
     // First save current draft
-    await savePageDraftAction(currentPage, sections);
+    const saved = await savePageDraftAction(currentPage, sections);
+    if (saved.error) {
+      setIsPublishing(false);
+      setDraftStatus("ERROR");
+      alert(saved.error);
+      return;
+    }
 
     // Promote draft to published
     const res = await publishPageConfigAction(currentPage);
@@ -155,7 +165,7 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
     } else {
       setPublishModalOpen(false);
       setDraftStatus("SAVED");
-      alert(`Page "${currentPage.toUpperCase()}" published live! Storefront updated dynamically.`);
+      alert(`Page "${currentPage.toUpperCase()}" published. The live storefront will show it on the next visit or refresh.`);
     }
   };
 
@@ -208,21 +218,26 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
   return (
     <div className="h-screen flex flex-col bg-[#0B0508] text-[#F6F2EB] font-sans overflow-hidden">
       {/* Top Toolbar */}
-      <header className="h-16 bg-[#12080C] border-b border-[#D4AF37]/20 px-6 flex items-center justify-between shrink-0 z-40">
+      <header className="z-40 flex shrink-0 flex-col gap-3 border-b border-[#D4AF37]/20 bg-[#12080C] p-3 lg:h-16 lg:flex-row lg:items-center lg:justify-between lg:px-6 lg:py-0">
           {/* History Toggle Button */}
-          <button
-            onClick={() => setShowHistoryModal(true)}
-            className="px-3 py-1 bg-[#8A1538] hover:bg-[#A81B45] text-xs text-white rounded"
-          >
-            History
-          </button>
-        <div className="flex items-center gap-6">
+          <div className="flex items-center justify-between gap-2 lg:contents">
+            <Link href="/admin" className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-2.5 py-2 text-xs font-semibold text-white/75 hover:bg-white/10 hover:text-white" aria-label="Back to dashboard">
+              <ArrowLeft className="h-4 w-4" /><span className="hidden sm:inline">Dashboard</span>
+            </Link>
+            <button
+              onClick={() => setShowHistoryModal(true)}
+              className="rounded-lg bg-[#8A1538] px-3 py-2 text-xs text-white hover:bg-[#A81B45]"
+            >
+              History
+            </button>
+          </div>
+        <div className="flex w-full min-w-0 flex-wrap items-center gap-2 lg:w-auto lg:flex-nowrap lg:gap-6">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] block">Visual Studio</span>
             <select
               value={currentPage}
               onChange={(e) => handlePageChange(e.target.value)}
-              className="bg-black/40 border border-white/20 text-white font-serif font-bold text-sm px-3 py-1.5 rounded-xl focus:outline-none"
+              className="max-w-[145px] rounded-xl border border-white/20 bg-black/40 px-3 py-1.5 font-serif text-sm font-bold text-white focus:outline-none sm:max-w-none"
             >
               <option value="homepage">Homepage</option>
               <option value="men">Men's Collection</option>
@@ -245,7 +260,7 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
             <select
               value={seasonPreview}
               onChange={(e) => setSeasonPreview(e.target.value)}
-              className="bg-black/30 border border-[#D4AF37]/30 text-[#D4AF37] font-bold text-xs px-3 py-1.5 rounded-xl focus:outline-none"
+              className="max-w-[150px] rounded-xl border border-[#D4AF37]/30 bg-black/30 px-3 py-1.5 text-xs font-bold text-[#D4AF37] focus:outline-none sm:max-w-none"
             >
               {SUPPORTED_SEASONAL_KEYS.map((key) => (
                 <option key={key} value={key}>
@@ -257,13 +272,13 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
         </div>
 
         {/* Action Controls & Draft Status */}
-        <div className="flex items-center gap-3">
+        <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:flex-nowrap lg:gap-3">
           <div className="flex items-center gap-1 border-r border-white/10 pr-3">
             <button onClick={handleUndo} disabled={historyIdx === 0} className="p-2 text-white/70 hover:text-white disabled:opacity-30" title="Undo Edit"><RotateCcw className="w-4 h-4" /></button>
             <button onClick={handleRedo} disabled={historyIdx === history.length - 1} className="p-2 text-white/70 hover:text-white disabled:opacity-30" title="Redo Edit"><RotateCw className="w-4 h-4" /></button>
           </div>
 
-          <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${
+          <span role="status" className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${
             draftStatus === "SAVED" ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse"
           }`}>
             {draftStatus === "SAVED" ? "Draft Saved" : "Unsaved Edits"}
@@ -279,8 +294,20 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
         </div>
       </header>
 
+      <div className="grid shrink-0 grid-cols-3 gap-1 border-b border-white/10 bg-[#12080C] p-2 lg:hidden" role="tablist" aria-label="Studio panels">
+        {([
+          { id: "layers", label: "Layers", icon: Layers },
+          { id: "preview", label: "Preview", icon: Monitor },
+          { id: "inspector", label: "Edit", icon: Sliders },
+        ] as const).map(({ id, label, icon: Icon }) => (
+          <button key={id} type="button" role="tab" aria-selected={mobilePanel === id} onClick={() => setMobilePanel(id)} className={`flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold ${mobilePanel === id ? "bg-[#8A1538] text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}>
+            <Icon className="h-4 w-4" /> {label}
+          </button>
+        ))}
+      </div>
+
       {/* Main Studio Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
           {/* Version History Modal */}
           {showHistoryModal && (
             <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
@@ -308,7 +335,7 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
             </div>
           )}
         {/* Left Sidebar: Layers & Sections Tree */}
-        <aside className="w-72 bg-[#12080C] border-r border-[#D4AF37]/20 flex flex-col justify-between shrink-0 font-sans z-30">
+        <aside className={`${mobilePanel === "layers" ? "flex" : "hidden"} z-30 w-full shrink-0 flex-col justify-between border-r border-[#D4AF37]/20 bg-[#12080C] font-sans lg:flex lg:w-72`}>
           <div className="p-4 space-y-4 overflow-y-auto flex-1">
             <div className="flex items-center justify-between border-b border-white/10 pb-2">
               <h3 className="font-serif text-sm font-bold text-white flex items-center gap-2">
@@ -322,7 +349,7 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
                 return (
                   <div
                     key={sec.id}
-                    onClick={() => setSelectedSectionId(sec.id)}
+                    onClick={() => { setSelectedSectionId(sec.id); setMobilePanel("inspector"); }}
                     className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-2 text-xs ${
                       isSelected
                         ? "bg-[#8A1538] border-[#D4AF37]/40 text-white shadow-md"
@@ -349,11 +376,19 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
         </aside>
 
         {/* Center Live Canvas Sandbox */}
-        <main className="flex-1 bg-black/80 p-6 flex items-center justify-center overflow-auto relative">
+        <main className={`${mobilePanel === "preview" ? "flex" : "hidden"} relative min-w-0 flex-1 items-center justify-center overflow-auto bg-black/80 p-3 lg:flex lg:p-6`}>
           <div className={`transition-all duration-300 shadow-2xl rounded-2xl overflow-hidden border border-white/20 bg-[#12080C] ${getCanvasWidthClass()}`}>
             <iframe
               ref={iframeRef}
               src={`/admin/editor/preview?page=${currentPage}&season=${seasonPreview}`}
+              onLoad={() => {
+                const frame = iframeRef.current?.contentWindow;
+                if (!frame) return;
+                frame.postMessage({ type: "STOREFRONT_EDITOR_UPDATE", sections }, window.location.origin);
+                if (selectedSectionId) {
+                  frame.postMessage({ type: "STOREFRONT_EDITOR_SELECT_SECTION", sectionId: selectedSectionId }, window.location.origin);
+                }
+              }}
               className="w-full h-full border-none"
               title="Storefront Preview Canvas"
             />
@@ -361,7 +396,7 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
         </main>
 
         {/* Right Sidebar: Contextual Property Inspector */}
-        <aside className="w-80 bg-[#12080C] border-l border-[#D4AF37]/20 flex flex-col justify-between shrink-0 font-sans z-30 p-4 space-y-4 overflow-y-auto">
+        <aside className={`${mobilePanel === "inspector" ? "flex" : "hidden"} z-30 w-full shrink-0 flex-col justify-between space-y-4 overflow-y-auto border-l border-[#D4AF37]/20 bg-[#12080C] p-4 font-sans lg:flex lg:w-80`}>
           {!selectedSection ? (
             <div className="text-center p-8 text-white/40 space-y-2">
               <Sliders className="w-8 h-8 mx-auto" />
@@ -513,8 +548,11 @@ export function StorefrontVisualEditorClient({ initialPage, initialSections, med
                 <div
                   key={asset.id}
                   onClick={() => {
-                    updateSelectedSectionProp("image", asset.url);
-                    updateSelectedSectionProp("mediaAssetId", asset.id);
+                    if (selectedSectionId) {
+                      updateSections(sections.map((section) => section.id === selectedSectionId
+                        ? { ...section, image: asset.url, mediaAssetId: asset.id }
+                        : section));
+                    }
                     setMediaPickerOpen(false);
                   }}
                   className="relative aspect-square border border-white/10 rounded-xl overflow-hidden cursor-pointer hover:border-[#D4AF37] hover:scale-105 transition-all"

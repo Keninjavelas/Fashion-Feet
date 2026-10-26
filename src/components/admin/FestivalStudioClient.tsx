@@ -64,7 +64,11 @@ export function FestivalStudioClient({
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
-  const activeFestival = festivals.find((f) => f.enabled);
+  const now = Date.now();
+  const activeFestival = festivals.find((f) => f.enabled && (!f.autoDisable || new Date(f.endDate).getTime() >= now))
+    || festivals.filter((f) => f.status === "SCHEDULED" && f.autoActivate
+      && new Date(f.startDate).getTime() <= now && new Date(f.endDate).getTime() >= now)
+      .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())[0];
 
   const showFeedback = (type: "success" | "error", message: string) => {
     setFeedback({ type, message });
@@ -93,7 +97,7 @@ export function FestivalStudioClient({
       showFeedback("error", res.error);
     } else if (res.festival) {
       setFestivals((prev) =>
-        prev.map((f) => (f.theme === res.festival.theme ? res.festival : f))
+        prev.map((f) => (f.id === res.festival.id || f.id === `virtual-${res.festival.theme}` ? res.festival : f))
       );
       setEditingFestival(null);
       showFeedback("success", `Seasonal experience for ${res.festival.name} saved successfully.`);
@@ -116,13 +120,12 @@ export function FestivalStudioClient({
       showFeedback("error", res.error);
     } else if (res.festival) {
       setFestivals((prev) =>
-        prev.map((f) => ({
-          ...f,
-          enabled: f.id === res.festival.id,
-          status: f.id === res.festival.id ? "ACTIVE" : (f.status === "ACTIVE" ? "INACTIVE" : f.status)
-        }))
+        prev.map((f) => f.id === res.festival.id || f.id === `virtual-${res.festival.theme}`
+          ? res.festival
+          : { ...f, enabled: false, status: f.status === "ACTIVE" ? "INACTIVE" : f.status })
       );
       showFeedback("success", `Live Storefront transformed into ${res.festival.name} atmosphere!`);
+      window.location.reload();
     }
   };
 
@@ -145,6 +148,7 @@ export function FestivalStudioClient({
         prev.map((f) => (f.id === id ? { ...f, enabled: false, status: "INACTIVE" } : f))
       );
       showFeedback("success", "Storefront reverted cleanly to Default Atelier atmosphere.");
+      window.location.reload();
     }
   };
 
@@ -232,7 +236,7 @@ export function FestivalStudioClient({
 
             <p className="text-white/70 text-xs max-w-xl leading-relaxed">
               {activeFestival?.offerHeading
-                ? `${activeFestival.offerHeading} — ${activeFestival.offerDescription}`
+                ? [activeFestival.offerHeading, activeFestival.offerDescription].filter(Boolean).join(" — ")
                 : "Serving a timeless heritage aesthetic with subtle ambient gold particles and bespoke bridal consultation."}
             </p>
           </div>
@@ -367,10 +371,11 @@ export function FestivalStudioClient({
                   {!isDefault && (
                     <button
                       onClick={() => handleDuplicate(fest.id)}
+                      disabled={loading || fest.id.startsWith("virtual-")}
                       className={`p-2 rounded-xl border transition-all ${
                         isActive ? "bg-white/5 hover:bg-white/10 text-white/70 border-white/10" : "bg-gray-100 hover:bg-gray-200 text-gray-600 border-gray-200"
                       }`}
-                      title="Duplicate Campaign"
+                      title={fest.id.startsWith("virtual-") ? "Save this campaign before duplicating" : "Duplicate Campaign"}
                     >
                       <Copy className="w-4 h-4" />
                     </button>

@@ -8,6 +8,7 @@ import { QuickViewModal } from "@/components/ui/QuickViewModal";
 import { toggleWishlist } from "@/app/actions/wishlist";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
 import { useFestival } from "@/components/providers/FestivalProvider";
+import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
 import { ThreeJuttiCompactCard } from "@/components/three/ThreeJuttiCompactCard";
 import {
   FOOTWEAR_DESIGN_TOKENS,
@@ -18,7 +19,7 @@ const ACCENT_POOL: AccentSwatchName[] = Object.keys(
   FOOTWEAR_DESIGN_TOKENS.accentSwatches
 ) as AccentSwatchName[];
 
-export function TrendingProductsClient({ products }: { products: any[] }) {
+export function TrendingProductsClient({ products, section }: { products: any[]; section?: StorefrontSection }) {
   const { preset } = useFestival();
 
   if (!products || products.length === 0) {
@@ -31,13 +32,13 @@ export function TrendingProductsClient({ products }: { products: any[] }) {
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[var(--theme-color-surface)] text-[var(--theme-color-accent)] rounded-full text-xs uppercase tracking-widest font-bold border border-[var(--theme-color-border)] shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Masterpiece Gallery</span>
+            <span>{section?.badge || "Masterpiece Gallery"}</span>
           </div>
           <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[var(--theme-color-text)]">
-            Trending Designs
+            {section?.title || "Trending Designs"}
           </h2>
           <p className="text-[var(--theme-color-text-muted)] max-w-xl mx-auto text-sm md:text-base font-light">
-            {preset.decorations.heroSubheadline || "Our most requested handcrafted Punjabi Juttis, selected for unmatched elegance and comfort."}
+            {section?.subtitle || preset.decorations.heroSubheadline || "Our most requested handcrafted Punjabi Juttis, selected for unmatched elegance and comfort."}
           </p>
         </div>
 

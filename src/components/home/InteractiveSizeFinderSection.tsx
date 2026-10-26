@@ -7,8 +7,9 @@ import { useSession } from "next-auth/react";
 import { StorefrontTiltCard } from "../storefront/StorefrontTiltCard";
 import { updateUserProfile } from "@/app/actions/users";
 import { AnatomicalFootCanvas } from "../three/AnatomicalFootCanvas";
+import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
 
-export function InteractiveSizeFinderSection() {
+export function InteractiveSizeFinderSection({ section }: { section?: StorefrontSection }) {
   const { data: session } = useSession();
   const [gender, setGender] = useState<"women" | "men">("women");
   const [footLengthCm, setFootLengthCm] = useState(24.5);
@@ -54,15 +55,15 @@ export function InteractiveSizeFinderSection() {
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[var(--theme-color-bg)] text-[var(--theme-color-accent)] rounded-full text-xs uppercase tracking-widest font-bold border border-[var(--theme-color-border)] shadow-sm">
               <Ruler className="w-4 h-4 text-[var(--theme-color-accent)]" />
-              <span>Interactive Size & Fitting Studio</span>
+              <span>{section?.badge || "Interactive Size & Fitting Studio"}</span>
             </div>
 
             <h2 className="font-serif text-3xl md:text-5xl font-bold leading-tight text-[var(--theme-color-text)]">
-              Discover Your Perfect Handcrafted Fit
+              {section?.title || "Discover Your Perfect Handcrafted Fit"}
             </h2>
 
             <p className="text-[var(--theme-color-text-muted)] text-sm md:text-base leading-relaxed font-light">
-              Because genuine Punjabi leather footwear molds naturally to your foot over time, finding the right starting size ensures royal comfort from day one.
+              {section?.description || section?.subtitle || "Because genuine Punjabi leather footwear molds naturally to your foot over time, finding the right starting size ensures royal comfort from day one."}
             </p>
 
             {/* Gender Toggle Selector */}

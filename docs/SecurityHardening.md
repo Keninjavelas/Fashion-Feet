@@ -1,12 +1,14 @@
 # Task 10 — Final Security Hardening
 
-**Deployment level: LOCALHOST / PRE-DEPLOYMENT.**
-Nothing has been deployed. `fashionfeet.co.in` and `admin.fashionfeet.co.in` do not exist yet. Everything
+> **Historical local security review.** This report predates the two Vercel deployments and PostgreSQL migration. Its statements that nothing was deployed, that `fashionfeet.co.in` did not exist, or that SQLite is the production database are no longer current. The public site and separate admin now run on Vercel aliases; the custom storefront DNS and outbound email remain pending. Use [AdminDeployment.md](AdminDeployment.md) and [ProductionReadiness.md](ProductionReadiness.md) for current controls and open work. The findings below remain useful as evidence of what was checked at that time.
+
+**Original test environment: LOCALHOST / PRE-DEPLOYMENT.**
+At the time of this report, nothing had been deployed. Everything
 below was verified against a production build (`npm run build` + `npm start`) running on
 `http://localhost:3000`. Items that can only be validated against the real domains are listed separately in
 section 5 and are **not** claimed as verified.
 
-Intended production model (as specified):
+Original intended production model (superseded by the separate Vercel admin alias):
 
 ```text
 https://fashionfeet.co.in          -> public storefront (customer system)

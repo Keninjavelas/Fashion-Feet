@@ -34,7 +34,9 @@ export function CollectionManagerClient({ initialCollections, allProducts }: { i
   const [description, setDescription] = useState("");
   const [banner, setBanner] = useState("");
   const [thumbnail, setThumbnail] = useState("");
-  const [status, setStatus] = useState("PUBLISHED");
+  const [status, setStatus] = useState("DRAFT");
+  const [visible, setVisible] = useState(true);
+  const [displayOrder, setDisplayOrder] = useState(0);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,7 +46,9 @@ export function CollectionManagerClient({ initialCollections, allProducts }: { i
     setDescription("");
     setBanner(PLACEHOLDER_HOMEPAGE_IMAGE);
     setThumbnail(PLACEHOLDER_PRODUCT_IMAGE);
-    setStatus("PUBLISHED");
+    setStatus("DRAFT");
+    setVisible(true);
+    setDisplayOrder(0);
     setSelectedProductIds([]);
     setModalOpen(true);
   };
@@ -56,6 +60,8 @@ export function CollectionManagerClient({ initialCollections, allProducts }: { i
     setBanner(col.banner || "");
     setThumbnail(col.thumbnail || "");
     setStatus(col.status);
+    setVisible(col.visible);
+    setDisplayOrder(col.displayOrder);
     setSelectedProductIds(col.products.map((p) => p.id));
     setModalOpen(true);
   };
@@ -73,6 +79,8 @@ export function CollectionManagerClient({ initialCollections, allProducts }: { i
     fd.append("banner", banner);
     fd.append("thumbnail", thumbnail);
     fd.append("status", status);
+    fd.append("visible", String(visible));
+    fd.append("displayOrder", String(displayOrder));
 
     const res = editingCollection
       ? await updateCollectionAction(editingCollection.id, fd)
@@ -169,9 +177,33 @@ export function CollectionManagerClient({ initialCollections, allProducts }: { i
                 <textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Bespoke bridal and groom Juttis..." className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl focus:outline-none" />
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-gray-700 uppercase mb-1">Publication status</label>
+                  <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl">
+                    <option value="DRAFT">Draft (private)</option>
+                    <option value="PUBLISHED">Published</option>
+                    <option value="ARCHIVED">Archived</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold text-gray-700 uppercase mb-1">Display order</label>
+                  <input type="number" value={displayOrder} onChange={(e) => setDisplayOrder(Number(e.target.value) || 0)} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl" />
+                </div>
+              </div>
+              <label className="flex items-center gap-2 font-semibold text-gray-700">
+                <input type="checkbox" checked={visible} onChange={(e) => setVisible(e.target.checked)} />
+                Visible when published
+              </label>
+
               <div>
                 <label className="block font-bold text-gray-700 uppercase mb-1">Banner Image URL</label>
                 <input type="text" value={banner} onChange={(e) => setBanner(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl focus:outline-none" />
+              </div>
+
+              <div>
+                <label className="block font-bold text-gray-700 uppercase mb-1">Card Thumbnail URL</label>
+                <input type="text" value={thumbnail} onChange={(e) => setThumbnail(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border rounded-xl focus:outline-none" />
               </div>
 
               <div>

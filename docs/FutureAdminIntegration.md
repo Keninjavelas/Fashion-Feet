@@ -1,40 +1,7 @@
-# Admin Application Integration Roadmap & Contract
+# Admin integration status and future work
 
-## Architecture Boundary
-The Admin Application is a separate internal dashboard connecting to the same backend database API.
+The earlier roadmap in this file has been implemented as a separate Next.js application in `apps/admin`, deployed at `https://fashion-feet-admin.vercel.app`. It shares Neon PostgreSQL with the public storefront. The admin has its own login, TOTP MFA, roles, audit views, product/collection/category/store/FAQ managers, media library, seasonal controls, and Storefront Studio. See [AdminDeployment.md](AdminDeployment.md) for security and deployment details.
 
-## Implementation Phases
+Storefront content is updated through the shared database. Draft Studio changes require publication, and open storefront tabs need a refresh. The FAQ manager edits the same rows rendered by `/faq` and `/api/v1/faqs`.
 
-### Phase A: Foundation
-- Admin Authentication & Separate Login (`/admin/login`)
-- Authenticator App MFA (TOTP 6-digit verification & QR enrollment)
-- RBAC Permission Enforcement (`SUPER_ADMIN`, `CONTENT_MANAGER`)
-- Admin Analytics Dashboard
-- Media Library Hub (Shared asset manager for `MediaAsset`)
-
-### Phase B: Business Management
-- Products Catalog Manager (Draft/Publish status, productCode SKU generator, image uploaders)
-- Collections & Occasions Manager
-- Category & Taxonomies
-- Store Locations Manager (Register real boutiques once available)
-- Customer Management & Activity Logs
-- Product Fitting Enquiries Inbox (`status: PENDING | CONTACTED | COMPLETED | CLOSED`)
-
-### Phase C: Storefront Visual Content Management
-- Live Storefront Visual Editor (WYSIWYG layout preview)
-- Sandbox Environment
-- Component Parameter Editor
-- Asset Slot Replacer (`SiteSetting` keys)
-- Draft / Publish Release Engine
-
-### Phase D: Marketing & Festival Control Studio
-- Seasonal Experience Studio (1-Click Festival Theme Switcher for Normal, Diwali, Holi, Eid, Christmas, Lohri, Baisakhi)
-- Campaign Date Scheduler & Automatic Expire/Restore
-- Festival Offer Configurator
-- Live Storefront Preview Mode
-
-### Phase E: Enterprise Features
-- Audit Logs & Action Timeline
-- Version History & Rollback
-- Database Backup Manager
-- AI Assistant Integration for catalog copy & image tag generation
+Remaining integration work is operational: configure `fashionfeet.co.in` DNS, verify the Resend sending subdomain, create a domain-scoped sending key, and test delivery to `aryan.kapoor@fashionfeet.co.in`. The administrator of the GoDaddy DNS account must make or authorize those DNS changes. The native mobile app also needs a release pipeline and store distribution before it can be treated as a shipped client.

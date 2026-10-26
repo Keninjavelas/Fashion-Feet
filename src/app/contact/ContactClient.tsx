@@ -2,15 +2,15 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Mail, Clock } from "lucide-react";
-import { createEnquiry } from "@/app/actions/enquiries";
+import { createEnquiry } from "@/app/actions/createEnquiry";
+import { CONTACT_EMAIL } from "@/lib/contactDetails";
 
 /**
  * Contact form client.
  *
  * Submits directly through the `createEnquiry` server action (see
- * src/app/actions/enquiries.ts) which writes a row to the `Enquiry` table,
- * applies per-email rate limiting (5 / 10 min), a bot honeypot, and
- * revalidates the admin enquiries dashboard.
+ * src/app/actions/createEnquiry.ts) which writes a row to the `Enquiry` table,
+ * applies per-email rate limiting and a bot honeypot, then attempts email delivery.
  *
  * Mobile handoff support: the mobile Contact tab redirects a customer to
  * /contact?name=...&email=...&message=... with URL query params. When those
@@ -21,6 +21,7 @@ export function ContactClient() {
   const [reason, setReason] = useState("General Inquiry");
   const [isSubmitting, startTransition] = useTransition();
   const [isSuccess, setIsSuccess] = useState(false);
+  const [notificationSent, setNotificationSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [name, setName] = useState("");
@@ -59,10 +60,15 @@ export function ContactClient() {
         setFormError(result.error);
         return;
       }
+      setNotificationSent(result.notificationSent === true);
       setIsSuccess(true);
       form.reset();
       setReason("General Inquiry");
+      setName("");
+      setEmail("");
+      setSubject("");
       setProductSku("");
+      setMessage("");
       setTimeout(() => setIsSuccess(false), 6000);
     });
   };
@@ -94,14 +100,11 @@ export function ContactClient() {
                   <Mail className="w-6 h-6 text-[var(--color-accent-gold)] flex-shrink-0 mt-1" aria-hidden="true" />
                   <div>
                     <p className="font-bold uppercase tracking-widest text-[10px] text-white/50 mb-1">Enquiries</p>
-                    <p className="text-base font-medium">Use the form on this page</p>
+                    <a href={`mailto:${CONTACT_EMAIL}`} className="break-all text-base font-medium underline underline-offset-4 hover:text-[var(--color-accent-gold)]">{CONTACT_EMAIL}</a>
                   </div>
                 </div>
 
-                {/* The phone row that used to sit here was removed: the number was
-                    fabricated, and publishing a number the business does not own sends
-                    customers to a stranger. The email row likewise no longer prints a
-                    @fashionfeet.com mailbox that is not ours. */}
+                {/* No phone number is published until the business provides one. */}
 
                 <div className="flex items-start gap-4">
                   <Clock className="w-6 h-6 text-[var(--color-accent-gold)] flex-shrink-0 mt-1" aria-hidden="true" />
@@ -129,8 +132,10 @@ export function ContactClient() {
                 aria-live="polite"
                 className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-6 rounded-2xl text-center"
               >
-                <h3 className="font-serif text-xl mb-2 font-bold">Message Sent Successfully!</h3>
-                <p className="text-xs">Thank you for reaching out. Our team will get back to you within 24 hours.</p>
+                <h3 className="font-serif text-xl mb-2 font-bold">Message received</h3>
+                <p className="text-xs">{notificationSent
+                  ? `Your message was forwarded to ${CONTACT_EMAIL}. We will reply to your email address.`
+                  : `Your message was saved, but email delivery is temporarily unavailable. You can email ${CONTACT_EMAIL} directly.`}</p>
               </div>
             ) : (
               <form className="space-y-6" onSubmit={handleSubmit} noValidate>

@@ -1,9 +1,10 @@
 # Admin MFA — Real TOTP Authenticator Flow
 
-**Status: COMPLETE and FROZEN.** No further authentication changes are to be made to this area without a new,
-explicitly scoped task. The three remaining limitations in §4 are recorded for later, not fixed.
+> **Historical local test report.** The flow described below was tested before the admin was split into `apps/admin`. The admin is now deployed at `https://fashion-feet-admin.vercel.app`, uses a separate database-backed session, and has been enrolled with an authenticator in the live workflow. The old localhost-only status and limitations below are retained as test history, not as current deployment status. See [AdminDeployment.md](AdminDeployment.md) and [ProductionReadiness.md](ProductionReadiness.md).
 
-**Deployment level: LOCALHOST / not deployed** (unchanged). Everything below was verified against a production
+**Status at the original test pass: COMPLETE.** The three limitations in §4 were recorded at that time. Later deployment and security changes are documented separately.
+
+**Original test environment: LOCALHOST / not yet deployed.** Everything below was verified against a production
 build (`npm run build` + `npm start`) on `http://localhost:3000`.
 
 Goal: the admin login genuinely requires a valid authenticator-generated TOTP code — not an MFA-shaped screen.

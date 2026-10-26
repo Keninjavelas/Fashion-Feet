@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../components";
+@source "../lib";
 
 @theme {
   --color-brand-50: #fdf8f6;
@@ -223,4 +225,77 @@ html {
     transform: none !important;
     transition: none !important;
   }
+}
+
+/* Keep the fixed header below the announcement while the page is at the top. */
+.announcement-marquee ~ header[data-scrolled="false"] {
+  top: 39px;
+}
+
+/* Storefront Studio presets apply only to published, visible sections. */
+[data-published-section][data-style-preset="DARK_ROYAL"] {
+  --theme-color-bg: #12080c;
+  --theme-color-surface: #1c141b;
+  --theme-color-text: #fff8f1;
+  --theme-color-text-muted: #d0bfc9;
+  --theme-color-accent: #d4af37;
+  --theme-color-border: rgba(212, 175, 55, 0.3);
+}
+
+[data-published-section][data-style-preset="LIGHT_GOLD"] {
+  --theme-color-bg: #faf6f0;
+  --theme-color-surface: #fffdf9;
+  --theme-color-text: #251b18;
+  --theme-color-text-muted: #6b5e58;
+  --theme-color-accent: #9a7022;
+  --theme-color-border: #e5d9c7;
+}
+
+[data-published-section][data-style-preset="GLASS"] {
+  --theme-color-bg: #211522;
+  --theme-color-surface: rgba(255, 255, 255, 0.08);
+  --theme-color-text: #fff8f1;
+  --theme-color-text-muted: #d8c8d0;
+  --theme-color-accent: #e4bd59;
+  --theme-color-border: rgba(255, 255, 255, 0.18);
+}
+
+footer[data-style-preset="LIGHT_GOLD"] { background: #302417; }
+footer[data-style-preset="GLASS"] { background: #241825; }
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes festival-campaign-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+  }
+
+  [data-festival-animation]:not([data-festival-animation="none"]) .festival-campaign-glow {
+    animation: festival-campaign-pulse 6s ease-in-out infinite;
+  }
+
+  @keyframes published-section-enter {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes published-section-reveal {
+    from { opacity: 0; clip-path: inset(0 0 30% 0); }
+    to { opacity: 1; clip-path: inset(0 0 0 0); }
+  }
+
+  [data-motion-preset="FADE_UP"],
+  [data-motion-preset="PARALLAX"] {
+    animation: published-section-enter 700ms ease-out both;
+  }
+
+  [data-motion-preset="REVEAL"] {
+    animation: published-section-reveal 800ms ease-out both;
+  }
+
+  [data-motion-preset="STAGGER"] > section .grid > * {
+    animation: published-section-enter 600ms ease-out both;
+  }
+
+  [data-motion-preset="STAGGER"] > section .grid > :nth-child(2) { animation-delay: 120ms; }
+  [data-motion-preset="STAGGER"] > section .grid > :nth-child(3) { animation-delay: 240ms; }
 }

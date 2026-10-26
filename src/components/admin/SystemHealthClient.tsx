@@ -11,12 +11,14 @@ import Link from "next/link";
 import { createBackupAction, restoreBackupAction } from "@/app/actions/backup";
 import { getSystemHealthMetrics } from "@/app/actions/systemHealth";
 import { formatAgeHours, formatUptime, type HealthState } from "@/lib/healthRules";
+import { formatAdminDateTime } from "@/lib/adminDate";
 
 interface SystemHealthProps {
   initialMetrics: any;
   initialBackups: any[];
   adminRole: string;
   adminName: string;
+  managedPostgres: boolean;
 }
 
 /** States are reported by the server; anything unrecognised is treated as UNKNOWN. */
@@ -93,6 +95,7 @@ export function SystemHealthClient({
   initialBackups,
   adminRole,
   adminName,
+  managedPostgres,
 }: SystemHealthProps) {
   const [metrics, setMetrics] = useState<any>(initialMetrics);
   const [backups, setBackups] = useState<any[]>(initialBackups);
@@ -224,7 +227,7 @@ export function SystemHealthClient({
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-widest text-[#8A1538] block">
-              Phase E Enterprise Management
+              Operational status
             </span>
             <span className={`px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider ${STATE_BADGE[overallState]}`}>
               {overallState}
@@ -234,8 +237,9 @@ export function SystemHealthClient({
             <Activity className="w-7 h-7 text-[#8A1538]" /> System Health & Disaster Recovery
           </h1>
           <p className="text-gray-600 text-xs mt-1 max-w-2xl">
-            Live operational health derived from real backup, migration, database and runtime state — with SHA-256 verified
-            snapshots and one-click disaster recovery controls.
+            {managedPostgres
+              ? "Live database, migration, security, and runtime metrics. PostgreSQL backups are managed in the database provider console."
+              : "Live operational health with verified SQLite snapshots and recovery controls."}
           </p>
         </div>
 
@@ -248,13 +252,13 @@ export function SystemHealthClient({
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh Metrics
           </button>
 
-          <button
+          {!managedPostgres && <button
             onClick={handleCreateBackup}
             disabled={backupLoading || adminRole !== "SUPER_ADMIN"}
             className="px-4 py-2 bg-[#8A1538] hover:bg-[#A81B45] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm disabled:opacity-40"
           >
             {backupLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Database className="w-3.5 h-3.5 text-[#D4AF37]" />} Create DB Backup
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -314,11 +318,11 @@ export function SystemHealthClient({
           <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-2xl shrink-0">
             <div className="text-center px-3 border-r border-white/10">
               <span className="text-[10px] text-white/50 uppercase font-bold block">DB Size</span>
-              <span className="font-mono text-base font-bold text-white">{metrics?.database?.sizeMb || "0.00"} MB</span>
+              <span className="font-mono text-base font-bold text-white">{metrics?.database?.sizeMb == null ? "—" : `${metrics.database.sizeMb} MB`}</span>
             </div>
             <div className="text-center px-3 border-r border-white/10">
               <span className="text-[10px] text-white/50 uppercase font-bold block">Snapshots</span>
-              <span className="font-mono text-base font-bold text-[#D4AF37]">{metrics?.database?.totalBackups || 0}</span>
+              <span className="font-mono text-base font-bold text-[#D4AF37]">{managedPostgres ? "Managed" : metrics?.database?.totalBackups || 0}</span>
             </div>
             <div className="text-center px-3">
               <span className="text-[10px] text-white/50 uppercase font-bold block">Uptime</span>
@@ -338,14 +342,15 @@ export function SystemHealthClient({
           </div>
           <div className="flex items-center justify-between">
             <StateBadge state={databaseState} />
-            <span className="text-[11px] text-gray-500 font-mono">{metrics?.database?.sizeMb || "0.00"} MB</span>
+            <span className="text-[11px] text-gray-500 font-mono">{metrics?.database?.sizeMb == null ? "Size unavailable" : `${metrics.database.sizeMb} MB`}</span>
           </div>
           <p className="text-[11px] text-gray-600 leading-relaxed">
             {overallRules.find((rule) => rule?.key === "database")?.detail ??
-              "Primary SQLite database connectivity."}
+              "Primary database connectivity."}
           </p>
         </div>
 
+        {!managedPostgres && <>
         {/* Card 2: Backup Freshness */}
         <div className="p-5 bg-white rounded-2xl border border-gray-200 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
@@ -360,7 +365,7 @@ export function SystemHealthClient({
             <div className="flex items-center justify-between gap-2">
               <span className="text-gray-500">Last successful</span>
               <span className="font-mono font-bold text-gray-900 text-right">
-                {lastSuccessfulAt ? new Date(lastSuccessfulAt).toLocaleString("en-IN") : "Never"}
+                {lastSuccessfulAt ? formatAdminDateTime(lastSuccessfulAt) : "Never"}
               </span>
             </div>
             <div className="flex items-center justify-between gap-2">
@@ -394,6 +399,7 @@ export function SystemHealthClient({
           </p>
         </div>
 
+        </>}
         {/* Card 4: Migration State */}
         <div className="p-5 bg-white rounded-2xl border border-gray-200 shadow-sm space-y-3">
           <div className="flex items-center justify-between">
@@ -489,7 +495,7 @@ export function SystemHealthClient({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-500">Snapshot records</span>
-              <span className="font-mono font-bold text-gray-900">{metrics?.database?.totalBackups ?? 0}</span>
+              <span className="font-mono font-bold text-gray-900">{managedPostgres ? "Managed" : metrics?.database?.totalBackups ?? 0}</span>
             </div>
           </div>
         </div>
@@ -524,13 +530,18 @@ export function SystemHealthClient({
           </div>
 
           <div className="pt-2 text-[10px] text-gray-400 font-mono">
-            Evaluated at {metrics?.generatedAt ? new Date(metrics.generatedAt).toLocaleString("en-IN") : "—"}
+            Evaluated at {metrics?.generatedAt ? formatAdminDateTime(metrics.generatedAt) : "—"}
           </div>
         </div>
       )}
 
       {/* Database Backup & Disaster Recovery Snapshots */}
-      <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 space-y-6 shadow-sm">
+      {managedPostgres ? (
+        <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 shadow-sm">
+          <h3 className="font-serif text-xl font-bold text-gray-900">Managed PostgreSQL backups</h3>
+          <p className="text-sm text-gray-600 mt-2">Create and restore database backups in the PostgreSQL provider console. This dashboard cannot verify the provider’s backup schedule.</p>
+        </div>
+      ) : <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 space-y-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
           <div>
             <h3 className="font-serif text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -590,7 +601,7 @@ export function SystemHealthClient({
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-gray-500 text-[11px]">
-                      {new Date(b.createdAt).toLocaleString("en-IN")}
+                      {formatAdminDateTime(b.createdAt)}
                     </td>
                     <td className="py-3.5 px-4 text-right font-sans">
                       <button
@@ -612,7 +623,7 @@ export function SystemHealthClient({
             </table>
           )}
         </div>
-      </div>
+      </div>}
 
       {/* Recent Operational Events + Runbooks */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -635,7 +646,7 @@ export function SystemHealthClient({
                     </span>
                   </div>
                   <span className="text-[10px] text-gray-400 font-mono shrink-0">
-                    {event.createdAt ? new Date(event.createdAt).toLocaleString("en-IN") : "—"}
+                    {event.createdAt ? formatAdminDateTime(event.createdAt) : "—"}
                   </span>
                 </li>
               ))}

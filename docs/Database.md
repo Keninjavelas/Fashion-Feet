@@ -1,51 +1,24 @@
-# Database Schema & Migration Guide — Fashion Feet
+# Database and migrations
 
-Fashion Feet uses **Prisma ORM** with **SQLite** for development and local prototypes, designed for seamless production migration to PostgreSQL or MySQL.
+Production uses a managed Neon PostgreSQL database shared by the storefront and admin Vercel projects. Local development can use the separate SQLite schema and `dev.db` fallback. Keep their migration histories distinct.
 
----
+## Production
 
-## 1. Core Data Models & Relations
+- Schema: `prisma/postgres/schema.prisma`.
+- Migrations: `prisma/postgres/migrations/`.
+- Pooled runtime URL: `DATABASE_URL` in both Vercel projects.
+- Direct migration URL: `DATABASE_URL_UNPOOLED` or `DIRECT_URL`.
+- Apply migrations with `npm run db:deploy:postgres` before deploying code that depends on a new schema.
+- Generate the production Prisma Client with `prisma generate --config prisma.postgres.config.ts`; the Vercel build scripts do this automatically.
 
-- **`AdminUser`**: Represents internal administrators (`SUPER_ADMIN` vs `CONTENT_MANAGER`). Passwords hashed with **Argon2id**.
-- **`AdminSession`**: Authenticated admin cookie sessions with automatic TTL expiration.
-- **`AdminRecoveryCode`**: Single-use, high-entropy MFA recovery codes hashed with SHA-256.
-- **`AdminAuditLog`**: Append-only system audit trail (`PAGE_PUBLISHED`, `DRAFT_SAVED`, `PAGE_PUBLISH_FAILED`, etc.).
-- **`Product`**: Footwear catalogue items (`sku` unique, `status` = `DRAFT | PUBLISHED | ARCHIVED`).
-- **`Collection`**: Grouped curated collections.
-- **`Category` & `Occasion`**: Product classification taxonomies.
-- **`Store`**: Boutiques & showroom locations (`code` unique, `status` = `OPEN | COMING_SOON`).
-- **`Enquiry`**: Direct luxury bespoke/showroom customer enquiries (never creates an e-commerce order).
-- **`StorefrontConfig`**: Visual Studio layout configurations with compound unique `[page, status]` index (`DRAFT` vs `PUBLISHED`).
+Do not import the old local SQLite database into production. It can contain legacy administrator accounts and sample content. Bootstrap a fresh production administrator as described in [AdminDeployment.md](AdminDeployment.md).
 
----
+## Local SQLite
 
-## 2. Migration Workflow
+When `DATABASE_URL` is unset, `src/lib/prisma.ts` uses a local SQLite file. The local schema and migrations live under `prisma/`. These files are for development and historical acceptance tests, not for multi-host production.
 
-All schema modifications are tracked via versioned Prisma migrations under `prisma/migrations/`.
+## Backups and recovery
 
-### Applying Migrations
-```bash
-npx prisma migrate dev
-```
+The SQLite backup/restore implementation applies only to a local SQLite database. It is disabled for managed PostgreSQL. Production recovery depends on the Neon project's backup and restore facilities; verify the provider's actual retention and restore process before relying on it. The admin system-health page does not certify backup freshness.
 
-### Checking Migration Status
-```bash
-npx prisma migrate status
-```
-
----
-
-## 3. Database Backup & Restore Procedure
-
-### Manual Backup (SQLite)
-To back up the database before a major deployment or schema change:
-```bash
-# Windows PowerShell
-Copy-Item ./prisma/dev.db ./prisma/backups/dev_backup_$(Get-Date -Format "yyyyMMdd_HHmmss").db
-```
-
-### Restore Procedure
-1. Stop the application server (`npm run dev` or production instance).
-2. Replace `prisma/dev.db` with the designated backup file.
-3. Run `npx prisma migrate status` to confirm schema integrity.
-4. Restart the application server.
+See [DataModel.md](DataModel.md) for the main entities and [ProductionReadiness.md](ProductionReadiness.md) for the operational checklist.

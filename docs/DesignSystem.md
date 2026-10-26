@@ -1,42 +1,9 @@
-# Fashion Feet Design System Specification
+# Design system
 
-## Color System & CSS Custom Properties
+The storefront uses Tailwind CSS 4, CSS custom properties, and seasonal theme presets. The main token definitions are in `src/lib/themeTokens.ts`, `src/lib/seasonalConstants.ts`, and `src/app/globals.css`. Components should use theme variables instead of hard-coded seasonal colours where the design is meant to change with the active festival.
 
-The design system uses CSS Custom Properties to seamlessly adapt themes across the entire storefront:
+The default storefront palette is warm ivory, burgundy, and gold. Seasonal presets can alter backgrounds, accent colours, decoration, and motion. Respect `prefers-reduced-motion` and keep focus indicators visible when changing components.
 
-```css
-:root, [data-theme="default"] {
-  --theme-color-bg: #FAF6F0;       /* Pristine Warm Ivory */
-  --theme-color-surface: #FFFFFF;  /* Clean Surface Card */
-  --theme-color-text: #1F1A17;     /* Dark Walnut */
-  --theme-color-text-muted: #6B6560; /* Muted Charcoal */
-  --theme-color-accent: #C5A059;   /* Antique Gold */
-  --theme-color-jewel: #8A1538;    /* Royal Crimson/Burgundy */
-  --theme-color-border: #E5E0D8;   /* Soft Ivory Border */
-  --theme-color-shadow: rgba(31, 26, 23, 0.06);
-}
-```
+The admin interface is **dark mode only**, styled by `apps/admin/src/app/admin-theme.css`. It should not inherit the public site's seasonal or light-mode palette.
 
-## Typography Hierarchy
-
-- **Header / Titles**: Playfair Display / Cinzel (`font-serif`)
-- **Body / Interface**: Inter (`font-sans`)
-- **SKUs / Prices / Sizes**: Mono font family (`font-mono`)
-
-## Component Elevation & Surfaces
-
-- **Surface Card**:
-  - Class: `.surface-card`
-  - Border: `1px solid var(--theme-color-border)`
-  - Shadow: Multi-stop layered soft shadow
-  - Hover: `-4px` translateY translation with expanded ambient glow
-- **Subtle Background Mesh**:
-  - Class: `.subtle-grain-bg`
-  - Uses fine radial gold weave grid pattern
-
-## Progressive Enhancement & Motion Rules
-
-- Content is 100% visible by default (`html:not(.animations-ready) .scroll-reveal { opacity: 1; }`).
-- JavaScript adds `.animations-ready` on hydration to enable scroll transitions.
-- Reduced motion: `@media (prefers-reduced-motion: reduce)` disables all nonessential scroll transforms.
-- Visible Focus Rings: `*:focus-visible { outline: 2px solid var(--theme-color-accent); outline-offset: 2px; }`.
+Brand assets are deliberate: `BRAND_TAGLINE` in `src/lib/branding.ts` is **Designer Punjabi Jutties**, and `BrandLogo` renders the user-supplied official footprint logo. Do not replace it with a generated mark or an unrelated wordmark. The past-exhibition photos in `public/exhibitions/` are real historical display images, not product catalogue images.

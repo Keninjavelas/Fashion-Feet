@@ -67,10 +67,12 @@ const uploadHeaders = [
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "better-sqlite3", "@prisma/adapter-better-sqlite3", "argon2"],
   images: {
-    // Storefront imagery is served exclusively from the local media library
-    // (/uploads and /placeholders). No third-party image host is permitted, so
-    // a stock-photo hotlink cannot be rendered even if one were reintroduced.
-    remotePatterns: [],
+    remotePatterns: [
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com", pathname: "/uploads/**" },
+      ...(process.env.NODE_ENV === "development"
+        ? [{ protocol: "http" as const, hostname: "localhost", port: "3000", pathname: "/uploads/**" }]
+        : []),
+    ],
   },
   async headers() {
     return [

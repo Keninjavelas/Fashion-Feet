@@ -2,27 +2,35 @@ import { prisma } from "@/lib/prisma";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ShopClient } from "./ShopClient";
 import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
+import Link from "next/link";
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string, type?: string, q?: string }> }) {
+export const dynamic = "force-dynamic";
+
+export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string; collection?: string; gender?: string; type?: string; q?: string }> }) {
   const resolvedParams = await searchParams;
   const category = resolvedParams.category;
+  const collectionId = resolvedParams.collection;
+  const gender = resolvedParams.gender;
   const isNewArrivals = resolvedParams.type === "new";
   const searchQuery = resolvedParams.q;
 
-  const query: any = { published: true, archived: false };
+  const [categories, collection] = await Promise.all([
+    prisma.category.findMany({ where: { active: true }, orderBy: { displayOrder: "asc" }, select: { name: true, slug: true } }).catch(() => []),
+    collectionId ? prisma.collection.findFirst({ where: { id: collectionId, visible: true, status: "PUBLISHED" }, select: { id: true, title: true } }) : Promise.resolve(null)
+  ]);
+
+  const query: any = { published: true, archived: false, hidden: false };
+  if (isNewArrivals) query.isNewArrival = true;
+  if (collectionId) query.collectionId = collection?.id || "__unavailable_collection__";
+  if (gender === "Men" || gender === "Women") query.gender = { in: [gender, "Unisex"] };
   if (category) {
     query.category = { equals: category };
   }
   if (searchQuery) {
-    query.AND = [
-      { published: true, archived: false },
-      {
-        OR: [
-          { title: { contains: searchQuery } },
-          { description: { contains: searchQuery } },
-          { category: { contains: searchQuery } },
-        ]
-      }
+    query.OR = [
+      { title: { contains: searchQuery } },
+      { description: { contains: searchQuery } },
+      { category: { contains: searchQuery } },
     ];
   }
   
@@ -32,8 +40,8 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     orderBy: isNewArrivals ? { id: 'desc' } : undefined
   });
 
-  const title = searchQuery ? `Search: ${searchQuery}` : isNewArrivals ? "New Arrivals" : category ? `${category} Collection` : "All Products";
-  const breadcrumbLabel = searchQuery ? "Search Results" : isNewArrivals ? "New Arrivals" : category || "Shop";
+  const title = searchQuery ? `Search: ${searchQuery}` : collection ? collection.title : isNewArrivals ? "New Arrivals" : category ? `${category} Collection` : "All Products";
+  const breadcrumbLabel = searchQuery ? "Search Results" : collection?.title || (isNewArrivals ? "New Arrivals" : category || "Shop");
 
   return (
     <StorefrontLayout>
@@ -49,6 +57,10 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             </p>
           </div>
 
+          {categories.length > 0 && <nav aria-label="Shop categories" className="flex flex-wrap justify-center gap-2">
+            <Link href="/shop" className={`rounded-full border px-4 py-2 text-xs font-bold ${!category ? "border-[#D4AF37] text-[#D4AF37]" : "border-white/20 text-white/70"}`}>All</Link>
+            {categories.map((item) => <Link key={item.slug} href={`/shop?category=${encodeURIComponent(item.name)}`} className={`rounded-full border px-4 py-2 text-xs font-bold ${category === item.name ? "border-[#D4AF37] text-[#D4AF37]" : "border-white/20 text-white/70"}`}>{item.name}</Link>)}
+          </nav>}
           <ShopClient initialProducts={products} initialCategory={category} />
         </div>
       </div>

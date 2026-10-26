@@ -22,7 +22,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
 
   return publicGet(req, async () => {
     const product = await prisma.product.findFirst({
-      where: { OR: [{ id }, { sku: id }], archived: false, published: true },
+      where: { OR: [{ id }, { sku: id }], archived: false, published: true, hidden: false },
       include: { images: true },
     });
 

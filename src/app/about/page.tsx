@@ -2,29 +2,41 @@ import Link from "next/link";
 import { Hand, Feather, ShieldCheck } from "lucide-react";
 import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
 import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
+import { BRAND_TAGLINE } from "@/lib/branding";
+import { BrandLogo } from "@/components/layout/BrandLogo";
+import { getPublishedStorefrontConfig } from "@/lib/storefrontConfig";
 
-export default function AboutPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AboutPage() {
+  const sections = await getPublishedStorefrontConfig("about");
+  const hero = sections.find((section) => section.type === "HERO_BANNER");
+
   return (
     <StorefrontLayout>
       <div className="pt-24 pb-24">
         {/* Hero Section */}
-        <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+        {hero?.visible !== false && <section data-published-section="HERO_BANNER" data-style-preset={hero?.stylePreset || "DARK_ROYAL"} data-motion-preset={hero?.motionPreset || "NONE"} className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-black/40 z-10"></div>
+            <div className={`absolute inset-0 z-10 ${hero?.stylePreset === "LIGHT_GOLD" ? "bg-white/50" : "bg-black/40"}`}></div>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src={PLACEHOLDER_HOMEPAGE_IMAGE} 
+              src={hero?.image || PLACEHOLDER_HOMEPAGE_IMAGE}
               alt="Punjabi Juttis" 
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="relative z-20 text-center text-white px-4 max-w-3xl">
-            <h1 className="font-serif text-5xl md:text-7xl font-bold mb-6">Tradition in Every Step.</h1>
-            <p className="text-xl md:text-2xl font-light text-white/90">
-              Discover Punjabi Juttis that bring together timeless craftsmanship, vibrant design, and contemporary style.
+          <div className={`relative z-20 max-w-3xl px-4 text-center ${hero?.stylePreset === "LIGHT_GOLD" ? "text-[#251b18]" : "text-white"}`}>
+            <BrandLogo className="mx-auto mb-6 h-32 w-auto rounded-xl bg-white shadow-xl md:h-40" sizes="(max-width: 768px) 180px, 220px" eager />
+            <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#D4AF37]">{hero?.badge || BRAND_TAGLINE}</p>
+            <h1 className="font-serif text-5xl md:text-7xl font-bold mb-6">{hero?.title || BRAND_TAGLINE}</h1>
+            <p className={`text-xl font-light md:text-2xl ${hero?.stylePreset === "LIGHT_GOLD" ? "text-[#45372e]" : "text-white/90"}`}>
+              {hero?.subtitle || "Discover Punjabi Juttis that bring together timeless craftsmanship, vibrant design, and contemporary style."}
             </p>
+            {hero?.description && <p className={`mt-5 text-sm ${hero.stylePreset === "LIGHT_GOLD" ? "text-[#514237]" : "text-white/75"}`}>{hero.description}</p>}
+            {hero?.ctaText && <Link href={hero.ctaLink || "/shop"} className="mt-6 inline-flex bg-[#8A1538] px-6 py-3 text-xs font-bold uppercase tracking-widest text-white">{hero.ctaText}</Link>}
           </div>
-        </section>
+        </section>}
 
         {/* Story & Philosophy */}
         <section className="py-24 bg-[var(--color-brand-50)]">

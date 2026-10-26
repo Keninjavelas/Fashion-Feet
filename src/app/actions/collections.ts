@@ -14,11 +14,12 @@ export async function createCollectionAction(formData: FormData) {
     const description = (formData.get("description") as string || "").trim() || null;
     const banner = (formData.get("banner") as string || "").trim() || null;
     const thumbnail = (formData.get("thumbnail") as string || "").trim() || null;
-    const status = (formData.get("status") as string || "PUBLISHED").trim();
+    const status = (formData.get("status") as string || "DRAFT").trim();
     const visible = formData.get("visible") !== "false";
     const displayOrder = parseInt(formData.get("displayOrder") as string, 10) || 0;
 
     if (!title) return { error: "Collection Title is required." };
+    if (!["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)) return { error: "Invalid collection status." };
 
     const collection = await prisma.collection.create({
       data: {
@@ -58,11 +59,12 @@ export async function updateCollectionAction(collectionId: string, formData: For
     const description = (formData.get("description") as string || "").trim() || null;
     const banner = (formData.get("banner") as string || "").trim() || null;
     const thumbnail = (formData.get("thumbnail") as string || "").trim() || null;
-    const status = (formData.get("status") as string || "PUBLISHED").trim();
+    const status = (formData.get("status") as string || "DRAFT").trim();
     const visible = formData.get("visible") !== "false";
     const displayOrder = parseInt(formData.get("displayOrder") as string, 10) || 0;
 
     if (!title) return { error: "Collection Title is required." };
+    if (!["DRAFT", "PUBLISHED", "ARCHIVED"].includes(status)) return { error: "Invalid collection status." };
 
     const updated = await prisma.collection.update({
       where: { id: collectionId },

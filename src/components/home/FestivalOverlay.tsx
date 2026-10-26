@@ -11,9 +11,10 @@ export function FestivalOverlay({ activeFestival }: { activeFestival?: any }) {
 
   const accentColor = activeFestival.accentColor || "#D4AF37";
   const showAnnouncement = activeFestival.announcementActive !== false;
+  const glowOpacity = activeFestival.effectIntensity === "VIBRANT" ? 0.42 : activeFestival.effectIntensity === "SUBTLE" ? 0.12 : 0.26;
 
   return (
-    <div className="relative z-40">
+    <div className="relative z-40" data-festival-animation={activeFestival.animation || "none"}>
       {/* Top Festival Takeover Announcement Marquee Bar */}
       {showAnnouncement && activeFestival.announcement && (
         <div
@@ -42,6 +43,20 @@ export function FestivalOverlay({ activeFestival }: { activeFestival?: any }) {
           </button>
         </div>
       )}
+
+      <section className="relative isolate overflow-hidden bg-[#12080C] px-4 py-12 text-white sm:py-16">
+        {activeFestival.heroBanner && <div className="absolute inset-0 -z-10">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={activeFestival.heroBanner} alt="" className="h-full w-full object-cover opacity-30" /></div>}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#12080C] via-[#12080C]/80 to-transparent" />
+        <div className="festival-campaign-glow pointer-events-none absolute -right-20 -top-20 -z-10 h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: accentColor, opacity: glowOpacity }} />
+        <div className="mx-auto max-w-6xl space-y-4">
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: accentColor }}>{activeFestival.badgeText || activeFestival.name}</p>
+          <h2 className="max-w-3xl font-serif text-3xl font-bold sm:text-5xl">{activeFestival.offerHeading || activeFestival.name}</h2>
+          {activeFestival.heroSubtitle && <p className="max-w-2xl text-lg text-white/85">{activeFestival.heroSubtitle}</p>}
+          {activeFestival.offerDescription && <p className="max-w-2xl text-sm text-white/70">{activeFestival.offerDescription}</p>}
+          {activeFestival.discountPercentage && <p className="inline-flex rounded-full border border-white/25 px-4 py-2 text-xs font-bold uppercase tracking-widest">{activeFestival.discountPercentage}% boutique consultation offer</p>}
+          <div><Link href="/festive" className="inline-flex rounded-lg bg-[#8A1538] px-6 py-3 text-xs font-bold uppercase tracking-widest text-white">{activeFestival.ctaText || "Explore Festive Collection"}</Link></div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
         },
       };
     },
-    { cacheSeconds: 120 }
+    { cacheSeconds: 0 }
   );
 }
 

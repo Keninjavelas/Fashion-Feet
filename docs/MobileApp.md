@@ -1,5 +1,7 @@
 # Fashion Feet — Mobile App & Public API
 
+> **Current production differences, 26 October 2026:** The `/api/v1` routes are served by the Vercel storefront against shared Neon PostgreSQL, and public responses use `Cache-Control: no-store` so admin publications appear on the next request. The single-file SQLite deployment caveat, old cache durations, and old data counts below describe the earlier local prototype. The Expo app source still exists in `mobile/`, but has no app-store release or verified production client session. Treat the field lists below as historical until checked against `src/lib/publicSerializers.ts` and the live API. See [API.md](API.md) and [ProductionReadiness.md](ProductionReadiness.md).
+
 **Scope.** This document covers the native mobile client in `mobile/` and the public JSON surface
 (`/api/v1`) it consumes. It is documentation only — no application code was changed to produce it.
 
@@ -170,16 +172,10 @@ shared `unknown` bucket — never to "unlimited". When the limit is exceeded the
 Retry-After: <seconds>
 ```
 
-**Caching.** Every `200` carries
-`Cache-Control: public, max-age=<n>, stale-while-revalidate=300` and `X-Content-Type-Options: nosniff`.
-
-| Endpoint | `max-age` |
-|---|---|
-| All endpoints | `60` seconds |
-| `/api/v1/site` | `120` seconds |
-
-There is no per-user data on this surface at all, which is why nothing is marked `private` or
-`no-store`.
+**Caching in the deployed storefront.** Successful public API responses currently carry
+`Cache-Control: no-store` and `X-Content-Type-Options: nosniff`. The admin is a separate deployment,
+so a new request must read the latest published data from the shared database rather than wait for
+an old cache lifetime to expire.
 
 **Errors generally.** Unhandled exceptions are logged server-side and returned as a generic
 `500 { "error": "Internal server error" }` — no stack traces, no `error.message`, consistent with the
@@ -534,83 +530,25 @@ Be precise about this, because the app looks more finished than it is:
 
 ---
 
-## 6. The database caveat: one SQLite file
+## 6. Database deployment
 
-`dev.db` is a **single SQLite file**. That is fine while one process serves both the website and the
-API — which is the case today, because the `/api/v1` routes live inside the same Next.js application.
-
-It becomes a **blocker** the moment the API is deployed as a separate instance or host from the web
-app, because two processes on two hosts cannot safely share one SQLite file.
-
-Migrating to Postgres/MySQL is therefore a prerequisite for **multi-host deployment**, not for local
-development, and it was deliberately **not** executed: it needs a provisioned database server and
-would change `DATABASE_URL` for the whole application.
-
-Cross-reference: `docs/SecurityHardening.md` §5 item 3, which already flags this constraint.
+The storefront API and the separate admin deployment now share Neon PostgreSQL in production. The
+single-file SQLite limitation recorded in the earlier review has been resolved for production.
+Local `dev.db` remains useful only for single-machine development and historical tests; it is not a
+source of production content. See [Database.md](Database.md).
 
 ---
 
-## 7. Data reality in the current database
+## 7. Historical local data snapshot
 
-These are measured facts about the current database, taken with the same Prisma adapter pattern the app's
-backend uses (`src/lib/prisma.ts`, `url: "file:./dev.db"`). They are recorded so that nobody mistakes an
-emptied database for a broken API — or for a finished catalogue:
+The earlier local `dev.db` was cleared of fabricated products, stores, and FAQs. Counts recorded
+during that work do not describe the current Neon production database. The production FAQ table
+contains 12 restored entries as of 26 October 2026; their answers still need owner review.
+Use the live public API to inspect current published catalogue and store counts.
 
-| Content | Count |
-|---|---|
-| Products | **0** |
-| Categories | **2** — Jutti, Mojari |
-| Occasions | **5** |
-| Collections | **0** |
-| FAQs | **0** |
-| Store records | **0** |
-
-**The catalogue, the FAQ table and the store table are all legitimately empty.** The rows they used to hold
-were fabricated content and were deliberately removed from `dev.db` **and** from `prisma/seed.ts` — not
-hidden behind a filter, not renamed, not set to `DRAFT` (a draft row would still ship the fabrication in the
-repository). They are referred to here only as *fabricated placeholder records*; none of their invented
-names, prices, store details or mailboxes is reproduced in this document.
-
-**What the public API returns for them.** `GET /api/v1/products`, `GET /api/v1/faqs` and `GET /api/v1/stores`
-each answer **HTTP `200` with an empty array** — `{"data": []}`, and for `/products` a `pagination` block with
-`total: 0`, `hasMore: false`. None of the three `404`s, errors or falls back:
-
-- **`/api/v1/products`** returns an empty page over the empty `Product` table (the handler filters
-  `archived: false, published: true` and there are no rows of any kind). The Home screen's featured row and
-  "Latest additions" fallback have nothing to render, and the shop grid has no cards.
-- **`/api/v1/faqs`** returns `[]` over the empty `Faq` table. The website's `/faq` page now reads that same
-  table with the same ordering (`isPinned` desc, then `displayOrder` asc) — the drift between the two clients
-  is fixed (`ContentIntake.md` §5.1) — so **both clients agree, and both are simply empty**.
-- **`/api/v1/stores`** returns `[]`, which is the intended state. The three fabricated placeholder store
-  records (invented names, street addresses, phone numbers, pin codes, opening hours and mailboxes) have been
-  removed from `prisma/seed.ts` and deleted from the database. `prisma/seed.ts` deliberately creates **no**
-  store at all, so a freshly seeded database also starts with a legitimately empty store table. Real
-  locations are captured with `intake/stores-template.md` and added through the admin console; until then
-  neither client has any store content to render and no store contact links resolve (§5). The removed rows
-  remain recoverable from git history at commit `b2c2f79`. This is **content state, not a code defect**: the
-  endpoint and the serializer behave correctly.
-- **`/api/v1/collections`** returns `[]` for the same reason, and no screen depends on it.
-
-**Therefore the app must render proper empty states, and that is the state it is being developed against.**
-This is not a transient local condition to be worked around with placeholder products or hardcoded lists: a
-list response of `{"data": []}` is the documented, correct answer here, and each screen that consumes
-`/products`, `/faqs` or `/stores` needs a deliberate empty state (an explanatory message plus a route to
-`/contact`), not a permanent spinner, a crash on `data[0]`, or invented sample content. The same applies to
-the web storefront, which is in the identical honest empty state.
-
-Two consequences worth stating plainly:
-
-- **No product means no sizes and no colours.** The `sizes: []` / `colors: []` normalisation rule in §3.4
-  still governs the contract, but there is currently no product row to carry either field, so "Available
-  sizes" and "Available colours" cannot appear at all — not because the app hides them, but because there is
-  no product screen to open. `ProductImage` is empty too, so no image array is ever populated.
-- **`/api/v1/site` serves the built-in homepage defaults.** There are **0** `StorefrontConfig` rows — no
-  `DRAFT` and no `PUBLISHED` — so the endpoint answers with `version: null` and `publishedAt: null` and falls
-  back to the built-in sections (§3.2), and `SiteSetting` is empty, so `appearance.*` comes from the five
-  `CompanyContent` rows alone.
-
-Real content — a logo, real products and real categories — will be supplied later, and **this section must be
-re-measured and updated when it is**; every figure above describes the emptied database, not a target.
+The mobile UI is designed to handle empty arrays and absent optional fields. Product sizes,
+colours, craftsmanship, care, and store details are rendered only when present. These code paths
+do not establish that the native app has been tested on a device.
 
 ---
 

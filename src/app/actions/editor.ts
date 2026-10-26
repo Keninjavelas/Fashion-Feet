@@ -4,6 +4,7 @@ import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import { logAdminAudit } from "@/lib/audit";
 import {
   getDraftStorefrontConfig,
+  getPublishedStorefrontConfig,
   saveDraftStorefrontConfig,
   publishStorefrontConfig,
   getStorefrontVersionHistory,
@@ -93,7 +94,8 @@ export async function publishPageConfigAction(page: string, changelogNote?: stri
       metadata: { version: published.version, publishedAt: published.publishedAt, changelogNote }
     });
 
-    // Revalidate public storefront cache
+    // Local revalidation updates admin previews. The separate storefront
+    // deployment reads published configuration on each incoming request.
     safeRevalidatePath("/");
     safeRevalidatePath("/men");
     safeRevalidatePath("/women");
@@ -167,8 +169,8 @@ export async function discardPageDraftAction(page: string) {
   if (!admin) return { error: "Unauthorized." };
 
   try {
-    const published = await getDraftStorefrontConfig(page);
-    await saveDraftStorefrontConfig(page, published.sections, admin.id);
+    const publishedSections = await getPublishedStorefrontConfig(page);
+    await saveDraftStorefrontConfig(page, publishedSections, admin.id);
 
     await logAdminAudit({
       adminId: admin.id,
@@ -177,7 +179,7 @@ export async function discardPageDraftAction(page: string) {
       resourceId: page
     });
 
-    return { success: true, sections: published.sections };
+    return { success: true, sections: publishedSections };
   } catch (error) {
     return { error: "Failed to discard draft changes." };
   }

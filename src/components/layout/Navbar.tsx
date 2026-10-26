@@ -10,6 +10,8 @@ import { CollectionsMegaMenu } from "./CollectionsMegaMenu";
 import { EnquiryModal } from "../shop/EnquiryModal";
 import { getWishlistCount } from "@/app/actions/wishlist";
 import { useFestival } from "@/components/providers/FestivalProvider";
+import { BRAND_TAGLINE } from "@/lib/branding";
+import { BrandLogo } from "./BrandLogo";
 
 const links = [
   { name: "Home", href: "/" },
@@ -47,7 +49,7 @@ function WishlistIcon({ isDiwali }: { isDiwali: boolean }) {
   );
 }
 
-export function Navbar({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?: string; siteName?: string }) {
+export function Navbar({ siteName = "Fashion Feet", categories = [], collections = [] }: { siteName?: string; categories?: { name: string; description: string | null }[]; collections?: { id: string; title: string; description: string | null }[] }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -77,6 +79,7 @@ export function Navbar({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
   return (
     <>
       <header
+        data-scrolled={isScrolled}
         className={`fixed top-0 w-full z-40 transition-all duration-300 ${
           isDiwali
             ? isScrolled 
@@ -104,18 +107,13 @@ export function Navbar({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
             {/* Premium Logo */}
             <Link
               href="/"
-              className={`font-serif text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight z-10 flex-shrink-0 flex items-center gap-2 ${
-                isDiwali ? "text-white" : "text-[#1F1A17]"
-              }`}
+              aria-label={`${siteName} home`}
+              className="z-10 flex shrink-0 items-center gap-2"
             >
-              {siteLogo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={siteLogo} alt={siteName} className="h-9 md:h-12 object-contain" />
-              ) : (
-                <span className={isDiwali ? "text-transparent bg-clip-text bg-gradient-to-r from-white via-[#F6F2EB] to-[#D4AF37]" : "text-[var(--color-brand-900)] font-bold"}>
-                  {siteName}
-                </span>
-              )}
+              <BrandLogo className="h-14 w-auto rounded-md bg-white sm:h-16" sizes="100px" eager />
+              <span className={`hidden max-w-24 font-sans text-[9px] font-bold leading-tight tracking-wide min-[360px]:block sm:max-w-28 sm:text-[10px] ${isDiwali ? "text-[#D4AF37]" : "text-[#8A1538]"}`}>
+                {BRAND_TAGLINE}
+              </span>
             </Link>
 
             {/* Desktop Navigation (Frozen Architecture) */}
@@ -225,7 +223,7 @@ export function Navbar({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <CollectionsMegaMenu onClose={() => setMegaMenuOpen(false)} />
+              <CollectionsMegaMenu categories={categories} collections={collections} onClose={() => setMegaMenuOpen(false)} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -245,10 +243,11 @@ export function Navbar({ siteLogo = "", siteName = "Fashion Feet" }: { siteLogo?
               <div className="flex justify-between items-center mb-8 border-b border-black/10 pb-4">
                 <Link
                   href="/"
-                  className="font-serif text-2xl font-bold tracking-tight"
+                  className="flex items-center gap-3"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {siteName}
+                  <BrandLogo className="h-20 w-auto rounded-md bg-white" sizes="120px" />
+                  <span className="font-sans text-xs font-semibold tracking-wide text-[#8A1538]">{BRAND_TAGLINE}</span>
                 </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}

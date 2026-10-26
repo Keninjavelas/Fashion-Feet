@@ -1,0 +1,17 @@
+.git/
+.next/
+.next-stale/
+.vercel/
+node_modules/
+apps/admin/.next/
+apps/admin/node_modules/
+artifacts/
+backups/
+intake/
+mobile/
+*.db
+*.db-wal
+*.db-shm
+*.tsbuildinfo
+.env*
+*.log

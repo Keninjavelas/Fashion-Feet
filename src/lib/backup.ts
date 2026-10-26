@@ -4,6 +4,13 @@ import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { execSync } from "child_process";
 const BACKUPS_DIR = path.join(process.cwd(), "backups");
+const managedPostgres = /^postgres(?:ql)?:\/\//.test(process.env.DATABASE_URL || "");
+
+function requireLocalSqlite() {
+  if (managedPostgres || process.env.VERCEL) {
+    throw new Error("Database snapshots are managed by the PostgreSQL provider. Use its console for backups and recovery.");
+  }
+}
 
 /**
  * Ensures the backups directory exists.
@@ -26,6 +33,7 @@ function computeFileSha256(filePath: string): string {
  * Creates an atomic snapshot backup of the SQLite database.
  */
 export async function createDatabaseBackup(adminId?: string) {
+  requireLocalSqlite();
   ensureBackupsDir();
 
   const dbPath = path.join(process.cwd(), "dev.db");
@@ -83,6 +91,7 @@ export async function createDatabaseBackup(adminId?: string) {
  * Lists all database backup records.
  */
 export async function listDatabaseBackups() {
+  requireLocalSqlite();
   ensureBackupsDir();
 
   return await prisma.systemBackup.findMany({
@@ -97,6 +106,7 @@ export async function listDatabaseBackups() {
  * Restores the SQLite database from a specified backup snapshot.
  */
 export async function restoreDatabaseBackup(backupId: string, adminId?: string) {
+  requireLocalSqlite();
   const backup = await prisma.systemBackup.findUnique({ where: { id: backupId } });
   if (!backup) {
     throw new Error(`Backup record ${backupId} not found.`);

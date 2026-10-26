@@ -13,6 +13,10 @@
 
 # Next.js Build Output
 /.next/
+/.next-stale/
+/apps/admin/.next/
+/apps/admin/node_modules/
+/apps/admin/public/uploads/
 /out/
 /build
 
@@ -67,3 +71,5 @@ backups/*.db
 /intake/collections/
 /intake/stores/
 /intake/catalogue.csv
+
+.vercel

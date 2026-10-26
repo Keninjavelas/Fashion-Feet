@@ -3,7 +3,7 @@ import { hashPassword, verifyPassword } from "../lib/adminAuth";
 import { getDraftStorefrontConfig, getPublishedStorefrontConfig, saveDraftStorefrontConfig, publishStorefrontConfig } from "../lib/storefrontConfig";
 import { savePageDraftAction, publishPageConfigAction } from "../app/actions/editor";
 import { generateProductSku } from "../lib/sku";
-import { createEnquiry } from "../app/actions/enquiries";
+import { createEnquiry } from "../app/actions/createEnquiry";
 import { getSeasonalAtmosphere, SUPPORTED_SEASONAL_KEYS } from "../lib/seasonalConstants";
 
 async function runMasterAcceptanceSuite() {
@@ -136,6 +136,7 @@ async function runMasterAcceptanceSuite() {
       endDate: futureDate,
       autoActivate: true,
       autoDisable: true,
+      status: "SCHEDULED",
       enabled: false,
       offerHeading: "Diwali Special — 20% Boutique Celebration Offer <script>alert(1)</script>",
       offerDescription: "Visit our Patiala atelier for bespoke fitting.",
@@ -146,7 +147,7 @@ async function runMasterAcceptanceSuite() {
   });
 
   // Dynamically resolve active festival
-  const { getActiveFestival } = await import("../app/actions/festivals");
+  const { getActiveFestival } = await import("../lib/activeFestival");
   const resolved = await getActiveFestival();
 
   if (!resolved || resolved.theme !== "diwali") {

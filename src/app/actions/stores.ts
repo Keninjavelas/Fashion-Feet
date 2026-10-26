@@ -13,7 +13,7 @@ export async function createStoreAction(formData: FormData) {
     const name = (formData.get("name") as string || "").trim();
     const code = (formData.get("code") as string || "").trim() || null;
     const type = (formData.get("type") as string || "FLAGSHIP").trim();
-    const status = (formData.get("status") as string || "OPEN").trim();
+    const status = (formData.get("status") as string || "DRAFT").trim();
     const city = (formData.get("city") as string || "").trim();
     const state = (formData.get("state") as string || "").trim();
     const country = (formData.get("country") as string || "India").trim();
@@ -31,6 +31,9 @@ export async function createStoreAction(formData: FormData) {
 
     if (!name || !city || !state) {
       return { error: "Store Name, City, and State are required fields." };
+    }
+    if (!["DRAFT", "OPEN", "COMING_SOON", "TEMPORARILY_CLOSED"].includes(status)) {
+      return { error: "Invalid store status." };
     }
 
     if (code) {
@@ -86,7 +89,7 @@ export async function updateStoreAction(storeId: string, formData: FormData) {
     const name = (formData.get("name") as string || "").trim();
     const code = (formData.get("code") as string || "").trim() || null;
     const type = (formData.get("type") as string || "FLAGSHIP").trim();
-    const status = (formData.get("status") as string || "OPEN").trim();
+    const status = (formData.get("status") as string || "DRAFT").trim();
     const city = (formData.get("city") as string || "").trim();
     const state = (formData.get("state") as string || "").trim();
     const country = (formData.get("country") as string || "India").trim();
@@ -104,6 +107,9 @@ export async function updateStoreAction(storeId: string, formData: FormData) {
 
     if (!name || !city || !state) {
       return { error: "Store Name, City, and State are required fields." };
+    }
+    if (!["DRAFT", "OPEN", "COMING_SOON", "TEMPORARILY_CLOSED"].includes(status)) {
+      return { error: "Invalid store status." };
     }
 
     const updated = await prisma.store.update({

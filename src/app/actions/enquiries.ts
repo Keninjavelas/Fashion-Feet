@@ -4,58 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import { logAdminAudit } from "@/lib/audit";
 import { safeRevalidatePath } from "@/lib/revalidate";
-import { checkRateLimit } from "@/lib/rateLimit";
-
-export async function createEnquiry(formData: FormData) {
-  try {
-    // Bot honeypot check: If the hidden honeypot field is filled, silently discard
-    const honeypot = (formData.get("website_hp") as string || "").trim();
-    if (honeypot) {
-      return { success: true, enquiryId: "discarded_bot" };
-    }
-
-    const name = (formData.get("name") as string || "").trim();
-    const email = (formData.get("email") as string || "").trim().toLowerCase();
-    const phone = (formData.get("phone") as string || "").trim() || null;
-    const size = (formData.get("size") as string || "").trim() || null;
-    const color = (formData.get("color") as string || "").trim() || null;
-    const message = (formData.get("message") as string || "").trim() || null;
-    const productId = (formData.get("productId") as string || "").trim() || null;
-    const productSku = (formData.get("productSku") as string || "").trim() || null;
-    const enquiryType = (formData.get("enquiryType") as string || "GENERAL").trim();
-
-    if (!name || !email) {
-      return { error: "Name and Email are required fields." };
-    }
-
-    // Rate limiting: Maximum 5 enquiries per 10 minutes per email
-    const limit = checkRateLimit(`enquiry_${email}`, { maxAttempts: 5, windowMs: 10 * 60 * 1000, lockoutMs: 15 * 60 * 1000 });
-    if (!limit.allowed) {
-      return { error: `Too many fitting requests. Please try again in ${limit.retryAfterSeconds} seconds.` };
-    }
-
-    const enquiry = await prisma.enquiry.create({
-      data: {
-        name,
-        email,
-        phone,
-        size,
-        color,
-        message,
-        productId,
-        productSku,
-        enquiryType,
-        status: "NEW",
-      },
-    });
-
-    safeRevalidatePath("/admin/enquiries");
-    return { success: true, enquiryId: enquiry.id };
-  } catch (error: any) {
-    console.error("Error submitting enquiry:", error);
-    return { error: "Failed to submit enquiry. Please try again later." };
-  }
-}
 
 export async function updateEnquiryStatusAction(enquiryId: string, status: string) {
   const admin = await getAuthenticatedAdmin();

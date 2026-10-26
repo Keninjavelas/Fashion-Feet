@@ -4,19 +4,13 @@ import Link from "next/link";
 import { Sparkles, ArrowRight, ShieldCheck, Heart } from "lucide-react";
 import { useFestival } from "@/components/providers/FestivalProvider";
 
-const collectionCategories = [
-  { name: "Wedding Collection", href: "/shop?category=Wedding", desc: "Bridal Zari, Dabka & Velvet Grandeur", tag: "Royal Ceremonies" },
-  { name: "Festive Showcase", href: "/shop?category=Festive", desc: "Sequin, Pearl & Silver Embellishments", tag: "Celebration Drop" },
-  { name: "Casual Everyday Mojaris", href: "/shop?category=Casual", desc: "Supple Leather & Cushioned Insoles", tag: "Daily Ease" },
-  { name: "Office & Formal Wear", href: "/shop?category=Office", desc: "Subtle Sleek Leather Slip-ons", tag: "Professional" },
-  { name: "Luxury Velvet Vault", href: "/shop?category=Luxury", desc: "Royal Velvet & Pure Zari Craftsmanship", tag: "Prestige" },
-  { name: "Heritage Punjabi Craft", href: "/shop?category=Heritage", desc: "Traditional Hand Embroidery", tag: "Artisanal" },
-  { name: "Best Sellers Showcase", href: "/shop?type=bestsellers", desc: "Most Requested Footwear Pairs", tag: "Popular" },
-];
-
-export function CollectionsMegaMenu({ onClose }: { onClose: () => void }) {
+export function CollectionsMegaMenu({ categories, collections, onClose }: { categories: { name: string; description: string | null }[]; collections: { id: string; title: string; description: string | null }[]; onClose: () => void }) {
   const { activeFestival, preset } = useFestival();
   const isFestiveActive = activeFestival !== "none" && activeFestival !== "default";
+  const menuItems = [
+    ...collections.map((collection) => ({ key: `collection-${collection.id}`, name: collection.title, description: collection.description, href: `/shop?collection=${encodeURIComponent(collection.id)}` })),
+    ...categories.map((category) => ({ key: `category-${category.name}`, name: category.name, description: category.description, href: `/shop?category=${encodeURIComponent(category.name)}` })),
+  ];
 
   return (
     <div className="absolute top-full left-0 w-full bg-[var(--theme-color-surface)] border-b border-[var(--theme-color-border)] shadow-2xl z-50 transition-all duration-300 py-8 text-[var(--theme-color-text)]">
@@ -34,9 +28,9 @@ export function CollectionsMegaMenu({ onClose }: { onClose: () => void }) {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {collectionCategories.map((col) => (
+              {menuItems.map((col) => (
                 <Link
-                  key={col.name}
+                  key={col.key}
                   href={col.href}
                   onClick={onClose}
                   className="p-3.5 rounded-2xl bg-[var(--theme-color-bg)] border border-[var(--theme-color-border)] hover:border-[var(--theme-color-accent)] transition-all hover:-translate-y-0.5 group space-y-1 block shadow-sm"
@@ -45,13 +39,12 @@ export function CollectionsMegaMenu({ onClose }: { onClose: () => void }) {
                     <h4 className="font-serif font-bold text-sm text-[var(--theme-color-text)] group-hover:text-[var(--theme-color-accent)] transition-colors">
                       {col.name}
                     </h4>
-                    <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[var(--theme-color-surface)] text-[var(--theme-color-accent)] border border-[var(--theme-color-border)]">
-                      {col.tag}
-                    </span>
+                      <ArrowRight className="h-3 w-3 text-[var(--theme-color-accent)]" />
                   </div>
-                  <p className="text-xs text-[var(--theme-color-text-muted)] font-light leading-snug">{col.desc}</p>
+                  {col.description && <p className="text-xs text-[var(--theme-color-text-muted)] font-light leading-snug">{col.description}</p>}
                 </Link>
               ))}
+              {menuItems.length === 0 && <Link href="/shop" onClick={onClose} className="rounded-2xl border border-[var(--theme-color-border)] bg-[var(--theme-color-bg)] p-4 text-sm text-[var(--theme-color-text)]">Browse all products</Link>}
             </div>
           </div>
 

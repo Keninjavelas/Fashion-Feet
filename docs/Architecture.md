@@ -1,47 +1,21 @@
-# Fashion Feet Architecture Specification
+# Architecture
 
-## Overview
-**Fashion Feet** is built as an exclusive luxury Punjabi footwear digital experience. The application separates the customer-facing **Storefront** from the internal **Admin Application**.
+Fashion Feet is a two-deployment Next.js 16 application. The public storefront is built from the repository root; the admin dashboard is built from `apps/admin`. Both use shared TypeScript modules under `src/` and the same managed Neon PostgreSQL database in production. `npm run test:isolation` checks the route and Server Action separation after both builds.
 
-## Tech Stack & Core Infrastructure
+## Boundaries
 
-- **Framework**: Next.js 15+ (App Router)
-- **Language**: TypeScript (`strict: true`)
-- **Database ORM**: Prisma ORM with SQLite (`prisma/dev.db`)
-- **Authentication**: NextAuth.js v5 (JWT sessions with Credentials provider)
-- **Styling**: Tailwind CSS v4 with custom CSS variables & theme tokens
-- **Animations**: Framer Motion, HTML5 Canvas particle systems, CSS keyframes
-- **Icons**: Lucide React
-- **Mobile client**: Expo (React Native) + Expo Router + TypeScript (strict) in `mobile/` — consumes `/api/v1` only and never imports from `src/`
+- The storefront serves customer pages, sign-in, contact/product enquiries, Judy, and read-only `/api/v1` content. Its proxy redirects `/admin/*` to the admin origin and rejects admin API/upload paths.
+- The admin origin serves `/admin/*`, `/api/admin/*`, and `/api/upload`. Vercel Authentication gates the deployment, and app-level password, TOTP MFA, database sessions, and role checks protect admin operations. The proxy cookie check is only an early rejection; server actions and routes validate the session independently.
+- The Expo source in `mobile/` reads published data through `/api/v1`. It has no direct database or admin access and has not been released.
 
-## Application Boundaries & Principles
+## Content flow
 
-1. **Boutique Selection Model (No Online Cart / Checkout)**:
-   - Fashion Feet operates as an exclusive luxury boutique showroom where footwear is experienced in person for fit, feel, and finish.
-   - Replaced e-commerce checkout with direct **Product Fitting Enquiries** and **Wishlist / Favorites**.
+Admin changes are written to PostgreSQL. A saved Storefront Studio draft stays private until published. Public pages read published sections, catalogue items, FAQs, stores, and appearance settings on request; an already-open page needs a refresh. Public API responses use whitelisted fields and `Cache-Control: no-store` to avoid serving outdated content after an admin change.
 
-2. **Server/Client Component Separation**:
-   - Page layouts (`StorefrontLayout.tsx`) are async Server Components executing Prisma queries on the server.
-   - Interactive widgets (`EnquiryModal`, `SearchModal`, `InteractiveSizeFinderSection`) are Client Components.
-   - DB adapters (`@prisma/adapter-better-sqlite3`) are isolated from Client Component bundles to prevent runtime errors.
+Admin media uploads use Vercel Blob in production. References to uploaded assets are stored in `MediaAsset` rows; uploading a file alone does not publish it on a page.
 
-3. **Global Seasonal Experience Engine**:
-   - Seasonal presets (`normal`, `diwali`, `holi`, `eid`, `christmas`, `lohri`, `baisakhi`) apply via `data-theme` attribute on the root storefront wrapper.
-   - Dynamic particle overlay canvases render themed ambient effects.
+## Storage and local development
 
-## Clients, the Public API and the Client/Server Boundary
+`prisma/postgres/schema.prisma` and `prisma/postgres/migrations/` are the production schema and migrations. `prisma/schema.prisma` and `prisma/migrations/` support local SQLite development. `src/lib/prisma.ts` chooses the adapter from `DATABASE_URL` and refuses to start a Vercel deployment without PostgreSQL. The local `dev.db` is not a production backup or migration source.
 
-The application has **two clients and one backend**:
-
-1. **Website storefront** — the Next.js App Router pages, which read the database directly through Prisma inside Server Components (see item 2 above).
-2. **Native mobile app** (`mobile/`) — an Expo / React Native client. It has no database access and no server-side privileges of any kind; it is a pure consumer of the public API.
-
-The boundary between them is the public, versioned **`/api/v1`** surface:
-
-- **Served by the same Next.js application.** `src/app/api/v1/**/route.ts` runs in the same process that renders the website, against the same database, so both clients read the same published rows.
-- **Whitelisted responses only.** Every response object is built field by field in `src/lib/publicSerializers.ts`; no Prisma row is spread into a response. Adding a column to the schema therefore cannot widen a public response by accident.
-- **The app never touches the database.** It does not import from `src/`, does not open `dev.db`, does not call a server action and does not use `@prisma/client`.
-- **The app never touches the admin surface.** `/admin` and `/api/admin/*` remain gated to signed-in administrators (§6 of [SecurityHardening.md](SecurityHardening.md)); no route in `mobile/` reaches them.
-- **Read-only.** The surface has no write handler, so a write method is answered with `405`. There is no authentication on it at all — by design, since there is no customer login in the app.
-
-Because the two clients are independent codebases, a change to one does **not** automatically reach the other: the serialised contract is the only coupling, and it is versioned so that a breaking change becomes a new version rather than a broken app already installed on a phone. See [MobileApp.md](MobileApp.md) for the full contract and the trade-offs of the two-codebase model.
+See [AdminDeployment.md](AdminDeployment.md) for deployed origins, [Database.md](Database.md) for migrations, and [API.md](API.md) for public endpoints.

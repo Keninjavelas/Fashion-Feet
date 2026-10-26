@@ -146,7 +146,9 @@ export async function revokeAdminSession(token: string) {
   try {
     await prisma.adminSession.delete({ where: { token } }).catch(() => null);
     const cookieStore = await cookies();
-    cookieStore.delete(ADMIN_COOKIE_NAME);
+    if (cookieStore.get(ADMIN_COOKIE_NAME)?.value === token) {
+      cookieStore.delete(ADMIN_COOKIE_NAME);
+    }
   } catch (err) {
     console.error("revokeAdminSession error:", err);
   }
