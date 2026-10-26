@@ -11,12 +11,7 @@ export default async function WomenCollection() {
       archived: false,
       published: true,
       hidden: false,
-      OR: [
-        { gender: { equals: "Women" } },
-        { gender: { equals: "Unisex" } },
-        { category: { equals: "Women" } },
-        { category: { equals: "Wedding" } }
-      ]
+      gender: { in: ["Women", "Unisex"] }
     },
     include: { images: { take: 1 } },
   }).catch(() => []), getPublishedStorefrontConfig("women")]);
@@ -26,8 +21,9 @@ export default async function WomenCollection() {
     <StorefrontLayout>
       <CollectionPage 
         title="Women's Collection" 
-        description="Step into elegance with our exquisite handcrafted Juttis for women. Featuring intricate embroidery, premium leather, and unparalleled comfort."
+        description="Explore Daily Wear, Festive, and Ceremonial footwear for women."
         products={products}
+        gender="Women"
         section={hero}
         hideHero={hero?.visible === false}
       />

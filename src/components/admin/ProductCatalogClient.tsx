@@ -12,6 +12,7 @@ import {
 } from "@/app/actions/products";
 import { MEDIA_FOLDERS } from "@/lib/mediaConstants";
 import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
+import { CATALOGUES } from "@/lib/catalogues";
 
 interface ProductItem {
   id: string;
@@ -52,11 +53,10 @@ interface Props {
   initialProducts: ProductItem[];
   collections: { id: string; title: string }[];
   categories: { id: string; name: string }[];
-  occasions: { id: string; name: string }[];
   mediaAssets: MediaAsset[];
 }
 
-export function ProductCatalogClient({ initialProducts, collections, categories, occasions, mediaAssets }: Props) {
+export function ProductCatalogClient({ initialProducts, collections, categories, mediaAssets }: Props) {
   const [products, setProducts] = useState<ProductItem[]>(initialProducts);
   const [search, setSearch] = useState("");
   const [filterGender, setFilterGender] = useState("all");
@@ -471,10 +471,10 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                     </div>
 
                     <div>
-                      <label className="block font-bold text-gray-700 uppercase mb-1">Occasion</label>
+                      <label className="block font-bold text-gray-700 uppercase mb-1">Catalogue</label>
                       <select value={formOccasion} onChange={(e) => setFormOccasion(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
-                        <option value="">Select occasion (optional)</option>
-                        {occasions.map((o) => (<option key={o.id} value={o.name}>{o.name}</option>))}
+                        <option value="">Select catalogue</option>
+                        {CATALOGUES.map((catalogue) => (<option key={catalogue.slug} value={catalogue.name}>{catalogue.name}</option>))}
                       </select>
                     </div>
                   </div>

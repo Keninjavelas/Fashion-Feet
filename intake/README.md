@@ -4,7 +4,8 @@ The owner has already supplied the official logo, the **Designer Punjabi Jutties
 
 This folder is for additional verified product, store, policy, and campaign information. Its templates are tracked in Git. Actual files placed in the designated intake asset folders are ignored by Git until they are reviewed and deliberately added through the admin Media Library or checked into a public asset directory.
 
-- `catalogue-template.csv`: duplicate it as `catalogue.csv`, with one row per product. At minimum fill in `title`, `category`, `gender`, `price`, and `imageFiles`. Use the real SKU in `sku` if one exists; otherwise leave it blank for an internally generated code. Keep optional details blank when they are not verified.
+- `catalogue-template.csv`: duplicate it as `catalogue.csv`, with one row per product. At minimum fill in `title`, `category` (product type), `gender`, `catalogue`, `price`, and `imageFiles`. Use the real SKU in `sku` if one exists; otherwise leave it blank for an internally generated code. Keep optional details blank when they are not verified.
+  Set `catalogue` to **Daily Wear**, **Festive**, or **Ceremonial**. Set `gender` to **Men**, **Women**, or **Unisex**. A Unisex item appears in both gender views.
 - `brand-template.md`: use for facts and copy still needing owner confirmation.
 - `stores-template.md`: use only for confirmed physical locations.
 - `products/`: place original product photographs here, ideally in one subfolder per product. List each image's path relative to `products/` in the matching CSV row's `imageFiles` cell; separate multiple paths with semicolons, with the primary photo first. For example, `blue-jutti/front.jpg;blue-jutti/side.jpg`.

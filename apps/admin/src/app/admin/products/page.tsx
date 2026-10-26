@@ -11,14 +11,13 @@ export const metadata = {
 export default async function AdminProductsPage() {
   if (!(await getAuthenticatedAdmin())) redirect("/admin/login");
 
-  const [products, collections, categories, occasions, mediaAssets] = await Promise.all([
+  const [products, collections, categories, mediaAssets] = await Promise.all([
     prisma.product.findMany({
       include: { collection: true, images: true },
       orderBy: { createdAt: "desc" }
     }).catch(() => []),
     prisma.collection.findMany({ select: { id: true, title: true } }).catch(() => []),
     prisma.category.findMany({ select: { id: true, name: true } }).catch(() => []),
-    prisma.occasion.findMany({ select: { id: true, name: true } }).catch(() => []),
     prisma.mediaAsset.findMany({
       select: { id: true, name: true, url: true, folder: true },
       orderBy: { createdAt: "desc" }
@@ -31,7 +30,6 @@ export default async function AdminProductsPage() {
         initialProducts={products as any}
         collections={collections}
         categories={categories}
-        occasions={occasions}
         mediaAssets={mediaAssets}
       />
     </AdminShell>

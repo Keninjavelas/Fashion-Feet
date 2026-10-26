@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Tags, Sparkles, Trash2, ShieldAlert } from "lucide-react";
-import { createCategoryAction, deleteCategoryAction, createOccasionAction, deleteOccasionAction } from "@/app/actions/categories";
+import { Tags, Sparkles, Trash2 } from "lucide-react";
+import { createCategoryAction, deleteCategoryAction } from "@/app/actions/categories";
 
 interface CategoryItem {
   id: string;
@@ -23,8 +23,6 @@ interface OccasionItem {
 export function CategoryOccasionClient({ categories, occasions }: { categories: CategoryItem[]; occasions: OccasionItem[] }) {
   const [catName, setCatName] = useState("");
   const [catDesc, setCatDesc] = useState("");
-  const [occName, setOccName] = useState("");
-  const [occDesc, setOccDesc] = useState("");
 
   const handleAddCategory = async () => {
     if (!catName) return;
@@ -43,28 +41,11 @@ export function CategoryOccasionClient({ categories, occasions }: { categories: 
     else window.location.reload();
   };
 
-  const handleAddOccasion = async () => {
-    if (!occName) return;
-    const fd = new FormData();
-    fd.append("name", occName);
-    fd.append("description", occDesc);
-    const res = await createOccasionAction(fd);
-    if (res.error) alert(res.error);
-    else window.location.reload();
-  };
-
-  const handleDeleteOccasion = async (id: string) => {
-    if (!confirm("Delete occasion?")) return;
-    const res = await deleteOccasionAction(id);
-    if (res.error) alert(res.error);
-    else window.location.reload();
-  };
-
   return (
     <div className="space-y-8 font-sans">
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-        <h1 className="font-serif text-2xl font-bold text-gray-900">Categories & Occasions Studio</h1>
-        <p className="text-xs text-gray-500">Manage core product classifications and occasion groupings with delete protection for active products.</p>
+        <h1 className="font-serif text-2xl font-bold text-gray-900">Product Types & Catalogues</h1>
+        <p className="text-xs text-gray-500">Products have a type, a Men/Women fit, and one of the three business catalogues.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -98,14 +79,11 @@ export function CategoryOccasionClient({ categories, occasions }: { categories: 
         <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b pb-3">
             <h3 className="font-serif text-lg font-bold text-gray-900 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#D4AF37]" /> Occasions ({occasions.length})
+              <Sparkles className="w-5 h-5 text-[#D4AF37]" /> Catalogues ({occasions.length})
             </h3>
           </div>
 
-          <div className="flex gap-2 text-xs">
-            <input type="text" placeholder="New Occasion Name" value={occName} onChange={(e) => setOccName(e.target.value)} className="flex-1 px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#C5A059]" />
-            <button onClick={handleAddOccasion} className="px-4 py-2 bg-[#12080C] text-white font-bold uppercase tracking-wider rounded-xl shrink-0">Add Occasion</button>
-          </div>
+          <p className="text-xs text-gray-500">Each catalogue is available for both Men and Women. Assign a catalogue in the product editor.</p>
 
           <div className="space-y-2">
             {occasions.map((o) => (
@@ -114,7 +92,6 @@ export function CategoryOccasionClient({ categories, occasions }: { categories: 
                   <span className="font-bold text-gray-900 block">{o.name}</span>
                   <span className="text-[10px] text-gray-400 font-mono">slug: {o.slug} &bull; {o.productCount} active products</span>
                 </div>
-                <button onClick={() => handleDeleteOccasion(o.id)} className="p-2 text-rose-500 hover:bg-rose-100 rounded-lg"><Trash2 className="w-4 h-4" /></button>
               </div>
             ))}
           </div>

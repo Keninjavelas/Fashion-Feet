@@ -58,7 +58,9 @@ export function Footer({ siteName = "Fashion Feet", section }: { siteName?: stri
             <ul className="space-y-3.5 text-xs">
               <li><Link href="/men" className="text-white/70 hover:text-[#D4AF37] transition-colors">Men's Collection</Link></li>
               <li><Link href="/women" className="text-white/70 hover:text-[#D4AF37] transition-colors">Women's Collection</Link></li>
-              <li><Link href="/festive" className="text-white/70 hover:text-[#D4AF37] transition-colors">Festive Collection</Link></li>
+              <li><Link href="/shop?catalogue=daily-wear" className="text-white/70 hover:text-[#D4AF37] transition-colors">Daily Wear</Link></li>
+              <li><Link href="/shop?catalogue=festive" className="text-white/70 hover:text-[#D4AF37] transition-colors">Festive</Link></li>
+              <li><Link href="/shop?catalogue=ceremonial" className="text-white/70 hover:text-[#D4AF37] transition-colors">Ceremonial</Link></li>
               <li><Link href="/shop?type=new" className="text-white/70 hover:text-[#D4AF37] transition-colors">New Arrivals</Link></li>
               <li><Link href="/size-guide" className="text-white/70 hover:text-[#D4AF37] transition-colors">Size Guide</Link></li>
             </ul>

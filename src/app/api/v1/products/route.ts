@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { parsePagination, publicGet, readFilter, type ListEnvelope } from "@/lib/publicApi";
 import { serializeProduct, type PublicProduct } from "@/lib/publicSerializers";
+import { findCatalogue } from "@/lib/catalogues";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
  * returned — the same public visibility predicate the homepage
  * uses — so this endpoint cannot become a back door onto drafts or archived SKUs.
  *
- * Query: ?category= ?occasion= ?collection= ?q= ?limit= ?offset=
+ * Query: ?category= ?occasion= ?gender= ?collection= ?q= ?limit= ?offset=
  */
 export async function GET(req: NextRequest) {
   return publicGet(req, async (): Promise<ListEnvelope<PublicProduct>> => {
@@ -35,6 +36,13 @@ export async function GET(req: NextRequest) {
       const name = await resolveOccasionName(occasionParam);
       if (!name) return emptyPage(limit, offset);
       where.occasion = name;
+    }
+
+    const genderParam = readFilter(req, "gender");
+    if (genderParam) {
+      const gender = genderParam.toLowerCase() === "men" ? "Men" : genderParam.toLowerCase() === "women" ? "Women" : null;
+      if (!gender) return emptyPage(limit, offset);
+      where.gender = { in: [gender, "Unisex"] };
     }
 
     const collectionParam = readFilter(req, "collection");
@@ -94,15 +102,7 @@ async function resolveCategoryName(value: string): Promise<string | null> {
 }
 
 async function resolveOccasionName(value: string): Promise<string | null> {
-  const occasions = await prisma.occasion.findMany({
-    where: { active: true },
-    select: { name: true, slug: true },
-  });
-  const needle = value.toLowerCase();
-  const match = occasions.find(
-    (occasion) => occasion.slug.toLowerCase() === needle || occasion.name.toLowerCase() === needle
-  );
-  return match?.name ?? null;
+  return findCatalogue(value)?.name ?? null;
 }
 
 async function resolveCollectionId(value: string): Promise<string | null> {

@@ -12,6 +12,8 @@ Fashion Feet is a Punjabi jutti storefront with a separate administration dashbo
 
 The current deployment steps and remaining DNS records are in [docs/AdminDeployment.md](docs/AdminDeployment.md). The operational checklist is in [docs/ProductionReadiness.md](docs/ProductionReadiness.md).
 
+The product catalogue has three business groupings: **Daily Wear**, **Festive**, and **Ceremonial**. Each can be browsed for Men or Women; Unisex products appear in both. Product photography and prices are still awaiting owner-supplied files in `intake/products/` and `intake/catalogue.csv`.
+
 ## Repository layout
 
 - `src/app/`, `src/components/`: public Next.js storefront and shared components.

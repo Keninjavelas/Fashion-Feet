@@ -5,6 +5,8 @@ The authoritative production schema is `prisma/postgres/schema.prisma`. This pag
 - `User`, `Wishlist`: customer accounts, preferences, and saved products.
 - `AdminUser`, `AdminSession`, `AdminRecoveryCode`, `AdminAuditLog`: separate administrators, database-backed sessions, MFA recovery codes, and audit history.
 - `Product`, `ProductImage`, `Collection`, `Category`, `Occasion`, `Discount`: catalogue and merchandising data. Products have a unique optional `sku` and draft/published/archive state.
+
+For the current business taxonomy, `Product.occasion` stores one of **Daily Wear**, **Festive**, or **Ceremonial**; the field name is retained for compatibility. `Product.gender` stores Men, Women, or Unisex independently, so every catalogue has Men and Women views. `Category` is the product type, while `Collection` remains a separate optional merchandising grouping. The three catalogues are canonical application values and do not depend on rows in the older `Occasion` table.
 - `Store`, `Festival`: physical-location and seasonal experience settings.
 - `Faq`: question, answer, category, pinned flag, and display order. The storefront FAQ page and `/api/v1/faqs` read the same rows.
 - `SiteSetting`, `CompanyContent`, `StorefrontConfig`, `StorefrontConfigHistory`: public appearance/copy and draft/published page compositions with version history.

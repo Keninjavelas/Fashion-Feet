@@ -12,6 +12,7 @@ import { getWishlistCount } from "@/app/actions/wishlist";
 import { useFestival } from "@/components/providers/FestivalProvider";
 import { BRAND_TAGLINE } from "@/lib/branding";
 import { BrandLogo } from "./BrandLogo";
+import { CATALOGUES, catalogueHref } from "@/lib/catalogues";
 
 const links = [
   { name: "Home", href: "/" },
@@ -49,7 +50,7 @@ function WishlistIcon({ isDiwali }: { isDiwali: boolean }) {
   );
 }
 
-export function Navbar({ siteName = "Fashion Feet", categories = [], collections = [] }: { siteName?: string; categories?: { name: string; description: string | null }[]; collections?: { id: string; title: string; description: string | null }[] }) {
+export function Navbar({ siteName = "Fashion Feet" }: { siteName?: string }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -223,7 +224,7 @@ export function Navbar({ siteName = "Fashion Feet", categories = [], collections
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
             >
-              <CollectionsMegaMenu categories={categories} collections={collections} onClose={() => setMegaMenuOpen(false)} />
+              <CollectionsMegaMenu onClose={() => setMegaMenuOpen(false)} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -273,6 +274,17 @@ export function Navbar({ siteName = "Fashion Feet", categories = [], collections
                     </Link>
                   );
                 })}
+
+                <div className="space-y-3 border-b border-black/10 pb-4">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#8A1538]">Shop by catalogue</p>
+                  {CATALOGUES.map((catalogue) => <div key={catalogue.slug} className="flex items-center justify-between gap-3 text-sm">
+                    <span className="font-semibold">{catalogue.name}</span>
+                    <div className="flex gap-2">
+                      <Link href={catalogueHref(catalogue.slug, "Men")} onClick={() => setMobileMenuOpen(false)} className="rounded-full border border-black/15 px-3 py-1">Men</Link>
+                      <Link href={catalogueHref(catalogue.slug, "Women")} onClick={() => setMobileMenuOpen(false)} className="rounded-full border border-black/15 px-3 py-1">Women</Link>
+                    </div>
+                  </div>)}
+                </div>
 
                 {isFestiveActive && (
                   <Link

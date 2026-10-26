@@ -11,11 +11,7 @@ export default async function MenCollection() {
       archived: false,
       published: true,
       hidden: false,
-      OR: [
-        { gender: { equals: "Men" } },
-        { gender: { equals: "Unisex" } },
-        { category: { equals: "Men" } }
-      ]
+      gender: { in: ["Men", "Unisex"] }
     },
     include: { images: { take: 1 } },
   }).catch(() => []), getPublishedStorefrontConfig("men")]);
@@ -25,8 +21,9 @@ export default async function MenCollection() {
     <StorefrontLayout>
       <CollectionPage 
         title="Men's Collection" 
-        description="Discover our premium range of handcrafted Punjabi Juttis for men. Perfect for weddings, festive occasions, and everyday elegance."
+        description="Explore Daily Wear, Festive, and Ceremonial footwear for men."
         products={products}
+        gender="Men"
         section={hero}
         hideHero={hero?.visible === false}
       />

@@ -1,25 +1,24 @@
 import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { publicGet } from "@/lib/publicApi";
-import { serializeOccasion } from "@/lib/publicSerializers";
+import { CATALOGUES } from "@/lib/catalogues";
 
 export const dynamic = "force-dynamic";
 
 /**
  * GET /api/v1/occasions
  *
- * Active occasions only, in display order. Products reference an occasion by
- * name string, so the `name` here is the value to pass back as the
- * `?occasion=` filter on /api/v1/products.
+ * The three business catalogues. Product records store the display name in
+ * their occasion field; the public API keeps the historical endpoint name.
  */
 export async function GET(req: NextRequest) {
   return publicGet(req, async () => {
-    const occasions = await prisma.occasion.findMany({
-      where: { active: true },
-      orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
-    });
-
-    return { data: occasions.map(serializeOccasion) };
+    return { data: CATALOGUES.map((catalogue, displayOrder) => ({
+      id: catalogue.slug,
+      name: catalogue.name,
+      slug: catalogue.slug,
+      description: null,
+      displayOrder,
+    })) };
   });
 }
 

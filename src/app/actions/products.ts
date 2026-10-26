@@ -6,6 +6,7 @@ import { logAdminAudit } from "@/lib/audit";
 import { generateProductSku } from "@/lib/sku";
 import { validateManagedImageUrls, refreshMediaUsage } from "@/lib/media";
 import { revalidatePath } from "next/cache";
+import { findCatalogue } from "@/lib/catalogues";
 
 export async function generateSkuAction(gender?: string, category?: string) {
   const admin = await getAuthenticatedAdmin();
@@ -32,7 +33,10 @@ export async function createProductAction(formData: FormData) {
     const gender = (formData.get("gender") as string || "").trim();
     const material = (formData.get("material") as string || "").trim() || null;
     const colors = (formData.get("colors") as string || "").trim() || null;
-    const occasion = (formData.get("occasion") as string || "").trim() || null;
+    const occasionInput = (formData.get("occasion") as string || "").trim();
+    const catalogue = findCatalogue(occasionInput);
+    if (occasionInput && !catalogue) return { error: "Choose Daily Wear, Festive, or Ceremonial as the catalogue." };
+    const occasion = catalogue?.name || null;
     const care = (formData.get("care") as string || "").trim() || null;
     const sizeGuide = (formData.get("sizeGuide") as string || "").trim() || null;
     const sizes = (formData.get("sizes") as string || "").trim() || null;
@@ -64,8 +68,8 @@ export async function createProductAction(formData: FormData) {
     if (!title || !Number.isFinite(price) || price <= 0) {
       return { error: "Product Title and Display Price are required." };
     }
-    if (status === "PUBLISHED" && (!category || !gender || imageUrls.length === 0)) {
-      return { error: "Choose a product category, fit category, and at least one real product image before publishing." };
+    if (status === "PUBLISHED" && (!category || !gender || !occasion || imageUrls.length === 0)) {
+      return { error: "Choose a product type, fit, catalogue, and at least one real product image before publishing." };
     }
 
     if (!sku) {
@@ -143,7 +147,10 @@ export async function updateProductAction(productId: string, formData: FormData)
     const gender = (formData.get("gender") as string || "").trim();
     const material = (formData.get("material") as string || "").trim() || null;
     const colors = (formData.get("colors") as string || "").trim() || null;
-    const occasion = (formData.get("occasion") as string || "").trim() || null;
+    const occasionInput = (formData.get("occasion") as string || "").trim();
+    const catalogue = findCatalogue(occasionInput);
+    if (occasionInput && !catalogue) return { error: "Choose Daily Wear, Festive, or Ceremonial as the catalogue." };
+    const occasion = catalogue?.name || null;
     const care = (formData.get("care") as string || "").trim() || null;
     const sizeGuide = (formData.get("sizeGuide") as string || "").trim() || null;
     const sizes = (formData.get("sizes") as string || "").trim() || null;
@@ -175,8 +182,8 @@ export async function updateProductAction(productId: string, formData: FormData)
     if (!title || !Number.isFinite(price) || price <= 0) {
       return { error: "Product Title and Display Price are required." };
     }
-    if (status === "PUBLISHED" && (!category || !gender || imageUrls.length === 0)) {
-      return { error: "Choose a product category, fit category, and at least one real product image before publishing." };
+    if (status === "PUBLISHED" && (!category || !gender || !occasion || imageUrls.length === 0)) {
+      return { error: "Choose a product type, fit, catalogue, and at least one real product image before publishing." };
     }
 
     const existingProduct = await prisma.product.findUnique({ where: { id: productId } });

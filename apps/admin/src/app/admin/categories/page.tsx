@@ -3,17 +3,17 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { CategoryOccasionClient } from "@/components/admin/CategoryOccasionClient";
 import { getAuthenticatedAdmin } from "@/lib/adminAuth";
 import { redirect } from "next/navigation";
+import { CATALOGUES } from "@/lib/catalogues";
 
 export const metadata = {
-  title: "Categories & Occasions | Fashion Feet Admin",
+  title: "Product Types & Catalogues | Fashion Feet Admin",
 };
 
 export default async function AdminCategoriesPage() {
   if (!(await getAuthenticatedAdmin())) redirect("/admin/login");
 
-  const [categories, occasions, products] = await Promise.all([
+  const [categories, products] = await Promise.all([
     prisma.category.findMany({ orderBy: { displayOrder: "asc" } }).catch(() => []),
-    prisma.occasion.findMany({ orderBy: { displayOrder: "asc" } }).catch(() => []),
     prisma.product.findMany({ select: { category: true, occasion: true } }).catch(() => [])
   ]);
 
@@ -30,9 +30,12 @@ export default async function AdminCategoriesPage() {
     productCount: categoryCounts[c.name] || 0
   }));
 
-  const occasionItems = occasions.map((o) => ({
-    ...o,
-    productCount: occasionCounts[o.name] || 0
+  const occasionItems = CATALOGUES.map((catalogue) => ({
+    id: catalogue.slug,
+    name: catalogue.name,
+    slug: catalogue.slug,
+    description: null,
+    productCount: occasionCounts[catalogue.name] || 0
   }));
 
   return (
