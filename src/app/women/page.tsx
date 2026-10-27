@@ -19,7 +19,7 @@ export default async function WomenCollection() {
   const hero = sections.find((section) => section.type === "HERO_BANNER");
 
   return (
-    <StorefrontLayout>
+    <StorefrontLayout quietCatalogueBackdrop={products.length === 0}>
       <CollectionPage 
         title="Women's Collection" 
         description="Explore Daily Wear, Festive, and Ceremonial footwear for women."

@@ -48,9 +48,10 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
   const title = searchQuery ? `Search: ${searchQuery}` : catalogue ? `${selectedGender ? `${selectedGender}'s ` : ""}${catalogue.name}` : collection ? collection.title : isNewArrivals ? "New Arrivals" : category ? `${category} Collection` : selectedGender ? `${selectedGender}'s Collection` : "All Products";
   const breadcrumbLabel = searchQuery ? "Search Results" : catalogue?.name || collection?.title || (isNewArrivals ? "New Arrivals" : category || "Shop");
+  const showWomenPhotoGallery = products.length === 0 && selectedGender === "Women" && (!resolvedParams.catalogue || Boolean(catalogue));
 
   return (
-    <StorefrontLayout>
+    <StorefrontLayout quietCatalogueBackdrop={showWomenPhotoGallery}>
       <div className="pt-32 pb-24 min-h-screen bg-[#12080C] text-[#F6F2EB]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <Breadcrumbs items={[{ label: breadcrumbLabel }]} />
@@ -76,7 +77,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             <Link href="/shop" className={`rounded-full border px-4 py-2 text-xs font-bold ${!category ? "border-[#D4AF37] text-[#D4AF37]" : "border-white/20 text-white/70"}`}>All</Link>
             {categories.map((item) => <Link key={item.slug} href={`/shop?category=${encodeURIComponent(item.name)}`} className={`rounded-full border px-4 py-2 text-xs font-bold ${category === item.name ? "border-[#D4AF37] text-[#D4AF37]" : "border-white/20 text-white/70"}`}>{item.name}</Link>)}
           </nav>}
-          {products.length === 0 && selectedGender === "Women" && (!resolvedParams.catalogue || catalogue) ? (
+          {showWomenPhotoGallery ? (
             <div className="mt-10 text-white"><WomenCatalogueGallery selectedCatalogue={catalogue?.slug} /></div>
           ) : (
             <ShopClient initialProducts={products} initialCategory={category} />

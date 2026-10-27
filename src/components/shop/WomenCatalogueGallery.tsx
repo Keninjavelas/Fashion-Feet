@@ -29,21 +29,38 @@ export function WomenCatalogueGallery({ selectedCatalogue }: { selectedCatalogue
             <h3 id={`gallery-${catalogue.slug}`} className="font-serif text-2xl font-bold text-inherit">{catalogue.name}</h3>
             <span className="text-xs opacity-70">{PHOTO_NUMBERS[catalogue.slug].length} photos</span>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
             {PHOTO_NUMBERS[catalogue.slug].map((number) => {
-              const label = `${catalogue.name} photo ${String(number).padStart(2, "0")}`;
+              const photoNumber = String(number).padStart(2, "0");
+              const label = `${catalogue.name} photo ${photoNumber}`;
+              const originalSrc = `/catalogue/women/${catalogue.slug}/${photoNumber}.jpeg`;
+              const isDetail = catalogue.slug === "ceremonial" && number === 5;
               return (
-                <figure key={number} className="overflow-hidden rounded-xl border border-[var(--theme-color-border)] bg-[var(--theme-color-surface)]">
-                  <div className="relative aspect-[4/5]">
-                    <Image
-                      src={`/catalogue/women/${catalogue.slug}/${String(number).padStart(2, "0")}.jpeg`}
-                      alt={`Women's footwear, ${label}`}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="object-contain"
-                    />
-                  </div>
-                  <figcaption className="border-t border-[var(--theme-color-border)] px-3 py-2 text-xs font-medium text-[var(--theme-color-text-muted)]">{label}</figcaption>
+                <figure key={number} className="overflow-hidden rounded-2xl border border-[var(--theme-color-border)] bg-[var(--theme-color-surface)] shadow-sm">
+                  <a
+                    href={originalSrc}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`View original photograph for ${label}`}
+                    className="group block focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--theme-color-accent)]"
+                  >
+                    <div className="catalogue-photo-stage">
+                      <div className="absolute inset-[8%] z-10 transition-transform duration-300 group-hover:scale-[1.03]">
+                        <Image
+                          src={`/catalogue/women/studio/${catalogue.slug}/${photoNumber}.png`}
+                          alt={`Women's footwear, ${label}`}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="catalogue-photo-image"
+                        />
+                      </div>
+                      {isDetail && <span className="absolute left-3 top-3 z-20 rounded-full bg-white/85 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#4a3529]">Detail view</span>}
+                    </div>
+                    <figcaption className="flex min-h-12 items-center justify-between gap-2 border-t border-[var(--theme-color-border)] px-3 py-2 text-xs font-medium text-[var(--theme-color-text-muted)]">
+                      <span>{label}</span>
+                      <span className="shrink-0 text-[10px] text-[var(--theme-color-accent)] underline-offset-2 group-hover:underline">Original</span>
+                    </figcaption>
+                  </a>
                 </figure>
               );
             })}

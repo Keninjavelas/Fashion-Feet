@@ -15,10 +15,12 @@ import { PageTransitionProvider } from "@/components/providers/PageTransitionPro
 
 export async function StorefrontLayout({ 
   children,
-  activeFestivalTheme
+  activeFestivalTheme,
+  quietCatalogueBackdrop = false,
 }: { 
   children: React.ReactNode;
   activeFestivalTheme?: any;
+  quietCatalogueBackdrop?: boolean;
 }) {
   // The admin runs in a separate Next.js deployment. Its revalidatePath calls
   // cannot invalidate this deployment, so public pages read shared data anew
@@ -40,9 +42,9 @@ export async function StorefrontLayout({
       <div data-theme={festivalTheme} className="min-h-screen bg-[var(--theme-color-bg)] text-[var(--theme-color-text)] transition-colors duration-300 subtle-grain-bg relative">
         <ScrollProgressBar />
         <CustomCursor />
-        <RoyalFootprintsAndColorMeshBackground />
+        {!quietCatalogueBackdrop && <RoyalFootprintsAndColorMeshBackground />}
         <SubtleLuxuryBackgroundEffects />
-        <GoldFlakesAndStreamsBackground />
+        {!quietCatalogueBackdrop && <GoldFlakesAndStreamsBackground />}
         <AnnouncementMarqueeBar />
         <Navbar siteName={siteName} />
         <main id="main-content" className="min-h-screen relative z-10">

@@ -263,6 +263,31 @@ html {
 footer[data-style-preset="LIGHT_GOLD"] { background: #302417; }
 footer[data-style-preset="GLASS"] { background: #241825; }
 
+/* A consistent studio surface for owner-supplied catalogue photo previews. */
+.catalogue-photo-stage {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #fffdfa 0%, #f5f0e8 65%, #e9e1d6 100%);
+}
+
+.catalogue-photo-stage::after {
+  content: "";
+  position: absolute;
+  right: 20%;
+  bottom: 6%;
+  left: 20%;
+  height: 8%;
+  border-radius: 50%;
+  background: rgba(83, 57, 39, 0.13);
+  filter: blur(15px);
+}
+
+.catalogue-photo-image {
+  object-fit: contain;
+  filter: drop-shadow(0 10px 12px rgba(76, 48, 30, 0.16));
+}
+
 @media (prefers-reduced-motion: no-preference) {
   @keyframes festival-campaign-pulse {
     0%, 100% { transform: scale(1); }
