@@ -131,7 +131,7 @@ export const DEFAULT_PAGE_CONFIGS: Record<string, StorefrontSection[]> = {
     {
       id: "sec_women_hero",
       type: "HERO_BANNER",
-      badge: "Bridal Couture",
+      badge: "",
       title: "Women's Punjabi Juttis",
       subtitle: "Extravagant Zardozi, Cut-Dana, & Pearl Embroidery",
       ctaText: "Shop Women's",

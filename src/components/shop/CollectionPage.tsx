@@ -15,13 +15,14 @@ interface CollectionPageProps {
   products: any[];
   section?: StorefrontSection;
   hideHero?: boolean;
+  hideHeroBadge?: boolean;
   gender?: "Men" | "Women";
   emptyContent?: ReactNode;
 }
 
 type SortOption = "newest" | "price_asc" | "price_desc" | "popular";
 
-export function CollectionPage({ title, description, products, section, hideHero = false, gender, emptyContent }: CollectionPageProps) {
+export function CollectionPage({ title, description, products, section, hideHero = false, hideHeroBadge = false, gender, emptyContent }: CollectionPageProps) {
   const categories = [...new Set(products.map((product) => product.category).filter(Boolean))].sort() as string[];
   const maxProductPrice = Math.max(5000, Math.ceil(Math.max(...products.map((product) => Number(product.price) || 0), 0) / 500) * 500);
   const [showFilters, setShowFilters] = useState(false);
@@ -75,10 +76,10 @@ export function CollectionPage({ title, description, products, section, hideHero
       {!hideHero && <div className="bg-[var(--theme-color-surface)] py-16 mb-12 border-b border-[var(--theme-color-border)] relative overflow-hidden shadow-sm">
         {section?.image && <div className="absolute inset-0 opacity-15"><Image src={section.image} alt="" fill className="object-cover" /></div>}
         <div className="max-w-7xl mx-auto px-4 md:px-8 text-center space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[var(--theme-color-bg)] text-[var(--theme-color-accent)] rounded-full text-xs uppercase tracking-widest font-bold border border-[var(--theme-color-border)] shadow-sm">
+          {!hideHeroBadge && <div className="inline-flex items-center gap-2 px-3 py-1 bg-[var(--theme-color-bg)] text-[var(--theme-color-accent)] rounded-full text-xs uppercase tracking-widest font-bold border border-[var(--theme-color-border)] shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{section?.badge || "Heritage Collection"}</span>
-          </div>
+          </div>}
           <h1 className="font-serif text-4xl md:text-6xl text-[var(--theme-color-text)] tracking-tight font-bold">
             {section?.title || title}
           </h1>

@@ -28,6 +28,7 @@ export default async function WomenCollection() {
         emptyContent={<WomenCatalogueGallery />}
         section={hero}
         hideHero={hero?.visible === false}
+        hideHeroBadge
       />
     </StorefrontLayout>
   );
