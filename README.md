@@ -14,6 +14,8 @@ The current deployment steps and remaining DNS records are in [docs/AdminDeploym
 
 The product catalogue has three business groupings: **Daily Wear**, **Festive**, and **Ceremonial**. Each can be browsed for Men or Women; Unisex products appear in both. The owner supplied 21 women's footwear photographs, now shown as consistently framed previews with descriptive design names in the three women's galleries. When men's photographs are supplied, their galleries should follow the same presentation standard in [docs/Media.md](docs/Media.md). Confirmed product names, prices, sizes, and availability still need verified entries in `intake/catalogue.csv` before individual products can be published.
 
+The proposed [Interactive Product Stage](display.md) is a future display plan. Revisit it after the Men's section and the rest of the storefront are ready; it is not implemented yet.
+
 ## Repository layout
 
 - `src/app/`, `src/components/`: public Next.js storefront and shared components.
@@ -59,5 +61,6 @@ npx tsc --noEmit
 - [Storefront](docs/Storefront.md), [components](docs/Components.md), [design system](docs/DesignSystem.md), [seasonal experiences](docs/SeasonalExperiences.md), and [media](docs/Media.md).
 - [Admin deployment and security](docs/AdminDeployment.md), [production operations](docs/ProductionReadiness.md), and [mobile app](docs/MobileApp.md).
 - [Content intake](docs/ContentIntake.md), [MFA test history](docs/MfaFlow.md), [security test history](docs/SecurityHardening.md), and [acceptance history](docs/AcceptanceManifest.md).
+- [Interactive Product Stage — future display plan](display.md).
 
 The older reports record what was tested at the time. Use the deployment and operations guides for current production status.
