@@ -2,6 +2,8 @@
 
 Status checked on **26 October 2026**. The storefront and isolated admin dashboard are deployed on Vercel and share Neon PostgreSQL. The storefront is reachable at `https://fashion-feet-storefront.vercel.app`; the admin is at `https://fashion-feet-admin.vercel.app`. This is a live deployment, not the earlier single-process SQLite prototype.
 
+**27 October content update:** The three catalogues (Daily Wear, Festive, Ceremonial) are live for Men and Women. The owner supplied 21 women's footwear photographs for preview galleries. The individual product table remains empty pending verified names, prices, sizes, and availability; gallery photographs must not be described as purchasable listings.
+
 ## Checks already completed
 
 - Both Next.js 16 production builds completed successfully during the separate-deployment work.

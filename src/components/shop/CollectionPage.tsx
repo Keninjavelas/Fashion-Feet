@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import Link from "next/link";
 import { Filter, ChevronDown, Heart, Sparkles } from "lucide-react";
 import Image from "next/image";
@@ -16,11 +16,12 @@ interface CollectionPageProps {
   section?: StorefrontSection;
   hideHero?: boolean;
   gender?: "Men" | "Women";
+  emptyContent?: ReactNode;
 }
 
 type SortOption = "newest" | "price_asc" | "price_desc" | "popular";
 
-export function CollectionPage({ title, description, products, section, hideHero = false, gender }: CollectionPageProps) {
+export function CollectionPage({ title, description, products, section, hideHero = false, gender, emptyContent }: CollectionPageProps) {
   const categories = [...new Set(products.map((product) => product.category).filter(Boolean))].sort() as string[];
   const maxProductPrice = Math.max(5000, Math.ceil(Math.max(...products.map((product) => Number(product.price) || 0), 0) / 500) * 500);
   const [showFilters, setShowFilters] = useState(false);
@@ -94,7 +95,7 @@ export function CollectionPage({ title, description, products, section, hideHero
           {CATALOGUES.map((catalogue) => <Link key={catalogue.slug} href={catalogueHref(catalogue.slug, gender)} className="rounded-full border border-[var(--theme-color-border)] bg-[var(--theme-color-surface)] px-5 py-2.5 text-xs font-bold uppercase tracking-wide text-[var(--theme-color-text)] hover:border-[var(--theme-color-accent)]">{catalogue.name}</Link>)}
         </nav>}
         {/* Top Bar: Filter Toggle and Sort */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-[var(--theme-color-border)] pb-4">
+        {!(products.length === 0 && emptyContent) && <div className="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-[var(--theme-color-border)] pb-4">
           <button 
             onClick={() => setShowFilters(!showFilters)}
             className="flex items-center text-[var(--theme-color-text)] font-bold uppercase tracking-widest text-xs hover:text-[var(--theme-color-accent)] transition-colors"
@@ -122,11 +123,11 @@ export function CollectionPage({ title, description, products, section, hideHero
               <ChevronDown className="w-4 h-4 absolute right-2 pointer-events-none text-[var(--theme-color-text-muted)]" />
             </div>
           </div>
-        </div>
+        </div>}
 
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Sidebar Filters */}
-          {showFilters && (
+          {showFilters && products.length > 0 && (
             <aside className="w-full lg:w-[250px] space-y-8 pr-4 border-r border-[var(--theme-color-border)] lg:shrink-0">
               <div>
                 <h3 className="font-serif text-lg font-bold mb-4 text-[var(--theme-color-accent)]">Category</h3>
@@ -178,6 +179,8 @@ export function CollectionPage({ title, description, products, section, hideHero
                     Clear All Filters
                   </button>
                 </div>
+              ) : emptyContent ? (
+                emptyContent
               ) : (
                 <div className="text-center py-24 bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] shadow-md rounded-2xl flex flex-col items-center p-8">
                   <Sparkles className="w-12 h-12 text-[var(--theme-color-accent)]/40 mb-4" />

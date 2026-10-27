@@ -2,6 +2,7 @@ import { CollectionPage } from "@/components/shop/CollectionPage";
 import { prisma } from "@/lib/prisma";
 import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
 import { getPublishedStorefrontConfig } from "@/lib/storefrontConfig";
+import { WomenCatalogueGallery } from "@/components/shop/WomenCatalogueGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,7 @@ export default async function WomenCollection() {
         description="Explore Daily Wear, Festive, and Ceremonial footwear for women."
         products={products}
         gender="Women"
+        emptyContent={<WomenCatalogueGallery />}
         section={hero}
         hideHero={hero?.visible === false}
       />

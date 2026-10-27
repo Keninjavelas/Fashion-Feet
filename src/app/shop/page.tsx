@@ -4,6 +4,7 @@ import { ShopClient } from "./ShopClient";
 import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
 import Link from "next/link";
 import { CATALOGUES, catalogueHref, findCatalogue } from "@/lib/catalogues";
+import { WomenCatalogueGallery } from "@/components/shop/WomenCatalogueGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -75,7 +76,11 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             <Link href="/shop" className={`rounded-full border px-4 py-2 text-xs font-bold ${!category ? "border-[#D4AF37] text-[#D4AF37]" : "border-white/20 text-white/70"}`}>All</Link>
             {categories.map((item) => <Link key={item.slug} href={`/shop?category=${encodeURIComponent(item.name)}`} className={`rounded-full border px-4 py-2 text-xs font-bold ${category === item.name ? "border-[#D4AF37] text-[#D4AF37]" : "border-white/20 text-white/70"}`}>{item.name}</Link>)}
           </nav>}
-          <ShopClient initialProducts={products} initialCategory={category} />
+          {products.length === 0 && selectedGender === "Women" && (!resolvedParams.catalogue || catalogue) ? (
+            <div className="mt-10 text-white"><WomenCatalogueGallery selectedCatalogue={catalogue?.slug} /></div>
+          ) : (
+            <ShopClient initialProducts={products} initialCategory={category} />
+          )}
         </div>
       </div>
     </StorefrontLayout>

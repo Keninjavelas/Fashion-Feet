@@ -8,6 +8,8 @@ The public site is deployed at `https://fashion-feet-storefront.vercel.app`. `fa
 - `/men`, `/women`, `/shop`, `/product/[id]`: catalogue browsing, product detail, favourites, and product enquiry.
 
 Products use two independent browsing dimensions: the business catalogue (**Daily Wear**, **Festive**, or **Ceremonial**) and fit (**Men**, **Women**, or **Unisex**). `/shop?catalogue=daily-wear&gender=Men` is one of the six Men/Women catalogue views; Unisex items appear in both fit views. `/men` and `/women` link to all three. The product type field remains separate for types such as Jutti or Mojari. The storefront menu and admin product editor use the same three catalogue names.
+
+The women's page and its three catalogue views currently display owner-supplied photo previews while the published product table is empty. These are not individual purchasable listings: no prices, sizes, materials, or stock claims are inferred from photographs. Once product records are published, the standard product cards replace the preview gallery in those views.
 - `/size-guide`, `/about`, `/festive`, `/stores`: fit guidance, brand content, seasonal content, and store status.
 - `/contact`, `/faq`: contact form and database-backed FAQs. The FAQ page and `/api/v1/faqs` read the same PostgreSQL table.
 - `/login`, `/register`, `/profile/*`: customer account pages.

@@ -2,6 +2,8 @@
 
 The owner has already supplied the official logo, the **Designer Punjabi Jutties** tagline, two real past-exhibition photographs, and the contact address `aryan.kapoor@fashionfeet.co.in`. Those assets are checked into `public/branding/` and `public/exhibitions/`; they do not need to be supplied again.
 
+The owner has also supplied 21 labelled women's footwear photographs from the Desktop. They are copied into `products/women/{daily-wear,festive,ceremonial}/` and published as photo previews from `public/catalogue/women/`. The Desktop files remain in place. Festive photos 5 and 7 are identical; Festive photo 1 is also Ceremonial photo 1. Product facts and prices are still missing, so no individual product listing has been created from those images.
+
 This folder is for additional verified product, store, policy, and campaign information. Its templates are tracked in Git. Actual files placed in the designated intake asset folders are ignored by Git until they are reviewed and deliberately added through the admin Media Library or checked into a public asset directory.
 
 - `catalogue-template.csv`: duplicate it as `catalogue.csv`, with one row per product. At minimum fill in `title`, `category` (product type), `gender`, `catalogue`, `price`, and `imageFiles`. Use the real SKU in `sku` if one exists; otherwise leave it blank for an internally generated code. Keep optional details blank when they are not verified.

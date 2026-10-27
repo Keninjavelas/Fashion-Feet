@@ -12,7 +12,7 @@ Fashion Feet is a Punjabi jutti storefront with a separate administration dashbo
 
 The current deployment steps and remaining DNS records are in [docs/AdminDeployment.md](docs/AdminDeployment.md). The operational checklist is in [docs/ProductionReadiness.md](docs/ProductionReadiness.md).
 
-The product catalogue has three business groupings: **Daily Wear**, **Festive**, and **Ceremonial**. Each can be browsed for Men or Women; Unisex products appear in both. Product photography and prices are still awaiting owner-supplied files in `intake/products/` and `intake/catalogue.csv`.
+The product catalogue has three business groupings: **Daily Wear**, **Festive**, and **Ceremonial**. Each can be browsed for Men or Women; Unisex products appear in both. The owner supplied 21 women's footwear photographs, now shown as photo previews in the three women's galleries. Product names, prices, sizes, and availability still need verified entries in `intake/catalogue.csv` before individual products can be published.
 
 ## Repository layout
 
