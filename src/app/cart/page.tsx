@@ -1,46 +1,16 @@
 import Link from "next/link";
-import { Store, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
 
 export default function CartPage() {
   return (
     <StorefrontLayout>
-      <div className="pt-32 pb-24 min-h-screen bg-[var(--color-brand-50)] flex items-center justify-center">
-        <div className="max-w-2xl mx-auto px-4 md:px-8 text-center">
-          <div className="bg-white border border-black/5 shadow-2xl p-10 md:p-16 rounded-xl space-y-6">
-            <div className="w-20 h-20 bg-[var(--color-brand-100)] text-[var(--color-brand-900)] rounded-full flex items-center justify-center mx-auto border border-[var(--color-brand-300)]">
-              <Store className="w-10 h-10" />
-            </div>
-
-            <div className="inline-flex items-center gap-2 text-[var(--color-accent-gold)] uppercase tracking-widest text-xs font-semibold">
-              <Sparkles className="w-4 h-4" /> Digital Showroom Notice
-            </div>
-
-            <h1 className="font-serif text-3xl md:text-4xl text-[var(--color-brand-900)] tracking-tight">
-              Fashion Feet Digital Showroom
-            </h1>
-
-            <p className="text-gray-600 leading-relaxed max-w-lg mx-auto">
-              At Fashion Feet, we believe that handcrafted Punjabi Juttis deserve to be experienced in person. Rather than delivering a product in a box, we invite you to explore our collections online, save your favorite pairs, and enquire about fittings for our upcoming boutique store openings.
-            </p>
-
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/shop"
-                className="w-full sm:w-auto px-8 py-4 bg-[var(--color-brand-900)] text-white font-medium uppercase tracking-widest text-xs hover:bg-[var(--color-accent-gold)] transition-colors flex items-center justify-center gap-2"
-              >
-                Explore Collections <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/stores"
-                className="w-full sm:w-auto px-8 py-4 border border-black/20 text-[var(--color-brand-900)] font-medium uppercase tracking-widest text-xs hover:bg-black/5 transition-colors flex items-center justify-center"
-              >
-                Find a Store
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      <section className="mx-auto flex min-h-[650px] max-w-5xl flex-col justify-center px-6 pb-24 pt-36 text-[var(--theme-color-text)] md:px-8">
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--theme-color-accent)]">Fashion Feet catalogue</p>
+        <h1 className="mt-5 max-w-3xl font-serif text-5xl leading-tight md:text-6xl">Find a pair you love, then ask us about it.</h1>
+        <p className="mt-7 max-w-2xl text-lg leading-relaxed text-[var(--theme-color-text-muted)]">Online checkout is not available yet. Browse the photographed designs, note the design name, and contact Fashion Feet for current prices, sizes, and availability.</p>
+        <div className="mt-9 flex flex-wrap gap-4"><Link href="/women" className="inline-flex min-h-12 items-center gap-2 bg-[var(--theme-color-jewel)] px-6 text-sm font-semibold text-white">Browse designs <ArrowRight className="h-4 w-4" /></Link><Link href="/contact" className="inline-flex min-h-12 items-center border border-[var(--theme-color-border)] px-6 text-sm font-semibold">Contact Fashion Feet</Link></div>
+      </section>
     </StorefrontLayout>
   );
 }

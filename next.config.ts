@@ -65,6 +65,8 @@ const uploadHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Allows an isolated local build when OneDrive keeps the default .next cache open.
+  distDir: process.env.FF_BUILD_DIR || ".next",
   serverExternalPackages: ["@prisma/client", "better-sqlite3", "@prisma/adapter-better-sqlite3", "argon2"],
   images: {
     remotePatterns: [

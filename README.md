@@ -53,6 +53,8 @@ npm run test:isolation
 npx tsc --noEmit
 ```
 
+If OneDrive locks `.next` during a local rebuild, set `FF_BUILD_DIR=build` for both `npm run build` and `npm run test:isolation` in that shell. The production build uses the default directory.
+
 `test:isolation` checks that admin routes and actions are excluded from the storefront build. Production deployment and database migration commands are documented in [docs/AdminDeployment.md](docs/AdminDeployment.md).
 
 ## Documentation
@@ -62,5 +64,6 @@ npx tsc --noEmit
 - [Admin deployment and security](docs/AdminDeployment.md), [production operations](docs/ProductionReadiness.md), and [mobile app](docs/MobileApp.md).
 - [Content intake](docs/ContentIntake.md), [MFA test history](docs/MfaFlow.md), [security test history](docs/SecurityHardening.md), and [acceptance history](docs/AcceptanceManifest.md).
 - [Interactive Product Stage — future display plan](display.md).
+- [Heritage Atelier redesign audit and screenshots](docs/HeritageAtelierAudit.md).
 
 The older reports record what was tested at the time. Use the deployment and operations guides for current production status.

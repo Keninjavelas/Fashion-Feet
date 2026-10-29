@@ -61,6 +61,7 @@ backups/*.db
 
 # Generated Visual Artifacts & Screenshots
 /artifacts/
+/qa-output/
 
 # Task 11 real-content intake. The templates in /intake are tracked; actual assets
 # are not, so dropping brand photography in here cannot pollute the repository.

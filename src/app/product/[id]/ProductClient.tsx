@@ -9,7 +9,6 @@ import { useSession } from "next-auth/react";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EnquiryModal } from "@/components/shop/EnquiryModal";
 import { toggleWishlist } from "@/app/actions/wishlist";
-import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
 
 function Accordion({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -46,7 +45,6 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
   const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
 
-  const [showError, setShowError] = useState(false);
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -63,12 +61,13 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
     const match = savedUserSize.match(/UK\s*\d+/i);
     return match ? match[0].toUpperCase() : "";
   }, [savedUserSize]);
+  const sizes = useMemo(() => String(product.sizes || "").split(",").map((size) => size.trim()).filter(Boolean), [product.sizes]);
 
   useEffect(() => {
     if (savedUkSize && selectedSize === "" && sizes.some((size) => size.toUpperCase() === savedUkSize)) {
       setSelectedSize(savedUkSize);
     }
-  }, [savedUkSize, selectedSize, product.sizes]);
+  }, [savedUkSize, selectedSize, sizes]);
 
 
 
@@ -76,16 +75,16 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
     () =>
       product.images?.length > 0
         ? product.images.map((img: any) => img.url)
-        : [PLACEHOLDER_PRODUCT_IMAGE],
+        : [],
     [product.images]
   );
        
   const activeImage = images[activeImageIndex];
-  const sizes = String(product.sizes || "").split(",").map((size) => size.trim()).filter(Boolean);
   const promoPrice = Number(product.promoPrice);
   const hasPromo = Number.isFinite(promoPrice) && promoPrice > 0 && promoPrice < product.price;
-  const displayPrice = hasPromo ? promoPrice : product.price;
-  const discountPercent = hasPromo ? Math.round((1 - promoPrice / product.price) * 100) : 0;
+  const hasDiscount = !hasPromo && Number(product.discount) > 0;
+  const displayPrice = hasPromo ? promoPrice : hasDiscount ? Math.round(product.price * (1 - product.discount / 100)) : product.price;
+  const discountPercent = hasPromo ? Math.round((1 - promoPrice / product.price) * 100) : hasDiscount ? product.discount : 0;
 
   useEffect(() => {
     try {
@@ -137,7 +136,7 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
               <div
                 className="relative aspect-[4/5] bg-[var(--theme-color-surface)] rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-[var(--theme-color-border)]"
               >
-                <Image src={activeImage} alt={product.title} fill className="object-cover transition-transform duration-700" sizes="(max-width: 1024px) 100vw, 50vw" priority />
+                {activeImage ? <Image src={activeImage} alt={product.title} fill className="object-contain bg-[#eee7de] p-5" sizes="(max-width: 1024px) 100vw, 50vw" priority /> : <p className="p-8 text-center text-[var(--theme-color-text-muted)]">Product photography coming soon</p>}
               </div>
 
               <div className="flex gap-3 overflow-x-auto pb-2" role="listbox" aria-label="Product image gallery thumbnails">
@@ -184,7 +183,7 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
           
           <div className="flex items-center gap-4 mb-8 border-b border-[var(--theme-color-border)] pb-8">
             <span className="font-sans text-3xl font-bold text-[var(--theme-color-text)]">₹{displayPrice.toLocaleString('en-IN')}</span>
-            {hasPromo && (
+            {(hasPromo || hasDiscount) && (
               <>
                 <span className="font-sans text-lg text-[var(--theme-color-text-muted)] line-through">₹{product.price.toLocaleString('en-IN')}</span>
                 <span className="text-xs font-bold uppercase tracking-widest text-white bg-[var(--theme-color-jewel)] px-2.5 py-1 rounded border border-[var(--theme-color-border)] shadow-sm">
@@ -207,18 +206,18 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
                 )}
               </div>
               <Link href="/size-guide" className="flex items-center text-xs font-semibold text-[var(--theme-color-text)] hover:text-[var(--theme-color-accent)] transition-colors">
-                <Ruler className="w-4 h-4 mr-1 text-[var(--theme-color-accent)]" /> Interactive Size Studio
+                <Ruler className="w-4 h-4 mr-1 text-[var(--theme-color-accent)]" /> Measuring guide
               </Link>
             </div>
             
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
               {sizes.map(size => {
-                const isSaved = savedUserSize.toUpperCase().includes(size);
+                const isSaved = savedUserSize.trim().toUpperCase() === size.trim().toUpperCase();
                 const isSelected = selectedSize === size;
                 return (
                   <button
                     key={size}
-                    onClick={() => { setSelectedSize(size); setShowError(false); }}
+                    onClick={() => setSelectedSize(size)}
                     aria-pressed={isSelected}
                     aria-label={`Select size ${size}`}
                     className={`py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all border relative focus:outline-none focus:ring-2 focus:ring-[var(--theme-color-accent)]/40 ${
@@ -235,20 +234,13 @@ export default function ProductClient({ product, initialIsWishlisted = false }: 
                 );
               })}
             </div>
-            {showError && <p className="text-xs text-rose-500 mt-2 font-bold">Please select a size before inquiring.</p>}
           </div>}
 
           {/* Product Inquiry CTA */}
           <div className="space-y-4 mb-8">
             <button 
-              onClick={() => {
-                if (sizes.length > 0 && !selectedSize) {
-                  setShowError(true);
-                  return;
-                }
-                setEnquiryOpen(true);
-              }}
-              aria-label={selectedSize ? `Open product enquiry for size ${selectedSize}` : sizes.length > 0 ? 'Select a size before inquiring' : 'Open product enquiry'}
+              onClick={() => setEnquiryOpen(true)}
+              aria-label={selectedSize ? `Open product enquiry for size ${selectedSize}` : 'Open product enquiry'}
               className="w-full py-4 bg-[var(--theme-color-jewel)] text-white font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all rounded-xl shadow-xl border border-[var(--theme-color-border)] flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[var(--theme-color-accent)]/40"
             >
               <MessageSquare className="w-4 h-4 text-[var(--theme-color-accent)]" /> Submit Product Enquiry

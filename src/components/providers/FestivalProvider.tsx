@@ -1,8 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { SeasonalAmbientOverlays } from "../home/SeasonalAmbientOverlays";
-import { DefaultAmbientEffects } from "../home/DefaultAmbientEffects";
 import { getThemePreset, ThemePreset } from "@/lib/themeTokens";
 
 type FestivalTheme = "none" | "default" | "diwali" | "holi" | "eid" | "christmas" | "lohri" | "baisakhi";
@@ -47,10 +45,6 @@ export function FestivalProvider({
 
   return (
     <FestivalContext.Provider value={{ activeFestival, setActiveFestival, preset }}>
-      {/* Default Evergreen Ambient Background Effects */}
-      {!preset.decorations.particlesEnabled && <DefaultAmbientEffects />}
-      {/* Seasonal Ambient Particle & Visual Overlays */}
-      <SeasonalAmbientOverlays />
       {children}
     </FestivalContext.Provider>
   );

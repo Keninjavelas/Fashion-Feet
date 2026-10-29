@@ -4,7 +4,7 @@ The public site is deployed at `https://fashion-feet-storefront.vercel.app`. `fa
 
 ## Pages
 
-- `/`: homepage with live storefront sections, official brand logo, and two photos from past exhibitions.
+- `/`: homepage with live storefront sections, large footwear photography, official brand logo, and two photos from past exhibitions. Admin-managed content and media still take priority when published.
 - `/men`, `/women`, `/shop`, `/product/[id]`: catalogue browsing, product detail, favourites, and product enquiry.
 
 Products use two independent browsing dimensions: the business catalogue (**Daily Wear**, **Festive**, or **Ceremonial**) and fit (**Men**, **Women**, or **Unisex**). `/shop?catalogue=daily-wear&gender=Men` is one of the six Men/Women catalogue views; Unisex items appear in both fit views. `/men` and `/women` link to all three. The product type field remains separate for types such as Jutti or Mojari. The storefront menu and admin product editor use the same three catalogue names.
@@ -15,7 +15,7 @@ The women's page and its three catalogue views currently display owner-supplied 
 - `/login`, `/register`, `/profile/*`: customer account pages.
 - `/privacy`, `/terms`, `/accessibility`: customer information pages.
 
-`/cart` and `/checkout` exist as routes, but the current business flow is enquiry-led; do not describe them as a complete online purchase service. The store-launch notification form and footer newsletter form currently show UI without a persistent subscription backend and need separate implementation before being promoted as signup channels.
+`/cart` now explains the enquiry-led flow. `/checkout` redirects to `/shop`; the current site does not accept an online order. The previously non-persistent store notification and footer newsletter controls were removed from public pages. The common navigation's contact action opens the real contact page. The Size Studio records a measured foot length for signed-in customers but does not provide a brand-specific size recommendation until a verified chart exists.
 
 ## Live data and customer contact
 
@@ -24,3 +24,5 @@ Product, collection, FAQ, store, festival, and published Studio content are read
 Contact and product enquiry forms write `Enquiry` rows for the admin dashboard. They attempt an outbound notification to `aryan.kapoor@fashionfeet.co.in`; email delivery is pending Resend DNS verification and a production key. The on-screen response distinguishes a saved enquiry from accepted email delivery.
 
 See [Architecture.md](Architecture.md), [API.md](API.md), and [AdminDeployment.md](AdminDeployment.md).
+
+The site-wide visual audit, route inventory, screenshots, verification, and remaining content gaps are in [HeritageAtelierAudit.md](HeritageAtelierAudit.md).

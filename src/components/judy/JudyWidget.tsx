@@ -232,7 +232,7 @@ export function JudyWidget() {
     [history, isLoading, question]
   );
 
-  if (isAdminArea) return null;
+  if (isAdminArea || pathname?.startsWith("/checkout") || pathname === "/cart") return null;
 
   const modeLabel =
     lastSource === "offline"
@@ -250,12 +250,13 @@ export function JudyWidget() {
         type="button"
         onClick={isOpen ? close : open}
         aria-label={isOpen ? "Close Judy, the Fashion Feet assistant" : "Open Judy, the Fashion Feet assistant"}
+        title={isOpen ? "Close Judy" : "Ask Judy"}
         aria-expanded={isOpen}
         aria-controls="judy-panel"
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2 rounded-full bg-[var(--theme-color-jewel)] px-4 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-xl border border-[var(--theme-color-border)] transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--theme-color-accent)]"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--theme-color-jewel)] text-white shadow-lg transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--theme-color-accent)]"
       >
         <MessageCircleQuestion className="h-5 w-5" aria-hidden="true" />
-        <span>{isOpen ? "Close Judy" : "Ask Judy"}</span>
+        <span className="sr-only">{isOpen ? "Close Judy" : "Ask Judy"}</span>
       </button>
 
       {/* Panel */}

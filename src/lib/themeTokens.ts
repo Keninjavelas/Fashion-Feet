@@ -36,24 +36,22 @@ export const themePresets: Record<string, ThemePreset> = {
     isDark: false,
     badgeLabel: "Heritage Collection",
     tokens: {
-      "--color-bg": "#FAF6F0",
+      "--color-bg": "#F7F2EA",
       "--color-surface": "#FFFFFF",
-      "--color-surface-hover": "#F5F0E8",
-      "--color-text": "#1F1A17",
-      "--color-text-muted": "#6B6560",
-      "--color-accent": "#C5A059",
-      "--color-jewel": "#8A1538",
-      "--color-border": "#E5E0D8",
+      "--color-surface-hover": "#F2E9E1",
+      "--color-text": "#281C1B",
+      "--color-text-muted": "#594843",
+      "--color-accent": "#805D2A",
+      "--color-jewel": "#861638",
+      "--color-border": "#D8C9BD",
       "--color-shadow": "rgba(31, 26, 23, 0.08)"
     },
     decorations: {
       particleType: "none",
       particlesEnabled: false,
-      announcementEnabled: true,
+      announcementEnabled: false,
       announcementMessages: [
-        "Handcrafted Punjabi Footwear • Heritage Artistry",
-        "Free Fitting Consultation at Experience Boutiques • Pure Leather Soles",
-        "Worldwide Heritage Shipping • Cushioned Comfort"
+        "Fashion Feet • Designer Punjabi Juttis"
       ],
       heroTreatment: "plain",
       ornamentDividersEnabled: false,

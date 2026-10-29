@@ -1,115 +1,50 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Hand, Feather, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
-import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
-import { BRAND_TAGLINE } from "@/lib/branding";
-import { BrandLogo } from "@/components/layout/BrandLogo";
 import { getPublishedStorefrontConfig } from "@/lib/storefrontConfig";
+import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
 
 export const dynamic = "force-dynamic";
 
 export default async function AboutPage() {
   const sections = await getPublishedStorefrontConfig("about");
   const hero = sections.find((section) => section.type === "HERO_BANNER");
+  const suppliedImage = hero?.image && hero.image !== PLACEHOLDER_HOMEPAGE_IMAGE ? hero.image : undefined;
 
   return (
     <StorefrontLayout>
-      <div className="pt-24 pb-24">
-        {/* Hero Section */}
-        {hero?.visible !== false && <section data-published-section="HERO_BANNER" data-style-preset={hero?.stylePreset || "DARK_ROYAL"} data-motion-preset={hero?.motionPreset || "NONE"} className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 z-0">
-            <div className={`absolute inset-0 z-10 ${hero?.stylePreset === "LIGHT_GOLD" ? "bg-white/50" : "bg-black/40"}`}></div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={hero?.image || PLACEHOLDER_HOMEPAGE_IMAGE}
-              alt="Punjabi Juttis" 
-              className="w-full h-full object-cover"
-            />
+      <div className="bg-[var(--theme-color-bg)] pt-28 text-[var(--theme-color-text)]">
+        {hero?.visible !== false && <section data-published-section="HERO_BANNER" data-style-preset="LIGHT_GOLD" className="mx-auto grid max-w-[1500px] lg:grid-cols-2">
+          <div className="flex flex-col justify-center px-6 py-20 md:px-12 lg:px-20">
+            <p className="mb-5 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--theme-color-accent)]">{hero?.badge || "The Fashion Feet story"}</p>
+            <h1 className="max-w-[11ch] font-serif text-5xl leading-tight md:text-7xl">{hero?.title || "Footwear with a point of view"}</h1>
+            <p className="mt-7 max-w-xl text-lg leading-relaxed text-[var(--theme-color-text-muted)]">{hero?.subtitle || "Punjabi juttis for daily dressing, festive occasions, and ceremonies."}</p>
+            {hero?.description && <p className="mt-4 max-w-xl leading-relaxed text-[var(--theme-color-text-muted)]">{hero.description}</p>}
+            {hero?.ctaText && <Link href={hero.ctaLink || "/women"} className="mt-8 inline-flex min-h-12 w-fit items-center gap-2 border-b border-current text-sm font-semibold">{hero.ctaText}<ArrowRight className="h-4 w-4" /></Link>}
           </div>
-          <div className={`relative z-20 max-w-3xl px-4 text-center ${hero?.stylePreset === "LIGHT_GOLD" ? "text-[#251b18]" : "text-white"}`}>
-            <BrandLogo className="mx-auto mb-6 h-32 w-auto rounded-xl bg-white shadow-xl md:h-40" sizes="(max-width: 768px) 180px, 220px" eager />
-            <p className="mb-3 text-xs font-bold uppercase tracking-widest text-[#D4AF37]">{hero?.badge || BRAND_TAGLINE}</p>
-            <h1 className="font-serif text-5xl md:text-7xl font-bold mb-6">{hero?.title || BRAND_TAGLINE}</h1>
-            <p className={`text-xl font-light md:text-2xl ${hero?.stylePreset === "LIGHT_GOLD" ? "text-[#45372e]" : "text-white/90"}`}>
-              {hero?.subtitle || "Discover Punjabi Juttis that bring together timeless craftsmanship, vibrant design, and contemporary style."}
-            </p>
-            {hero?.description && <p className={`mt-5 text-sm ${hero.stylePreset === "LIGHT_GOLD" ? "text-[#514237]" : "text-white/75"}`}>{hero.description}</p>}
-            {hero?.ctaText && <Link href={hero.ctaLink || "/shop"} className="mt-6 inline-flex bg-[#8A1538] px-6 py-3 text-xs font-bold uppercase tracking-widest text-white">{hero.ctaText}</Link>}
+          <div className="relative min-h-[440px] bg-[#e6d6ce] lg:min-h-[650px]">
+            {suppliedImage ? (
+              // Admin media can use a remote URL outside the Next image allowlist.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={suppliedImage} alt="Fashion Feet collection" className="absolute inset-0 h-full w-full object-cover" />
+            ) : <Image src="/catalogue/women/studio/festive-v2/02.png" alt="Embellished juttis from the Fashion Feet collection" fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-contain p-8" />}
           </div>
         </section>}
 
-        {/* Story & Philosophy */}
-        <section className="py-24 bg-[var(--color-brand-50)]">
-          <div className="container mx-auto px-4 md:px-8 max-w-6xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
-              <div>
-                <h2 className="font-serif text-4xl text-[var(--color-brand-900)] mb-6">Our Story</h2>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  Fashion Feet began with a simple vision: to preserve the rich heritage of handcrafted Indian footwear while adapting it for the modern wardrobe. Every pair of Juttis we offer is shaped by traditional Punjabi craftsmanship.
-                </p>
-                <p className="text-gray-600 leading-relaxed">
-                  We work directly with traditional shoemakers, ensuring fair practices and keeping the beautiful art of hand-embroidery and leather craftsmanship alive in a world of mass production.
-                </p>
-              </div>
-              <div>
-                <h2 className="font-serif text-4xl text-[var(--color-brand-900)] mb-6">The Philosophy</h2>
-                <p className="text-gray-600 leading-relaxed mb-6">
-                  We believe that true luxury lies in authenticity and comfort. A Fashion Feet Jutti is not just an accessory; it is a piece of art meant to be worn, celebrated, and cherished.
-                </p>
-                <p className="text-gray-600 leading-relaxed">
-                  Our designs blend historical motifs with contemporary color palettes, making them the perfect companion for grand weddings, festive celebrations, and elegant everyday wear.
-                </p>
-              </div>
-            </div>
+        <section className="mx-auto grid max-w-7xl gap-12 px-6 py-24 md:px-8 lg:grid-cols-[0.65fr_1fr] lg:gap-24">
+          <div><p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--theme-color-accent)]">Our perspective</p><h2 className="mt-5 font-serif text-4xl leading-tight md:text-5xl">Traditional form, individual expression.</h2></div>
+          <div className="space-y-6 text-lg leading-relaxed text-[var(--theme-color-text-muted)]"><p>Fashion Feet presents Punjabi juttis in a range of colours and styles. The collection moves from easy daily wear to detailed pairs for celebrations and ceremonies.</p><p>The photographs on this site show actual designs from our collection and displays from past exhibitions. Explore the shape, texture, and decorative details before asking us about a particular pair.</p></div>
+        </section>
+
+        <section className="bg-[var(--theme-color-surface)] py-20">
+          <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:px-8 lg:grid-cols-2 lg:gap-20">
+            <div className="relative aspect-square bg-[#eee4d8]"><Image src="/exhibitions/display-tables.jpg" alt="Fashion Feet juttis arranged for a past exhibition" fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" /></div>
+            <div><p className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--theme-color-accent)]">From the archive</p><h2 className="mt-5 font-serif text-4xl md:text-5xl">A collection seen in person.</h2><p className="mt-6 max-w-lg text-lg leading-relaxed text-[var(--theme-color-text-muted)]">Our exhibition photographs capture the variety of styles and colours Fashion Feet has brought together. They remain part of our story as the online catalogue grows.</p><Link href="/#past-exhibitions" className="mt-8 inline-flex min-h-12 items-center gap-2 text-sm font-semibold text-[var(--theme-color-jewel)] underline underline-offset-4">See exhibition photos <ArrowRight className="h-4 w-4" /></Link></div>
           </div>
         </section>
 
-        {/* Visual Section */}
-        <section className="py-24 bg-white border-y border-[var(--color-brand-100)]">
-          <div className="container mx-auto px-4 md:px-8 max-w-6xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[var(--color-brand-50)] rounded-full flex items-center justify-center mb-6 text-[var(--color-brand-900)]">
-                  <Hand className="w-10 h-10" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-serif text-2xl text-[var(--color-brand-900)] mb-3">Tradition</h3>
-                <p className="text-gray-600 max-w-xs">Timeless Punjabi craftsmanship preserved in every stitch.</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[var(--color-brand-50)] rounded-full flex items-center justify-center mb-6 text-[var(--color-brand-900)]">
-                  <Feather className="w-10 h-10" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-serif text-2xl text-[var(--color-brand-900)] mb-3">Style</h3>
-                <p className="text-gray-600 max-w-xs">Elegant designs crafted for every occasion, from weddings to casual outings.</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[var(--color-brand-50)] rounded-full flex items-center justify-center mb-6 text-[var(--color-brand-900)]">
-                  <ShieldCheck className="w-10 h-10" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-serif text-2xl text-[var(--color-brand-900)] mb-3">Variety</h3>
-                <p className="text-gray-600 max-w-xs">Extensive curated collections designed for both men and women.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Explore Section */}
-        <section className="py-24 bg-[var(--color-brand-900)] text-center text-white">
-          <div className="container mx-auto px-4 max-w-2xl">
-            <h2 className="font-serif text-4xl mb-6">Explore Fashion Feet</h2>
-            <p className="text-white/80 mb-12 text-lg">
-              Discover our latest collections and find a pair that speaks to your style.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <Link href="/women" className="px-8 py-4 bg-white text-[var(--color-brand-900)] font-medium uppercase tracking-widest text-sm hover:bg-[var(--color-accent-gold)] hover:text-white transition-colors">
-                Explore Women's
-              </Link>
-              <Link href="/men" className="px-8 py-4 bg-transparent border border-white text-white font-medium uppercase tracking-widest text-sm hover:bg-white hover:text-[var(--color-brand-900)] transition-colors">
-                Explore Men's
-              </Link>
-            </div>
-          </div>
-        </section>
+        <section className="bg-[#281c1b] px-6 py-20 text-center text-white"><h2 className="font-serif text-4xl md:text-5xl">Explore the designs</h2><p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-[#ebdcd3]">Browse the photographed women&apos;s catalogue or get in touch about a style you have seen.</p><div className="mt-8 flex flex-wrap justify-center gap-4"><Link href="/women" className="inline-flex min-h-12 items-center bg-white px-6 text-sm font-semibold text-[#281c1b]">Women&apos;s designs</Link><Link href="/contact" className="inline-flex min-h-12 items-center border border-white px-6 text-sm font-semibold text-white">Contact Fashion Feet</Link></div></section>
       </div>
     </StorefrontLayout>
   );

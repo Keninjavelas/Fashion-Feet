@@ -3,7 +3,7 @@ import { SizeGuideClient } from "./SizeGuideClient";
 
 export const metadata = {
   title: "Size Guide | Fashion Feet",
-  description: "Find your perfect handcrafted Punjabi Jutti size."
+  description: "Measure your feet and ask Fashion Feet about sizing for your chosen Punjabi juttis."
 };
 
 export default function SizeGuidePage() {

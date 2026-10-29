@@ -7,7 +7,6 @@ import { Search, User, Menu, X, Heart, ChevronDown, Send, Sparkles } from "lucid
 import { motion, AnimatePresence } from "framer-motion";
 import { SearchModal } from "./SearchModal";
 import { CollectionsMegaMenu } from "./CollectionsMegaMenu";
-import { EnquiryModal } from "../shop/EnquiryModal";
 import { getWishlistCount } from "@/app/actions/wishlist";
 import { useFestival } from "@/components/providers/FestivalProvider";
 import { BRAND_TAGLINE } from "@/lib/branding";
@@ -55,7 +54,6 @@ export function Navbar({ siteName = "Fashion Feet" }: { siteName?: string }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
-  const [headerEnquiryOpen, setHeaderEnquiryOpen] = useState(false);
 
   const pathname = usePathname();
   const { activeFestival, preset } = useFestival();
@@ -69,13 +67,6 @@ export function Navbar({ siteName = "Fashion Feet" }: { siteName?: string }) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const defaultBoutiqueProduct = {
-    id: "general-boutique-enquiry",
-    title: "Boutique Showroom Custom Fitting & Inquiry",
-    price: 0,
-    category: "Custom Fitting"
-  };
 
   return (
     <>
@@ -203,14 +194,14 @@ export function Navbar({ siteName = "Fashion Feet" }: { siteName?: string }) {
               <WishlistIcon isDiwali={isDiwali} />
 
               {/* DIRECT BOUTIQUE ENQUIRY ACTION BUTTON (Replaces Cart) */}
-              <button
-                onClick={() => setHeaderEnquiryOpen(true)}
-                className="hidden md:flex items-center gap-1.5 px-4 py-2 bg-[#8A1538] hover:bg-[#A81B45] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-md border border-[#D4AF37]/30"
-                title="Send Boutique Fitting Enquiry"
+              <Link
+                href="/contact"
+                className="hidden md:flex items-center gap-1.5 px-4 py-2 bg-[#861638] hover:bg-[#6d112d] text-white text-xs font-bold uppercase tracking-widest transition-colors"
+                title="Contact Fashion Feet"
               >
-                <Send className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span>Boutique Enquiry</span>
-              </button>
+                <Send className="w-3.5 h-3.5" />
+                <span>Contact</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -299,12 +290,13 @@ export function Navbar({ siteName = "Fashion Feet" }: { siteName?: string }) {
               </nav>
 
               <div className="pt-4 border-t border-black/10 flex flex-col gap-3">
-                <button
-                  onClick={() => { setMobileMenuOpen(false); setHeaderEnquiryOpen(true); }}
-                  className="w-full py-3 bg-[#8A1538] text-white text-xs font-bold uppercase tracking-widest text-center rounded-xl shadow flex items-center justify-center gap-2"
+                <Link
+                  href="/contact"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-3 bg-[#861638] text-white text-sm font-semibold text-center flex items-center justify-center gap-2"
                 >
-                  <Send className="w-4 h-4 text-[#D4AF37]" /> Send Boutique Enquiry
-                </button>
+                  <Send className="w-4 h-4" /> Contact Fashion Feet
+                </Link>
 
                 <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center space-x-2 text-sm font-bold justify-center pt-1 text-gray-700">
                   <User className="w-5 h-5 text-[#8A1538]" />
@@ -321,11 +313,6 @@ export function Navbar({ siteName = "Fashion Feet" }: { siteName?: string }) {
         onClose={() => setSearchOpen(false)} 
       />
 
-      <EnquiryModal
-        product={defaultBoutiqueProduct}
-        isOpen={headerEnquiryOpen}
-        onClose={() => setHeaderEnquiryOpen(false)}
-      />
     </>
   );
 }

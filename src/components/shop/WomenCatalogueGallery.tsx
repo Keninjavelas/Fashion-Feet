@@ -86,7 +86,7 @@ export function WomenCatalogueGallery({ selectedCatalogue }: { selectedCatalogue
                     </div>
                     <figcaption className="flex min-h-14 items-center justify-between gap-2 border-t border-[var(--theme-color-border)] px-3 py-2">
                       <span className="font-serif text-sm font-bold leading-tight text-[var(--theme-color-text)]">{name}</span>
-                      <span className="shrink-0 text-[10px] text-[var(--theme-color-accent)] underline-offset-2 group-hover:underline">Original</span>
+                      <span className="shrink-0 text-xs font-semibold text-[var(--theme-color-jewel)] underline-offset-2 group-hover:underline">Original</span>
                     </figcaption>
                   </a>
                 </figure>

@@ -6,21 +6,14 @@ import { getSiteSettingsMap } from "@/lib/siteSettings";
 import { getPublishedStorefrontConfig } from "@/lib/storefrontConfig";
 import { getActiveFestival } from "@/lib/activeFestival";
 import { connection } from "next/server";
-import CustomCursor from "@/components/ui/CustomCursor";
-import { ScrollProgressBar } from "@/components/ui/ScrollProgressBar";
-import { GoldFlakesAndStreamsBackground } from "@/components/home/GoldFlakesAndStreamsBackground";
-import { SubtleLuxuryBackgroundEffects } from "@/components/home/SubtleLuxuryBackgroundEffects";
-import { RoyalFootprintsAndColorMeshBackground } from "@/components/home/RoyalFootprintsAndColorMeshBackground";
 import { PageTransitionProvider } from "@/components/providers/PageTransitionProvider";
 
 export async function StorefrontLayout({ 
   children,
   activeFestivalTheme,
-  quietCatalogueBackdrop = false,
 }: { 
   children: React.ReactNode;
   activeFestivalTheme?: any;
-  quietCatalogueBackdrop?: boolean;
 }) {
   // The admin runs in a separate Next.js deployment. Its revalidatePath calls
   // cannot invalidate this deployment, so public pages read shared data anew
@@ -39,12 +32,7 @@ export async function StorefrontLayout({
 
   return (
     <FestivalProvider initialFestival={festivalTheme}>
-      <div data-theme={festivalTheme} className="min-h-screen bg-[var(--theme-color-bg)] text-[var(--theme-color-text)] transition-colors duration-300 subtle-grain-bg relative">
-        <ScrollProgressBar />
-        <CustomCursor />
-        {!quietCatalogueBackdrop && <RoyalFootprintsAndColorMeshBackground />}
-        <SubtleLuxuryBackgroundEffects />
-        {!quietCatalogueBackdrop && <GoldFlakesAndStreamsBackground />}
+      <div data-theme={festivalTheme} className="min-h-screen bg-[var(--theme-color-bg)] text-[var(--theme-color-text)] transition-colors duration-300 relative">
         <AnnouncementMarqueeBar />
         <Navbar siteName={siteName} />
         <main id="main-content" className="min-h-screen relative z-10">

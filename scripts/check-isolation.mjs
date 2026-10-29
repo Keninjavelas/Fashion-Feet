@@ -5,9 +5,10 @@ function loadJson(path) {
   return JSON.parse(readFileSync(new URL(path, import.meta.url), "utf8"));
 }
 
-const publicRoutes = Object.keys(loadJson("../.next/server/app-paths-manifest.json"));
+const storefrontBuildDir = process.env.FF_BUILD_DIR || ".next";
+const publicRoutes = Object.keys(loadJson(`../${storefrontBuildDir}/server/app-paths-manifest.json`));
 const adminRoutes = Object.keys(loadJson("../apps/admin/.next/server/app-paths-manifest.json"));
-const publicActions = loadJson("../.next/server/server-reference-manifest.json");
+const publicActions = loadJson(`../${storefrontBuildDir}/server/server-reference-manifest.json`);
 const adminActions = loadJson("../apps/admin/.next/server/server-reference-manifest.json");
 
 assert(publicRoutes.some((route) => route === "/shop/page"), "Storefront build is missing the shop");

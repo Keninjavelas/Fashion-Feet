@@ -1,100 +1,66 @@
-"use client";
-
+import Image from "next/image";
 import Link from "next/link";
-import { Sparkles, ArrowRight, Compass } from "lucide-react";
-import { SwayingSilkHeroBackground } from "./SwayingSilkHeroBackground";
-import { ThreeJuttiHeroCanvas } from "../three/ThreeJuttiHeroCanvas";
-import { useFestival } from "@/components/providers/FestivalProvider";
+import { ArrowRight } from "lucide-react";
 import { BRAND_TAGLINE } from "@/lib/branding";
-import { BrandLogo } from "@/components/layout/BrandLogo";
-import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
 import { PLACEHOLDER_HOMEPAGE_IMAGE } from "@/lib/placeholders";
+import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
 
-export function Hero({ section, fallbackImage }: { section?: StorefrontSection; fallbackImage?: string }) {
-  const { activeFestival } = useFestival();
-  const isDiwali = activeFestival === "diwali" || activeFestival === "baisakhi" || activeFestival === "lohri";
-  const isDark = isDiwali || section?.stylePreset === "DARK_ROYAL";
-  const heroImage = section?.image && section.image !== PLACEHOLDER_HOMEPAGE_IMAGE ? section.image : fallbackImage || null;
+const ARCHIVE_HERO = "/catalogue/women/studio/ceremonial-v2/02.png";
+
+export function Hero({
+  section,
+  fallbackImage,
+  hasPublishedProducts = false,
+}: {
+  section?: StorefrontSection;
+  fallbackImage?: string;
+  hasPublishedProducts?: boolean;
+}) {
+  const suppliedImage = section?.image && section.image !== PLACEHOLDER_HOMEPAGE_IMAGE
+    ? section.image
+    : fallbackImage && fallbackImage !== PLACEHOLDER_HOMEPAGE_IMAGE ? fallbackImage : undefined;
+  const primaryHref = !hasPublishedProducts && (!section?.ctaLink || section.ctaLink === "/shop")
+    ? "/women"
+    : section?.ctaLink || "/shop";
 
   return (
-    <section className={`relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-28 pb-20 transition-colors duration-500 ${
-      isDark ? "bg-[#12080C] text-white" : "bg-gradient-to-b from-[#FAF6F0] via-[#F5F0E8] to-[#FAF6F0] text-[#1F1A17]"
-    }`}>
-      {heroImage && (
-        <div className="absolute inset-0 z-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={heroImage} alt="" className="h-full w-full object-cover opacity-25" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#12080C]/80 via-[#12080C]/30 to-transparent" />
-        </div>
-      )}
-      {/* Swaying Silk Displacement Background (Only renders when Diwali mode is active) */}
-      <SwayingSilkHeroBackground />
-
-      {/* Evergreen Light Mode Ambient Aura Glow */}
-      {!isDark && !heroImage && (
-        <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-[#C5A059]/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/3 left-1/4 w-[350px] h-[350px] bg-[#8A1538]/5 rounded-full blur-3xl" />
-        </div>
-      )}
-
-      <div className="container mx-auto px-4 md:px-8 relative z-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        {/* Left Typography Column */}
-        <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
-          <div className="space-y-4">
-            <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs uppercase tracking-widest font-semibold shadow-sm border ${
-              isDark
-                ? "bg-white/10 text-[#D4AF37] border-[#D4AF37]/30 backdrop-blur-md" 
-                : "bg-[#8A1538]/10 text-[#8A1538] border-[#8A1538]/20"
-            }`}>
-              <Sparkles className="w-4 h-4 text-[#8A1538]" />
-              <span>{section?.badge || "Handcrafted Heritage • Punjabi Footwear"}</span>
-            </div>
-
-            <BrandLogo className="mx-auto h-36 w-auto rounded-xl border border-[var(--theme-color-border)] bg-white shadow-lg lg:mx-0 lg:h-44" sizes="(max-width: 1024px) 200px, 240px" eager />
-
-            <p className="font-serif text-lg font-bold text-[#D4AF37]">{BRAND_TAGLINE}</p>
-            <h1 className={`font-serif text-3xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl ${isDark ? "text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#F6F2EB] to-[#D4AF37]" : "text-transparent bg-clip-text bg-gradient-to-r from-[#8A1538] via-[#C5A059] to-[#8A1538]"}`}>
-              {section?.title || "Timeless Elegance in Every Step"}
-            </h1>
-          </div>
-
-          <p className={`text-base sm:text-xl font-sans max-w-xl mx-auto lg:mx-0 leading-relaxed font-light ${
-            isDark ? "text-[#F6F2EB]/90" : "text-[#1F1A17]/80"
-          }`}>
-            {section?.subtitle || "Step into Punjabi footwear artistry. Crafted from genuine leather, gold zari threadwork, and double velvet arch comfort."}
+    <section className="relative isolate overflow-hidden bg-[var(--theme-color-bg)] text-[var(--theme-color-text)]">
+      <div className="mx-auto grid min-h-[680px] max-w-[1600px] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="flex flex-col justify-center px-6 pb-14 pt-36 sm:px-12 lg:px-16 lg:pb-20 lg:pt-28">
+          <div className="mb-8 h-px w-16 bg-[var(--theme-color-accent)]" aria-hidden="true" />
+          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--theme-color-accent)]">
+            {section?.badge || BRAND_TAGLINE}
           </p>
-
-          {section?.description && <p className={`mx-auto max-w-xl text-sm lg:mx-0 ${isDark ? "text-white/70" : "text-[#1F1A17]/70"}`}>{section.description}</p>}
-
-          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-            <Link
-              href={section?.ctaLink || "/shop"}
-              className="w-full sm:w-auto px-8 py-4 bg-[#8A1538] text-white font-bold uppercase tracking-widest text-xs hover:bg-[#A81B45] transition-all duration-300 rounded-xl shadow-xl flex items-center justify-center gap-2 hover:-translate-y-0.5"
-            >
-              {section?.ctaText || "Explore Showroom"} <ArrowRight className="w-4 h-4 text-[#C5A059]" />
+          <h1 className="max-w-[12ch] font-serif text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl xl:text-7xl">
+            {section?.title || "Punjabi Juttis, Beautifully Made"}
+          </h1>
+          <p className="mt-7 max-w-lg text-base leading-relaxed text-[var(--theme-color-text-muted)] sm:text-lg">
+            {section?.subtitle || "Discover Fashion Feet designs for everyday moments, celebrations, and ceremonies."}
+          </p>
+          {section?.description && <p className="mt-3 max-w-lg text-sm leading-relaxed text-[var(--theme-color-text-muted)]">{section.description}</p>}
+          <div className="mt-9 flex flex-wrap items-center gap-4">
+            <Link href={primaryHref} className="inline-flex min-h-12 items-center gap-3 rounded-sm bg-[var(--theme-color-jewel)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:opacity-90">
+              {section?.ctaText || "Explore the designs"} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-            <Link
-              href="/stores"
-              className={`w-full sm:w-auto px-8 py-4 font-bold uppercase tracking-widest text-xs transition-all duration-300 rounded-xl border flex items-center justify-center gap-2 ${
-                isDark ? "bg-white/10 text-white border-white/15 hover:bg-white/20" : "bg-white text-[#1F1A17] border-black/10 hover:border-black/30 shadow-sm"
-              }`}
-            >
-              <Compass className="w-4 h-4 text-[#C5A059]" /> Experience Stores
+            <Link href="/about" className="inline-flex min-h-12 items-center border-b border-current px-1 text-sm font-semibold hover:text-[var(--theme-color-accent)]">
+              Our story
             </Link>
           </div>
         </div>
 
-        {/* Right High-Res Real 3D Jutti Hero Canvas */}
-        <div className="lg:col-span-5 flex justify-center">
-          <ThreeJuttiHeroCanvas aspectRatio={4 / 3} />
+        <div className="relative flex min-h-[440px] items-center justify-center bg-[#e6d6ce] px-5 py-10 sm:px-10 lg:min-h-full">
+          <div className="absolute inset-5 border border-[#8a1538]/15 sm:inset-8" aria-hidden="true" />
+          <div className="relative h-[390px] w-full max-w-[700px] sm:h-[540px] lg:h-[620px]">
+            {suppliedImage ? (
+              // Admin-managed hero media can be hosted outside the Next image allowlist.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={suppliedImage} alt="Fashion Feet featured footwear" className="h-full w-full object-contain" />
+            ) : (
+              <Image src={ARCHIVE_HERO} alt="Gold embellished Punjabi juttis from the Fashion Feet catalogue" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-contain drop-shadow-[0_24px_24px_rgba(40,28,27,0.18)]" />
+            )}
+          </div>
+          {!suppliedImage && <p className="absolute bottom-7 left-8 text-xs font-medium text-[#4d3730] sm:left-12">From the Fashion Feet collection · <Link href="/women" className="underline underline-offset-4">View women&apos;s designs</Link></p>}
         </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center text-gray-400">
-        <span className="text-[10px] uppercase tracking-widest mb-1.5 font-bold text-[#C5A059]">Scroll to explore</span>
-        <div className="w-px h-10 bg-gradient-to-b from-[#C5A059] to-transparent animate-pulse" />
       </div>
     </section>
   );

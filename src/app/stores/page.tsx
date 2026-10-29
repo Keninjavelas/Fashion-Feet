@@ -15,47 +15,9 @@ export default async function FindAStorePage() {
   if (stores.length === 0) {
     return (
       <StorefrontLayout>
-        <div className="min-h-screen bg-[var(--color-brand-50)] pt-32 pb-24 flex items-center justify-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
-          <div className="absolute -left-64 -bottom-64 w-[500px] h-[500px] bg-[var(--color-brand-200)] rounded-full blur-3xl opacity-50"></div>
-          <div className="absolute -right-64 -top-64 w-[500px] h-[500px] bg-[var(--color-accent-gold)] rounded-full blur-3xl opacity-20"></div>
-
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-2xl mx-auto bg-white p-10 md:p-16 border border-black/5 shadow-2xl shadow-[var(--color-brand-900)]/5 text-center">
-              <div className="w-16 h-16 mx-auto bg-[var(--color-brand-100)] rounded-full flex items-center justify-center mb-8 text-[var(--color-brand-900)]">
-                <MapPin className="w-8 h-8 text-[var(--color-accent-gold)]" />
-              </div>
-
-              <p className="text-[var(--color-brand-900)] font-medium uppercase tracking-widest text-sm mb-4">Experience Showrooms</p>
-              <h1 className="font-serif text-4xl md:text-5xl text-[var(--color-brand-900)] mb-6 leading-tight">
-                Fashion Feet is coming <br className="hidden md:block"/>closer to you.
-              </h1>
-              
-              <p className="text-gray-600 text-lg mb-12">
-                We are actively working on bringing the premium Fashion Feet experience to physical locations near you.
-              </p>
-
-              <div className="bg-[var(--color-brand-50)] p-8 border border-[var(--color-brand-100)] text-left">
-                <h3 className="font-serif text-2xl text-[var(--color-brand-900)] mb-2 text-center">Stores Coming Soon</h3>
-                <p className="text-gray-500 text-sm mb-6 text-center">Get notified the moment we open our first flagship experience center.</p>
-                
-                <form className="flex flex-col sm:flex-row gap-4">
-                  <input 
-                    type="email" 
-                    placeholder="your@email.com" 
-                    className="flex-1 border border-black/10 p-4 focus:outline-none focus:border-[var(--color-brand-900)] bg-white text-black"
-                    required
-                  />
-                  <button 
-                    type="button" 
-                    className="px-8 py-4 bg-[var(--color-brand-900)] text-white font-medium uppercase tracking-widest text-sm hover:bg-[var(--color-accent-gold)] transition-colors flex items-center justify-center whitespace-nowrap"
-                  >
-                    Notify Me <ArrowRight className="w-4 h-4 ml-2" />
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
+        <div className="mx-auto grid min-h-[650px] max-w-7xl items-center gap-12 bg-[var(--theme-color-bg)] px-6 pb-24 pt-36 text-[var(--theme-color-text)] md:px-8 lg:grid-cols-2">
+          <div><p className="mb-5 text-sm font-semibold uppercase tracking-widest text-[var(--theme-color-accent)]">Experience Fashion Feet</p><h1 className="font-serif text-5xl leading-tight md:text-6xl">See the collection from wherever you are.</h1><p className="mt-7 max-w-xl text-lg leading-relaxed text-[var(--theme-color-text-muted)]">There are no confirmed Fashion Feet store locations listed at present. Explore the photographed designs online and contact us about a pair.</p><div className="mt-8 flex flex-wrap gap-4"><Link href="/women" className="inline-flex min-h-12 items-center gap-2 bg-[var(--theme-color-jewel)] px-6 text-sm font-semibold text-white">View designs <ArrowRight className="h-4 w-4" /></Link><Link href="/contact" className="inline-flex min-h-12 items-center border border-[var(--theme-color-border)] px-6 text-sm font-semibold">Contact us</Link></div></div>
+          <div className="relative aspect-[4/3] overflow-hidden bg-[#e6d6ce]"><Image src="/exhibitions/display-shelves.jpg" alt="Juttis displayed on shelves at a past Fashion Feet exhibition" fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" /></div>
         </div>
       </StorefrontLayout>
     );
@@ -72,7 +34,7 @@ export default async function FindAStorePage() {
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl text-white font-medium">Find A Fashion Feet Store</h1>
             <p className="text-white/70 text-sm max-w-xl mx-auto">
-              Visit our flagship heritage showrooms to experience handcrafted Punjabi Juttis, personalized size fitting, and bespoke embroidery consultations.
+              Browse confirmed locations and their published opening information below.
             </p>
           </div>
         </div>

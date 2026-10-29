@@ -14,8 +14,8 @@
   --color-brand-800: #422921;
   --color-brand-900: #2b1812;
 
-  --color-accent-gold: #c5a059;
-  --color-accent-burgundy: #8a1538;
+  --color-accent-gold: #b28a43;
+  --color-accent-burgundy: #861638;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
@@ -23,18 +23,18 @@
 
 /* Default Theme: Pristine Warm Ivory Light Atelier */
 :root, [data-theme="default"] {
-  --theme-color-bg: #FAF6F0;
+  --theme-color-bg: #F7F2EA;
   --theme-color-surface: #FFFFFF;
-  --theme-color-surface-hover: #F5F0E8;
-  --theme-color-text: #1F1A17;
-  --theme-color-text-muted: #6B6560;
-  --theme-color-accent: #C5A059;
-  --theme-color-jewel: #8A1538;
-  --theme-color-border: #E5E0D8;
+  --theme-color-surface-hover: #F2E9E1;
+  --theme-color-text: #281C1B;
+  --theme-color-text-muted: #594843;
+  --theme-color-accent: #805D2A;
+  --theme-color-jewel: #861638;
+  --theme-color-border: #D8C9BD;
   --theme-color-shadow: rgba(31, 26, 23, 0.06);
 
-  --background: #FAF6F0;
-  --foreground: #1F1A17;
+  --background: #F7F2EA;
+  --foreground: #281C1B;
 }
 
 /* Diwali Festival Preset */
@@ -247,7 +247,7 @@ html {
   --theme-color-surface: #fffdf9;
   --theme-color-text: #251b18;
   --theme-color-text-muted: #6b5e58;
-  --theme-color-accent: #9a7022;
+  --theme-color-accent: #805d2a;
   --theme-color-border: #e5d9c7;
 }
 

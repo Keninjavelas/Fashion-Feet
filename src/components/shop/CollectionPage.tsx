@@ -210,7 +210,7 @@ function ProductCard({ product }: { product: any }) {
   return (
     <StorefrontTiltCard className="bg-[var(--theme-color-surface)] border border-[var(--theme-color-border)] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all group flex flex-col justify-between">
       <div 
-        className="relative aspect-[4/5] bg-black/5 overflow-hidden"
+        className="relative aspect-[4/5] bg-[#eee7de] overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -220,7 +220,7 @@ function ProductCard({ product }: { product: any }) {
             alt={product.title} 
             fill 
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105" 
+            className="object-contain p-4 transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-black/5">
@@ -270,9 +270,9 @@ function ProductCard({ product }: { product: any }) {
           <Link href={`/product/${product.id}`}>{product.title}</Link>
         </h3>
         <div className="flex items-center gap-2 pt-1 font-mono">
-          <span className="font-bold text-sm text-[var(--theme-color-text)]">₹{product.price.toLocaleString('en-IN')}</span>
+          <span className="font-bold text-sm text-[var(--theme-color-text)]">₹{Math.round(product.price * (1 - (product.discount || 0) / 100)).toLocaleString('en-IN')}</span>
           {(product.discount ?? 0) > 0 && (
-            <span className="text-xs text-[var(--theme-color-text-muted)] line-through">₹{Math.round(product.price * (1 + product.discount/100)).toLocaleString('en-IN')}</span>
+            <span className="text-xs text-[var(--theme-color-text-muted)] line-through">₹{product.price.toLocaleString('en-IN')}</span>
           )}
         </div>
       </div>

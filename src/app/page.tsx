@@ -12,11 +12,9 @@ import { Hero } from "@/components/home/Hero";
 import { CraftsmanshipScrollStory } from "@/components/home/CraftsmanshipScrollStory";
 import { HeritageArtistrySection } from "@/components/home/HeritageArtistrySection";
 import { PastExhibitions } from "@/components/home/PastExhibitions";
-import { VirtualShowroom } from "@/components/home/VirtualShowroom";
 import { FeaturedCollections } from "@/components/home/FeaturedCollections";
 import { TrendingProducts } from "@/components/home/TrendingProducts";
 import { InteractiveSizeFinderSection } from "@/components/home/InteractiveSizeFinderSection";
-import { Features } from "@/components/home/Features";
 import { FestivalOverlay } from "@/components/home/FestivalOverlay";
 import Link from "next/link";
 import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
@@ -27,17 +25,21 @@ function PublishedHomepageSection({
   section,
   images,
   collections,
-  hasCollectionRecords
+  hasCollectionRecords,
+  hasPublishedProducts,
+  hasStores,
 }: {
   section: StorefrontSection;
   images: { heroImage?: string; artisanImage1?: string; artisanImage2?: string; collectionWedding?: string; collectionFestive?: string; collectionCasual?: string };
   collections: { id: string; title: string; description: string | null; banner: string | null; thumbnail: string | null }[];
   hasCollectionRecords: boolean;
+  hasPublishedProducts: boolean;
+  hasStores: boolean;
 }) {
   let content: React.ReactNode;
   switch (section.type) {
     case "HERO_BANNER":
-      content = <Hero section={section} fallbackImage={images.heroImage} />;
+      content = <Hero section={section} fallbackImage={images.heroImage} hasPublishedProducts={hasPublishedProducts} />;
       break;
     case "FEATURED_COLLECTIONS":
       content = <FeaturedCollections section={section} publishedCollections={collections} hasCollectionRecords={hasCollectionRecords} collectionWedding={images.collectionWedding} collectionFestive={images.collectionFestive} collectionCasual={images.collectionCasual} />;
@@ -53,14 +55,14 @@ function PublishedHomepageSection({
       break;
     case "STORES_PROMO":
       content = (
-        <section className="bg-[var(--theme-color-surface)] px-4 py-16 text-center text-[var(--theme-color-text)]">
+        <section className="bg-[#f7f2ea] px-4 py-20 text-center text-[#281c1b]">
           <div className="mx-auto max-w-3xl space-y-4">
-            {section.badge && <p className="text-xs font-bold uppercase tracking-widest text-[var(--theme-color-accent)]">{section.badge}</p>}
-            <h2 className="font-serif text-3xl font-bold md:text-5xl">{section.title}</h2>
-            {section.subtitle && <p className="text-[var(--theme-color-text-muted)]">{section.subtitle}</p>}
-            {section.description && <p className="text-sm text-[var(--theme-color-text-muted)]">{section.description}</p>}
-            <Link href={section.ctaLink || "/stores"} className="inline-flex rounded-xl bg-[#8A1538] px-6 py-3 text-xs font-bold uppercase tracking-widest text-white">
-              {section.ctaText || "Explore Stores"}
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#805d2a]">{hasStores ? section.badge : "Discover Fashion Feet"}</p>
+            <h2 className="font-serif text-3xl font-bold md:text-5xl">{hasStores ? section.title : "Explore the photographed collection"}</h2>
+            <p className="text-base text-[#594843]">{hasStores ? section.subtitle : "Our designs are available to view online while store details are being confirmed."}</p>
+            {hasStores && section.description && <p className="text-sm text-[#594843]">{section.description}</p>}
+            <Link href={hasStores ? section.ctaLink || "/stores" : "/women"} className="inline-flex min-h-12 items-center bg-[#861638] px-6 text-sm font-semibold text-white">
+              {hasStores ? section.ctaText || "Explore Stores" : "View women's designs"}
             </Link>
           </div>
         </section>
@@ -78,7 +80,7 @@ function PublishedHomepageSection({
 }
 
 export default async function Home() {
-  const [siteSettings, activeFestival, featuredProducts, publishedSections, publishedCollections, collectionCount] = await Promise.all([
+  const [siteSettings, activeFestival, featuredProducts, publishedSections, publishedCollections, storeCount] = await Promise.all([
     getSiteSettingsMap(),
     getActiveFestival(),
     prisma.product.findMany({
@@ -92,7 +94,7 @@ export default async function Home() {
       select: { id: true, title: true, description: true, banner: true, thumbnail: true },
       orderBy: [{ displayOrder: "asc" }, { title: "asc" }]
     }).catch(() => []),
-    prisma.collection.count({ where: { status: { not: "DRAFT" } } }).catch(() => 0)
+    prisma.store.count({ where: { status: { in: ["OPEN", "COMING_SOON", "TEMPORARILY_CLOSED"] } } }).catch(() => 0)
   ]);
 
   const heroImage = siteSettings["branding.heroImage"];
@@ -113,13 +115,13 @@ export default async function Home() {
           section={section}
           images={{ heroImage, artisanImage1, artisanImage2, collectionWedding, collectionFestive, collectionCasual }}
           collections={publishedCollections}
-          hasCollectionRecords={collectionCount > 0}
+          hasCollectionRecords={publishedCollections.length > 0}
+          hasPublishedProducts={featuredProducts.length > 0}
+          hasStores={storeCount > 0}
         />
       ))}
       <CraftsmanshipScrollStory />
       <PastExhibitions />
-      <VirtualShowroom products={featuredProducts} />
-      <Features />
     </StorefrontLayout>
   );
 }
