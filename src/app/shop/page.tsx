@@ -3,8 +3,9 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ShopClient } from "./ShopClient";
 import { StorefrontLayout } from "@/components/layout/StorefrontLayout";
 import Link from "next/link";
-import { CATALOGUES, catalogueHref, findCatalogue } from "@/lib/catalogues";
+import { catalogueAvailableForGender, cataloguesForGender, catalogueHref, findCatalogue } from "@/lib/catalogues";
 import { WomenCatalogueGallery } from "@/components/shop/WomenCatalogueGallery";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +14,10 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const category = resolvedParams.category;
   const collectionId = resolvedParams.collection;
   const gender = resolvedParams.gender;
-  const selectedGender = gender === "Men" || gender === "Women" ? gender : undefined;
+  let selectedGender: "Men" | "Women" | undefined = gender === "Men" || gender === "Women" ? gender : undefined;
   const catalogue = findCatalogue(resolvedParams.catalogue);
+  if (catalogue && !catalogueAvailableForGender(catalogue.slug, selectedGender)) redirect("/shop?gender=Men");
+  if (catalogue?.slug === "rajwadi") selectedGender = "Women";
   const isNewArrivals = resolvedParams.type === "new";
   const searchQuery = resolvedParams.q;
 
@@ -67,14 +70,14 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
           <nav aria-label="Shop catalogues" className="mb-8 flex flex-wrap justify-center gap-2">
             <Link href={selectedGender ? `/shop?gender=${selectedGender}` : "/shop"} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${!catalogue ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>All Catalogues</Link>
-            {CATALOGUES.map((item) => <Link key={item.slug} href={catalogueHref(item.slug, selectedGender)} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${catalogue?.slug === item.slug ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>{item.name}</Link>)}
+            {cataloguesForGender(selectedGender).map((item) => <Link key={item.slug} href={catalogueHref(item.slug, selectedGender)} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${catalogue?.slug === item.slug ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>{item.name}</Link>)}
           </nav>
           <nav aria-label="Shop by fit" className="mb-8 flex flex-wrap justify-center gap-2">
-            <Link href={catalogue ? catalogueHref(catalogue.slug) : "/shop"} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${!selectedGender ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>All Fits</Link>
-            {(["Men", "Women"] as const).map((fit) => <Link key={fit} href={catalogue ? catalogueHref(catalogue.slug, fit) : `/shop?gender=${fit}`} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${selectedGender === fit ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>{fit}</Link>)}
+            {catalogue?.slug !== "rajwadi" && <Link href={catalogue ? catalogueHref(catalogue.slug) : "/shop"} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${!selectedGender ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>All Fits</Link>}
+            {(["Men", "Women"] as const).filter((fit) => !catalogue || catalogueAvailableForGender(catalogue.slug, fit)).map((fit) => <Link key={fit} href={catalogue ? catalogueHref(catalogue.slug, fit) : `/shop?gender=${fit}`} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${selectedGender === fit ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>{fit}</Link>)}
           </nav>
 
-          {categories.length > 0 && <nav aria-label="Shop categories" className="flex flex-wrap justify-center gap-2">
+          {categories.length > 0 && !showWomenPhotoGallery && <nav aria-label="Shop categories" className="flex flex-wrap justify-center gap-2">
             <Link href="/shop" className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${!category ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>All</Link>
             {categories.map((item) => <Link key={item.slug} href={`/shop?category=${encodeURIComponent(item.name)}`} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${category === item.name ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>{item.name}</Link>)}
           </nav>}

@@ -31,6 +31,15 @@ const DESIGNS: Record<(typeof CATALOGUES)[number]["slug"], readonly { number: nu
     { number: 4, name: "Blush Filigree" },
     { number: 5, name: "Golden Constellation" },
   ],
+  rajwadi: [
+    { number: 1, name: "Sunflower Beads" },
+    { number: 2, name: "Marigold Medallions" },
+    { number: 3, name: "Carved Floral Duo" },
+    { number: 4, name: "Silver Ribbon" },
+    { number: 5, name: "Colourful Medallions" },
+    { number: 6, name: "Shell Blossoms" },
+    { number: 7, name: "Bright Mosaic" },
+  ],
 };
 
 export function WomenCatalogueGallery({ selectedCatalogue }: { selectedCatalogue?: string }) {
@@ -58,6 +67,8 @@ export function WomenCatalogueGallery({ selectedCatalogue }: { selectedCatalogue
               const originalSrc = `/catalogue/women/${catalogue.slug}/${photoNumber}.jpeg`;
               const studioFolder = catalogue.slug === "daily-wear"
                 ? catalogue.slug
+                : catalogue.slug === "rajwadi"
+                  ? catalogue.slug
                 : catalogue.slug === "ceremonial" && (number === 1 || number === 5)
                   ? "ceremonial-v3"
                   : `${catalogue.slug}-v2`;
@@ -74,7 +85,7 @@ export function WomenCatalogueGallery({ selectedCatalogue }: { selectedCatalogue
                       <div className="absolute inset-[8%] z-10 transition-transform duration-300 group-hover:scale-[1.03]">
                         <Image
                           src={`/catalogue/women/studio/${studioFolder}/${photoNumber}.png`}
-                          alt={`${name} women's juttis${catalogue.slug === "ceremonial" && number === 5 ? ", reconstructed from a close-up photograph" : ""}`}
+                          alt={`${name} women's ${catalogue.slug === "rajwadi" ? "toe-loop sandals" : "juttis"}${catalogue.slug === "rajwadi" && number === 3 ? " in two colour variants" : ""}${catalogue.slug === "ceremonial" && number === 5 ? ", reconstructed from a close-up photograph" : ""}`}
                           fill
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           className="catalogue-photo-image"

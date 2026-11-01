@@ -7,7 +7,7 @@ import Image from "next/image";
 import { toggleWishlist } from "@/app/actions/wishlist";
 import { StorefrontTiltCard } from "@/components/storefront/StorefrontTiltCard";
 import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
-import { CATALOGUES, catalogueHref } from "@/lib/catalogues";
+import { cataloguesForGender, catalogueHref } from "@/lib/catalogues";
 
 interface CollectionPageProps {
   title: string;
@@ -93,7 +93,7 @@ export function CollectionPage({ title, description, products, section, hideHero
 
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {gender && <nav aria-label={`${gender}'s catalogues`} className="mb-8 flex flex-wrap gap-3">
-          {CATALOGUES.map((catalogue) => <Link key={catalogue.slug} href={catalogueHref(catalogue.slug, gender)} className="rounded-full border border-[var(--theme-color-border)] bg-[var(--theme-color-surface)] px-5 py-2.5 text-xs font-bold uppercase tracking-wide text-[var(--theme-color-text)] hover:border-[var(--theme-color-accent)]">{catalogue.name}</Link>)}
+          {cataloguesForGender(gender).map((catalogue) => <Link key={catalogue.slug} href={catalogueHref(catalogue.slug, gender)} className="rounded-full border border-[var(--theme-color-border)] bg-[var(--theme-color-surface)] px-5 py-2.5 text-xs font-bold uppercase tracking-wide text-[var(--theme-color-text)] hover:border-[var(--theme-color-accent)]">{catalogue.name}</Link>)}
         </nav>}
         {/* Top Bar: Filter Toggle and Sort */}
         {!(products.length === 0 && emptyContent) && <div className="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-[var(--theme-color-border)] pb-4">

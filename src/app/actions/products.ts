@@ -35,7 +35,8 @@ export async function createProductAction(formData: FormData) {
     const colors = (formData.get("colors") as string || "").trim() || null;
     const occasionInput = (formData.get("occasion") as string || "").trim();
     const catalogue = findCatalogue(occasionInput);
-    if (occasionInput && !catalogue) return { error: "Choose Daily Wear, Festive, or Ceremonial as the catalogue." };
+    if (occasionInput && !catalogue) return { error: "Choose a valid catalogue." };
+    if (catalogue?.slug === "rajwadi" && gender !== "Women") return { error: "Rajwadi is available for women's footwear only." };
     const occasion = catalogue?.name || null;
     const care = (formData.get("care") as string || "").trim() || null;
     const sizeGuide = (formData.get("sizeGuide") as string || "").trim() || null;
@@ -149,7 +150,8 @@ export async function updateProductAction(productId: string, formData: FormData)
     const colors = (formData.get("colors") as string || "").trim() || null;
     const occasionInput = (formData.get("occasion") as string || "").trim();
     const catalogue = findCatalogue(occasionInput);
-    if (occasionInput && !catalogue) return { error: "Choose Daily Wear, Festive, or Ceremonial as the catalogue." };
+    if (occasionInput && !catalogue) return { error: "Choose a valid catalogue." };
+    if (catalogue?.slug === "rajwadi" && gender !== "Women") return { error: "Rajwadi is available for women's footwear only." };
     const occasion = catalogue?.name || null;
     const care = (formData.get("care") as string || "").trim() || null;
     const sizeGuide = (formData.get("sizeGuide") as string || "").trim() || null;

@@ -2,7 +2,7 @@
 
 The storefront serves a read-only, unauthenticated `/api/v1` JSON API for its Expo client. Routes exist for `products`, `products/[id]`, `categories`, `collections`, `occasions`, `stores`, `faqs`, and `site`. Product lookups accept a product ID or SKU. List endpoints filter to public/published data and return fields shaped by `src/lib/publicSerializers.ts`; do not expose raw Prisma models.
 
-`GET /api/v1/occasions` keeps its historical endpoint name but now returns the three canonical catalogues: Daily Wear, Festive, and Ceremonial. `GET /api/v1/products?occasion=daily-wear&gender=Men` (or the display name) combines a catalogue with a fit; Unisex products appear in either Men or Women results. The storefront's six browsing links use the same dimensions.
+`GET /api/v1/occasions` keeps its historical endpoint name but returns four canonical catalogues: Daily Wear, Festive, Ceremonial, and women-only Rajwadi. Its `genders` field identifies valid fits for each. `GET /api/v1/products?occasion=daily-wear&gender=Men` (or the display name) combines a catalogue with a fit; Unisex products appear in either Men or Women results. Rajwadi photos are gallery previews, so this product endpoint will list them only after verified product records are published.
 
 `src/lib/publicApi.ts` handles CORS, errors, and a best-effort per-instance rate limit. Responses are currently `Cache-Control: no-store` so admin publications appear on the next request. The mobile contract and response shapes are detailed in [MobileApp.md](MobileApp.md).
 

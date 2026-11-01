@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 /**
  * GET /api/v1/occasions
  *
- * The three business catalogues. Product records store the display name in
+ * Business catalogues, including the women-only Rajwadi group. Product records store the display name in
  * their occasion field; the public API keeps the historical endpoint name.
  */
 export async function GET(req: NextRequest) {
@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
       id: catalogue.slug,
       name: catalogue.name,
       slug: catalogue.slug,
+      genders: catalogue.slug === "rajwadi" ? ["Women"] : ["Men", "Women", "Unisex"],
       description: null,
       displayOrder,
     })) };

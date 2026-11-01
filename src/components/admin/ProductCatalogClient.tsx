@@ -12,7 +12,7 @@ import {
 } from "@/app/actions/products";
 import { MEDIA_FOLDERS } from "@/lib/mediaConstants";
 import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
-import { CATALOGUES } from "@/lib/catalogues";
+import { cataloguesForGender } from "@/lib/catalogues";
 
 interface ProductItem {
   id: string;
@@ -450,7 +450,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block font-bold text-gray-700 uppercase mb-1">Gender</label>
-                      <select value={formGender} onChange={(e) => setFormGender(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
+                      <select value={formGender} onChange={(e) => { setFormGender(e.target.value); if (formOccasion === "Rajwadi" && e.target.value !== "Women") setFormOccasion(""); }} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
                         <option value="">Select fit category</option>
                         <option value="Men">Men</option>
                         <option value="Women">Women</option>
@@ -474,7 +474,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                       <label className="block font-bold text-gray-700 uppercase mb-1">Catalogue</label>
                       <select value={formOccasion} onChange={(e) => setFormOccasion(e.target.value)} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
                         <option value="">Select catalogue</option>
-                        {CATALOGUES.map((catalogue) => (<option key={catalogue.slug} value={catalogue.name}>{catalogue.name}</option>))}
+                        {cataloguesForGender(formGender).map((catalogue) => (<option key={catalogue.slug} value={catalogue.name}>{catalogue.name}</option>))}
                       </select>
                     </div>
                   </div>
