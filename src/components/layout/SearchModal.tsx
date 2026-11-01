@@ -129,7 +129,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <div className="pt-8">
                     <h3 className="font-sans text-sm font-semibold uppercase tracking-widest text-foreground/50 mb-4">Popular Searches</h3>
                     <div className="flex flex-wrap gap-3">
-                    {["Daily Wear", "Festive", "Ceremonial", "Rajwadi", "Men", "Women"].map((term) => (
+                    {["Daily Wear", "Festive", "Ceremonial", "Rajwadi", "Functional", "Men", "Women"].map((term) => (
                         <button
                           key={term}
                           onClick={() => setQuery(term)}

@@ -11,7 +11,7 @@ import { getWishlistCount } from "@/app/actions/wishlist";
 import { useFestival } from "@/components/providers/FestivalProvider";
 import { BRAND_TAGLINE } from "@/lib/branding";
 import { BrandLogo } from "./BrandLogo";
-import { CATALOGUES, catalogueHref } from "@/lib/catalogues";
+import { CATALOGUES, catalogueAvailableForGender, catalogueHref } from "@/lib/catalogues";
 
 const links = [
   { name: "Home", href: "/" },
@@ -271,8 +271,8 @@ export function Navbar({ siteName = "Fashion Feet" }: { siteName?: string }) {
                   {CATALOGUES.map((catalogue) => <div key={catalogue.slug} className="flex items-center justify-between gap-3 text-sm">
                     <span className="font-semibold">{catalogue.name}</span>
                     <div className="flex gap-2">
-                      {catalogue.slug !== "rajwadi" && <Link href={catalogueHref(catalogue.slug, "Men")} onClick={() => setMobileMenuOpen(false)} className="rounded-full border border-black/15 px-3 py-1">Men</Link>}
-                      <Link href={catalogueHref(catalogue.slug, "Women")} onClick={() => setMobileMenuOpen(false)} className="rounded-full border border-black/15 px-3 py-1">Women</Link>
+                      {catalogueAvailableForGender(catalogue.slug, "Men") && <Link href={catalogueHref(catalogue.slug, "Men")} onClick={() => setMobileMenuOpen(false)} className="rounded-full border border-black/15 px-3 py-1">Men</Link>}
+                      {catalogueAvailableForGender(catalogue.slug, "Women") && <Link href={catalogueHref(catalogue.slug, "Women")} onClick={() => setMobileMenuOpen(false)} className="rounded-full border border-black/15 px-3 py-1">Women</Link>}
                     </div>
                   </div>)}
                 </div>

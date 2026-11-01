@@ -45,7 +45,7 @@ export function CategoryOccasionClient({ categories, occasions }: { categories: 
     <div className="space-y-8 font-sans">
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
         <h1 className="font-serif text-2xl font-bold text-gray-900">Product Types & Catalogues</h1>
-        <p className="text-xs text-gray-500">Products have a type and fit. Daily Wear, Festive, and Ceremonial support Men and Women; Rajwadi is for Women.</p>
+        <p className="text-xs text-gray-500">Products have a type and fit. Daily Wear, Festive, and Ceremonial support Men and Women; Rajwadi is for Women and Functional is for Men.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

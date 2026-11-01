@@ -6,6 +6,8 @@ Status checked on **26 October 2026**. The storefront and isolated admin dashboa
 
 **1 November content update:** Seven more owner-supplied photographs were moved into a women-only Rajwadi gallery, named from the separate `f unique` reference. The 28 photos remain previews, not purchasable product records. The Rajwadi reference carries other branding and is kept in project documentation rather than displayed publicly.
 
+**1 November men's content update:** The owner supplied `mens.jpeg`, showing five individual juttis in one photograph. Five cutouts now form the men-only Functional gallery. The source photo's `320` label has not been used as a selling price. These are previews pending verified product information.
+
 ## Checks already completed
 
 - Both Next.js 16 production builds completed successfully during the separate-deployment work.

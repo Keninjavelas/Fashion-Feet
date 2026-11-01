@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CATALOGUES } from "@/lib/catalogues";
+import { CATALOGUES, cataloguesForGender } from "@/lib/catalogues";
 
-const DESIGNS: Record<(typeof CATALOGUES)[number]["slug"], readonly { number: number; name: string }[]> = {
+const DESIGNS: Partial<Record<(typeof CATALOGUES)[number]["slug"], readonly { number: number; name: string }[]>> = {
   "daily-wear": [
     { number: 1, name: "Chestnut Lattice" },
     { number: 2, name: "Copper Sunray" },
@@ -43,7 +43,7 @@ const DESIGNS: Record<(typeof CATALOGUES)[number]["slug"], readonly { number: nu
 };
 
 export function WomenCatalogueGallery({ selectedCatalogue }: { selectedCatalogue?: string }) {
-  const groups = CATALOGUES.filter((catalogue) => !selectedCatalogue || catalogue.slug === selectedCatalogue);
+  const groups = cataloguesForGender("Women").filter((catalogue) => !selectedCatalogue || catalogue.slug === selectedCatalogue);
 
   return (
     <div className="space-y-12" aria-label="Women's footwear photo previews">
@@ -59,10 +59,10 @@ export function WomenCatalogueGallery({ selectedCatalogue }: { selectedCatalogue
         <section key={catalogue.slug} aria-labelledby={`gallery-${catalogue.slug}`} className="space-y-5">
           <div className="flex items-center justify-between gap-3">
             <h3 id={`gallery-${catalogue.slug}`} className="font-serif text-2xl font-bold text-inherit">{catalogue.name}</h3>
-            <span className="text-xs opacity-70">{DESIGNS[catalogue.slug].length} designs</span>
+            <span className="text-xs opacity-70">{DESIGNS[catalogue.slug]?.length ?? 0} designs</span>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-            {DESIGNS[catalogue.slug].map(({ number, name }) => {
+            {(DESIGNS[catalogue.slug] ?? []).map(({ number, name }) => {
               const photoNumber = String(number).padStart(2, "0");
               const originalSrc = `/catalogue/women/${catalogue.slug}/${photoNumber}.jpeg`;
               const studioFolder = catalogue.slug === "daily-wear"

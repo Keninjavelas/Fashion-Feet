@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { CATALOGUES, catalogueHref } from "@/lib/catalogues";
+import { CATALOGUES, catalogueAvailableForGender, catalogueHref } from "@/lib/catalogues";
 
 export function CollectionsMegaMenu({ onClose }: { onClose: () => void }) {
   return (
@@ -17,8 +17,8 @@ export function CollectionsMegaMenu({ onClose }: { onClose: () => void }) {
             <div key={catalogue.slug} className="rounded-2xl border border-[var(--theme-color-border)] bg-[var(--theme-color-bg)] p-5">
               <Link href={catalogueHref(catalogue.slug)} onClick={onClose} className="font-serif text-xl font-bold hover:text-[var(--theme-color-accent)]">{catalogue.name}</Link>
               <div className="mt-4 flex gap-2">
-                {catalogue.slug !== "rajwadi" && <Link href={catalogueHref(catalogue.slug, "Men")} onClick={onClose} className="rounded-full border border-[var(--theme-color-border)] px-4 py-2 text-xs font-bold hover:border-[var(--theme-color-accent)]">Men</Link>}
-                <Link href={catalogueHref(catalogue.slug, "Women")} onClick={onClose} className="rounded-full border border-[var(--theme-color-border)] px-4 py-2 text-xs font-bold hover:border-[var(--theme-color-accent)]">Women</Link>
+                {catalogueAvailableForGender(catalogue.slug, "Men") && <Link href={catalogueHref(catalogue.slug, "Men")} onClick={onClose} className="rounded-full border border-[var(--theme-color-border)] px-4 py-2 text-xs font-bold hover:border-[var(--theme-color-accent)]">Men</Link>}
+                {catalogueAvailableForGender(catalogue.slug, "Women") && <Link href={catalogueHref(catalogue.slug, "Women")} onClick={onClose} className="rounded-full border border-[var(--theme-color-border)] px-4 py-2 text-xs font-bold hover:border-[var(--theme-color-accent)]">Women</Link>}
               </div>
             </div>
           ))}
