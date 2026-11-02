@@ -450,7 +450,7 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block font-bold text-gray-700 uppercase mb-1">Gender</label>
-                      <select value={formGender} onChange={(e) => { setFormGender(e.target.value); if ((formOccasion === "Rajwadi" && e.target.value !== "Women") || (formOccasion === "Functional" && e.target.value !== "Men")) setFormOccasion(""); }} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
+                      <select value={formGender} onChange={(e) => { setFormGender(e.target.value); if ((formOccasion === "Rajwadi" && e.target.value !== "Women") || ((formOccasion === "Functional" || formOccasion === "Office Wear") && e.target.value !== "Men")) setFormOccasion(""); }} className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none">
                         <option value="">Select fit category</option>
                         <option value="Men">Men</option>
                         <option value="Women">Women</option>

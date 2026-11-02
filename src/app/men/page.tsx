@@ -22,7 +22,7 @@ export default async function MenCollection() {
     <StorefrontLayout>
       <CollectionPage 
         title="Men's Collection" 
-        description="Explore Daily Wear, Festive, Ceremonial, and Functional footwear for men."
+        description="Explore Daily Wear, Festive, Ceremonial, Functional, and Office Wear footwear for men."
         products={products}
         gender="Men"
         emptyContent={<MenCatalogueGallery />}

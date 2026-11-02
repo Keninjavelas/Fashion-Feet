@@ -8,6 +8,8 @@ Status checked on **26 October 2026**. The storefront and isolated admin dashboa
 
 **1 November men's content update:** The owner supplied `mens.jpeg`, showing five individual juttis in one photograph. Five cutouts now form the men-only Functional gallery. The source photo's `320` label has not been used as a selling price. These are previews pending verified product information.
 
+**2 November men's content update:** Three owner-supplied `m o` photographs show black, brown, and tan matched pairs. The men-only Office Wear gallery presents each pair in a consistent frame. These are previews pending verified product information.
+
 ## Checks already completed
 
 - Both Next.js 16 production builds completed successfully during the separate-deployment work.

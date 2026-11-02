@@ -44,6 +44,7 @@ export function Footer({ siteName = "Fashion Feet", section }: { siteName?: stri
               <li><Link href="/shop?catalogue=ceremonial" className="text-white/70 hover:text-[#D4AF37] transition-colors">Ceremonial</Link></li>
               <li><Link href="/shop?catalogue=rajwadi&amp;gender=Women" className="text-white/70 hover:text-[#D4AF37] transition-colors">Women's Rajwadi</Link></li>
               <li><Link href="/shop?catalogue=functional&amp;gender=Men" className="text-white/70 hover:text-[#D4AF37] transition-colors">Men's Functional</Link></li>
+              <li><Link href="/shop?catalogue=office-wear&amp;gender=Men" className="text-white/70 hover:text-[#D4AF37] transition-colors">Men's Office Wear</Link></li>
               <li><Link href="/shop?type=new" className="text-white/70 hover:text-[#D4AF37] transition-colors">New Arrivals</Link></li>
               <li><Link href="/size-guide" className="text-white/70 hover:text-[#D4AF37] transition-colors">Size Guide</Link></li>
             </ul>

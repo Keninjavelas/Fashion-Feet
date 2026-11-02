@@ -19,7 +19,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const catalogue = findCatalogue(resolvedParams.catalogue);
   if (catalogue && !catalogueAvailableForGender(catalogue.slug, selectedGender)) redirect(`/shop?gender=${selectedGender}`);
   if (catalogue?.slug === "rajwadi") selectedGender = "Women";
-  if (catalogue?.slug === "functional") selectedGender = "Men";
+  if (catalogue?.slug === "functional" || catalogue?.slug === "office-wear") selectedGender = "Men";
   const isNewArrivals = resolvedParams.type === "new";
   const searchQuery = resolvedParams.q;
 
@@ -54,7 +54,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const title = searchQuery ? `Search: ${searchQuery}` : catalogue ? `${selectedGender ? `${selectedGender}'s ` : ""}${catalogue.name}` : collection ? collection.title : isNewArrivals ? "New Arrivals" : category ? `${category} Collection` : selectedGender ? `${selectedGender}'s Collection` : "All Products";
   const breadcrumbLabel = searchQuery ? "Search Results" : catalogue?.name || collection?.title || (isNewArrivals ? "New Arrivals" : category || "Shop");
   const showWomenPhotoGallery = products.length === 0 && selectedGender !== "Men" && !searchQuery && !isNewArrivals && !category && !collectionId && (!resolvedParams.catalogue || Boolean(catalogue));
-  const showMenPhotoGallery = products.length === 0 && selectedGender === "Men" && !searchQuery && !isNewArrivals && !category && !collectionId && (!catalogue || catalogue.slug === "functional");
+  const showMenPhotoGallery = products.length === 0 && selectedGender === "Men" && !searchQuery && !isNewArrivals && !category && !collectionId && (!catalogue || catalogue.slug === "functional" || catalogue.slug === "office-wear");
   const pageTitle = showWomenPhotoGallery && !catalogue && !selectedGender ? "Explore the collection" : title;
 
   return (
@@ -76,7 +76,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
             {cataloguesForGender(selectedGender).map((item) => <Link key={item.slug} href={catalogueHref(item.slug, selectedGender)} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${catalogue?.slug === item.slug ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>{item.name}</Link>)}
           </nav>
           <nav aria-label="Shop by fit" className="mb-8 flex flex-wrap justify-center gap-2">
-            {catalogue?.slug !== "rajwadi" && catalogue?.slug !== "functional" && <Link href={catalogue ? catalogueHref(catalogue.slug) : "/shop"} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${!selectedGender ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>All Fits</Link>}
+            {catalogue?.slug !== "rajwadi" && catalogue?.slug !== "functional" && catalogue?.slug !== "office-wear" && <Link href={catalogue ? catalogueHref(catalogue.slug) : "/shop"} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${!selectedGender ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>All Fits</Link>}
             {(["Men", "Women"] as const).filter((fit) => !catalogue || catalogueAvailableForGender(catalogue.slug, fit)).map((fit) => <Link key={fit} href={catalogue ? catalogueHref(catalogue.slug, fit) : `/shop?gender=${fit}`} className={`rounded-full border px-4 py-2.5 text-sm font-semibold ${selectedGender === fit ? "border-[#861638] bg-[#861638] text-white" : "border-[var(--theme-color-border)] text-[var(--theme-color-text)]"}`}>{fit}</Link>)}
           </nav>
 
