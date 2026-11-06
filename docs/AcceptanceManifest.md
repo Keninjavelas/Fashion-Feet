@@ -1,6 +1,6 @@
 # Historical acceptance manifest — Fashion Feet
 
-> **Historical test record.** The phase results below were recorded for an earlier single-application/local build. They are not an assertion that the current two-project Vercel deployment passed every scenario. Admin routes have since moved to `apps/admin`, production uses PostgreSQL, and the custom domain and outbound email remain pending DNS. For current release status and repeatable checks, use [ProductionReadiness.md](ProductionReadiness.md) and [AdminDeployment.md](AdminDeployment.md).
+> **Historical test record.** The phase results below were recorded for an earlier single-application/local build. They are not an assertion that the current two-project Vercel deployment passed every scenario. Admin routes have since moved to `apps/admin`, production uses PostgreSQL, and the custom domain remains pending DNS. Formspree outbound email was verified later. For current release status and repeatable checks, use [ProductionReadiness.md](ProductionReadiness.md) and [AdminDeployment.md](AdminDeployment.md).
 
 This manifest maps the requirements and verification results from the original acceptance pass. Re-run relevant cases against the current deployments before treating them as production evidence.
 

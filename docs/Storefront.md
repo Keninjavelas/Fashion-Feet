@@ -21,7 +21,7 @@ The women's page and its four catalogue views and the men's Functional and Offic
 
 Product, collection, FAQ, store, festival, and published Studio content are read from shared PostgreSQL data. An admin change appears on a new request or refresh; Studio drafts need publication first.
 
-Contact and product enquiry forms write `Enquiry` rows for the admin dashboard. They attempt an outbound notification to `aryan.kapoor@fashionfeet.co.in`; email delivery is pending Resend DNS verification and a production key. The on-screen response distinguishes a saved enquiry from accepted email delivery.
+Contact and product enquiry forms write `Enquiry` rows for the admin dashboard, then submit notifications through Formspree to `aryan.kapoor@fashionfeet.co.in`. A live test was confirmed in the Microsoft 365 inbox on 6 November 2026. The on-screen response distinguishes a saved enquiry from provider acceptance; it cannot itself prove inbox delivery.
 
 See [Architecture.md](Architecture.md), [API.md](API.md), and [AdminDeployment.md](AdminDeployment.md).
 

@@ -1,6 +1,6 @@
 # Task 10 — Final Security Hardening
 
-> **Historical local security review.** This report predates the two Vercel deployments and PostgreSQL migration. Its statements that nothing was deployed, that `fashionfeet.co.in` did not exist, or that SQLite is the production database are no longer current. The public site and separate admin now run on Vercel aliases; the custom storefront DNS and outbound email remain pending. Use [AdminDeployment.md](AdminDeployment.md) and [ProductionReadiness.md](ProductionReadiness.md) for current controls and open work. The findings below remain useful as evidence of what was checked at that time.
+> **Historical local security review.** This report predates the two Vercel deployments and PostgreSQL migration. Its statements that nothing was deployed, that `fashionfeet.co.in` did not exist, or that SQLite is the production database are no longer current. The public site and separate admin now run on Vercel aliases; custom storefront DNS remains pending, while Formspree outbound email was verified later. Use [AdminDeployment.md](AdminDeployment.md) and [ProductionReadiness.md](ProductionReadiness.md) for current controls and open work. The findings below remain useful as evidence of what was checked at that time.
 
 **Original test environment: LOCALHOST / PRE-DEPLOYMENT.**
 At the time of this report, nothing had been deployed. Everything

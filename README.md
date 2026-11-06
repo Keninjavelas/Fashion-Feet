@@ -8,7 +8,7 @@ Fashion Feet is a Punjabi jutti storefront with a separate administration dashbo
 - Admin dashboard: [fashion-feet-admin.vercel.app](https://fashion-feet-admin.vercel.app), Vercel project `fashion-feet-admin` with its own sign-in and TOTP MFA.
 - Intended storefront domain: `fashionfeet.co.in`. It is attached to Vercel, but its DNS A record has not been added at GoDaddy, so use the Vercel storefront address until DNS is configured.
 - Production data: both deployments use the same managed Neon PostgreSQL database. The local development fallback is SQLite; `dev.db` is not production data.
-- Contact and product enquiries: saved to PostgreSQL for the admin inbox. Formspree is configured to notify the verified `aryan.kapoor@fashionfeet.co.in` recipient without Fashion Feet DNS changes. A live test was accepted by the storefront and appears in Formspree; actual Microsoft 365 inbox delivery still needs confirmation. Submissions remain in the admin dashboard if notification fails. Resend remains an optional legacy path pending DNS verification.
+- Contact and product enquiries: saved to PostgreSQL for the admin inbox. Formspree notifies the verified `aryan.kapoor@fashionfeet.co.in` recipient without Fashion Feet DNS changes. A live storefront test was saved, appeared in Formspree, and arrived in the Microsoft 365 inbox on 6 November 2026. The Formspree account has two-factor authentication enabled. Submissions remain in the admin dashboard if notification fails. Resend remains an optional legacy path.
 
 The current deployment steps and remaining DNS records are in [docs/AdminDeployment.md](docs/AdminDeployment.md). The operational checklist is in [docs/ProductionReadiness.md](docs/ProductionReadiness.md).
 

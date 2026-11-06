@@ -15,6 +15,7 @@ Status checked on **26 October 2026**. The storefront and isolated admin dashboa
 - Both Next.js 16 production builds completed successfully during the separate-deployment work.
 - `npm run test:isolation` verified that the storefront build excludes admin routes and admin Server Actions.
 - The public contact page renders `aryan.kapoor@fashionfeet.co.in`; contact and product enquiries use one Server Action that saves an `Enquiry` row before attempting notification.
+- Formspree sends enquiry notifications to the verified contact mailbox without Fashion Feet DNS changes. On 6 November, one live contact submission was saved, appeared in Formspree, and was confirmed delivered to the Microsoft 365 inbox. The Formspree account has two-factor authentication enabled.
 - The FAQ page and `/api/v1/faqs` read the same shared PostgreSQL FAQ rows. Historical FAQs were restored, and the requested “Launch special festive collections” entry was removed.
 - The admin project has its own password/TOTP flow, database-backed sessions, role checks, and Vercel Authentication gate. Its production environment includes the shared database URL and Vercel Blob token.
 
@@ -23,10 +24,9 @@ These checks do not certify every administrator workflow or inbox delivery. Re-r
 ## Open production work
 
 1. **Custom domain:** `fashionfeet.co.in` is attached to the storefront Vercel project, but GoDaddy has no apex A record for it. A DNS administrator must add `A @ 76.76.21.21`, preserving the Microsoft 365 MX records. Verify HTTPS after propagation. Then update storefront `AUTH_URL` and `NEXTAUTH_URL` and admin `NEXT_PUBLIC_STOREFRONT_URL` to `https://fashionfeet.co.in`, redeploy, and test customer sign-in and admin links.
-2. **Outbound enquiry email:** Formspree is the selected DNS-free route while GoDaddy access is unavailable. Its form targets the verified `aryan.kapoor@fashionfeet.co.in` address, and `FORMSPREE_FORM_ID` is set on the storefront Vercel Production environment. A live test enquiry was saved by the storefront and appeared in Formspree's Inbox on 6 November. Confirm actual delivery into the Microsoft 365 mailbox before considering this complete. The code uses Formspree when its ID is set; the prior Resend route remains available when it is not. The Resend subdomain `mail.fashionfeet.co.in` is still unverified and has no production sending key.
-3. **Business content review:** Revisit restored FAQ answers, material/fit claims, shipping or offer language, store information, and seasonal copy with the business owner. The historical intake report in [ContentIntake.md](ContentIntake.md) is evidence of earlier findings, not a current inventory.
-4. **Signup placeholders:** The store-launch “Notify Me” and footer newsletter forms do not persist subscriptions yet. Connect them to an approved subscription process or change their UI before treating them as live signup channels.
-5. **Mobile release:** `mobile/` is Expo source only. It still needs its own build/signing, store submission, and live client verification. Public API compatibility matters once an app is distributed.
+2. **Business content review:** Revisit restored FAQ answers, material/fit claims, shipping or offer language, store information, and seasonal copy with the business owner. The historical intake report in [ContentIntake.md](ContentIntake.md) is evidence of earlier findings, not a current inventory.
+3. **Signup placeholder:** The footer newsletter form does not persist subscriptions yet. Connect it to an approved subscription process or change its UI before treating it as a live signup channel. The older “Notify Me” form is not present in the current storefront source.
+4. **Mobile release:** `mobile/` is Expo source only. It still needs its own build/signing, store submission, and live client verification. Public API compatibility matters once an app is distributed.
 
 ## Routine release sequence
 

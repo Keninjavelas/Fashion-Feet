@@ -59,4 +59,4 @@ No faithful, product-specific 3D asset was found. Generic procedural shoes are n
 - A verified Fashion Feet size chart before automatic size recommendations or conversion tables return.
 - Verified workshop/process photographs and reviewed manufacturing claims before presenting a four-stage craft process as fact.
 - Store addresses and opening details before an in-person store experience is promoted.
-- Domain DNS at GoDaddy and Resend DNS/API verification before `fashionfeet.co.in` and outbound contact notifications can be fully enabled. Contact submissions still persist in the admin inbox.
+- At the time of this audit, domain DNS at GoDaddy and Resend DNS/API verification were pending. Formspree outbound contact notifications were later configured and delivered to the Microsoft 365 inbox on 6 November 2026. The custom domain still awaits GoDaddy DNS.
