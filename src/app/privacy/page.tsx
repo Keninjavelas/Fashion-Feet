@@ -37,6 +37,12 @@ export default function PrivacyPolicy() {
                 <li>Where it is necessary for our legitimate interests (or those of a third party) and your interests and fundamental rights do not override those interests.</li>
                 <li>Where we need to comply with a legal obligation.</li>
               </ul>
+              <p>
+                When you send a contact or product enquiry, we save the details you provide in our
+                administration inbox. When email notifications are enabled, we send your name,
+                email address, subject, message, and enquiry reference to Formspree so it can notify
+                our Microsoft 365 contact mailbox.
+              </p>
               
               <div className="mt-12 p-6 bg-[var(--color-brand-50)] text-sm italic">
                 Note: This policy is pending final legal review. It is published here in its current form and will be updated once that review is complete.

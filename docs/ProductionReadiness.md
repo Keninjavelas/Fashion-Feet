@@ -23,7 +23,7 @@ These checks do not certify every administrator workflow or inbox delivery. Re-r
 ## Open production work
 
 1. **Custom domain:** `fashionfeet.co.in` is attached to the storefront Vercel project, but GoDaddy has no apex A record for it. A DNS administrator must add `A @ 76.76.21.21`, preserving the Microsoft 365 MX records. Verify HTTPS after propagation. Then update storefront `AUTH_URL` and `NEXTAUTH_URL` and admin `NEXT_PUBLIC_STOREFRONT_URL` to `https://fashionfeet.co.in`, redeploy, and test customer sign-in and admin links.
-2. **Outbound enquiry email:** `mail.fashionfeet.co.in` exists in the direct Resend account but is unverified. A DNS administrator must add the DKIM TXT and two CNAME records shown on the [Resend domain page](https://resend.com/domains/19e61aeb-ca77-48aa-8150-1a0efbb65369). Sending is enabled there; receiving is off, so the Microsoft 365 inbox remains the recipient. After verification, create a sending-only API key scoped to that domain, set `RESEND_API_KEY` on the storefront Vercel Production environment, redeploy, and submit an end-to-end test enquiry. The intended inbox is `aryan.kapoor@fashionfeet.co.in`. Until then, enquiry rows reach the admin dashboard but email notifications do not send.
+2. **Outbound enquiry email:** Formspree is the selected DNS-free route while GoDaddy access is unavailable. Its form targets the verified `aryan.kapoor@fashionfeet.co.in` address, and `FORMSPREE_FORM_ID` is set on the storefront Vercel Production environment. A live test enquiry was saved by the storefront and appeared in Formspree's Inbox on 6 November. Confirm actual delivery into the Microsoft 365 mailbox before considering this complete. The code uses Formspree when its ID is set; the prior Resend route remains available when it is not. The Resend subdomain `mail.fashionfeet.co.in` is still unverified and has no production sending key.
 3. **Business content review:** Revisit restored FAQ answers, material/fit claims, shipping or offer language, store information, and seasonal copy with the business owner. The historical intake report in [ContentIntake.md](ContentIntake.md) is evidence of earlier findings, not a current inventory.
 4. **Signup placeholders:** The store-launch “Notify Me” and footer newsletter forms do not persist subscriptions yet. Connect them to an approved subscription process or change their UI before treating them as live signup channels.
 5. **Mobile release:** `mobile/` is Expo source only. It still needs its own build/signing, store submission, and live client verification. Public API compatibility matters once an app is distributed.
@@ -34,7 +34,7 @@ These checks do not certify every administrator workflow or inbox delivery. Re-r
 2. Apply pending PostgreSQL migrations with `npm run db:deploy:postgres` using the direct database URL.
 3. Run `npm run build`, `npm run build:admin`, and `npm run test:isolation`.
 4. Deploy the storefront and admin projects independently. Verify public routes, admin authentication, a published content change, and any workflow touched by the release.
-5. For email or DNS changes, test the custom hostname, Resend verification, provider acceptance, and actual arrival in the Microsoft 365 inbox. A provider `202`/accepted response alone does not prove inbox delivery.
+5. For email or DNS changes, test the custom hostname, provider acceptance, and actual arrival in the Microsoft 365 inbox. A provider success response alone does not prove inbox delivery.
 
 ## Recovery and limitations
 

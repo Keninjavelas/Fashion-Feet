@@ -15,12 +15,6 @@ type EnquiryForEmail = {
 
 /** A successful return means the mail provider accepted the notification. */
 export async function sendEnquiryEmail(enquiry: EnquiryForEmail): Promise<boolean> {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.warn(`Email notification is not configured for enquiry ${enquiry.id}.`);
-    return false;
-  }
-
   const subject = (enquiry.subject || enquiry.enquiryType || "New enquiry")
     .replace(/[\r\n]+/g, " ")
     .slice(0, 160);
@@ -39,6 +33,43 @@ export async function sendEnquiryEmail(enquiry: EnquiryForEmail): Promise<boolea
     "Message:",
     enquiry.message || "No message provided",
   ].join("\n");
+
+  const formId = process.env.FORMSPREE_FORM_ID?.trim();
+  if (formId) {
+    if (!/^[a-zA-Z0-9]{6,32}$/.test(formId)) {
+      console.error("Formspree form ID is invalid.");
+      return false;
+    }
+
+    try {
+      const response = await fetch(`https://formspree.io/f/${formId}`, {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: enquiry.name,
+          email: enquiry.email,
+          subject: `Fashion Feet: ${subject}`,
+          message: text,
+        }),
+        cache: "no-store",
+        signal: AbortSignal.timeout(8_000),
+      });
+      if (!response.ok) {
+        console.error(`Formspree notification for enquiry ${enquiry.id} was rejected (${response.status}).`);
+        return false;
+      }
+      return true;
+    } catch {
+      console.error(`Formspree notification for enquiry ${enquiry.id} failed to reach the provider.`);
+      return false;
+    }
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn(`Email notification is not configured for enquiry ${enquiry.id}.`);
+    return false;
+  }
 
   try {
     const response = await fetch("https://api.resend.com/emails", {
