@@ -102,7 +102,7 @@ export function FeaturedCollections({
             ))}
           </div>
         )}
-        {!hasCollectionRecords && <p className="mt-8 text-xs text-[var(--theme-color-text-muted)]">Photographed styles currently shown in the women&apos;s gallery. Men&apos;s designs will be added when their photographs are ready.</p>}
+        {!hasCollectionRecords && <p className="mt-8 text-xs text-[var(--theme-color-text-muted)]">Explore photographed designs in both the women&apos;s and men&apos;s catalogues.</p>}
       </div>
     </section>
   );

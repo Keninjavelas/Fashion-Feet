@@ -10,6 +10,8 @@ Status checked on **26 October 2026**. The storefront and isolated admin dashboa
 
 **2 November men's content update:** Three owner-supplied `m o` photographs show black, brown, and tan matched pairs. The men-only Office Wear gallery presents each pair in a consistent frame. These are previews pending verified product information.
 
+**7 November men's content update:** Fifty distinct men's footwear photos from the owner's WhatsApp chat were added to the Daily Wear, Festive, Functional, and Office Wear preview galleries. The first three chat photos matched existing Office Wear designs and were not added again. Two photos of open-back, decorated footwear remain in local intake because their fit/category is uncertain. See [MensWhatsAppImport.md](MensWhatsAppImport.md) for the import audit. The new photos are displayed in uniform frames with their original backgrounds; they have not yet received the studio-cutout treatment used by earlier galleries. Ceremonial has no verified men's photos yet. Prices, sizes, and stock remain unverified, so these are not purchasable product records.
+
 ## Checks already completed
 
 - Both Next.js 16 production builds completed successfully during the separate-deployment work.

@@ -54,7 +54,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const title = searchQuery ? `Search: ${searchQuery}` : catalogue ? `${selectedGender ? `${selectedGender}'s ` : ""}${catalogue.name}` : collection ? collection.title : isNewArrivals ? "New Arrivals" : category ? `${category} Collection` : selectedGender ? `${selectedGender}'s Collection` : "All Products";
   const breadcrumbLabel = searchQuery ? "Search Results" : catalogue?.name || collection?.title || (isNewArrivals ? "New Arrivals" : category || "Shop");
   const showWomenPhotoGallery = products.length === 0 && selectedGender !== "Men" && !searchQuery && !isNewArrivals && !category && !collectionId && (!resolvedParams.catalogue || Boolean(catalogue));
-  const showMenPhotoGallery = products.length === 0 && selectedGender === "Men" && !searchQuery && !isNewArrivals && !category && !collectionId && (!catalogue || catalogue.slug === "functional" || catalogue.slug === "office-wear");
+  const showMenPhotoGallery = products.length === 0 && selectedGender === "Men" && !searchQuery && !isNewArrivals && !category && !collectionId && (!resolvedParams.catalogue || Boolean(catalogue));
   const pageTitle = showWomenPhotoGallery && !catalogue && !selectedGender ? "Explore the collection" : title;
 
   return (
