@@ -15,7 +15,7 @@ The final design favors the ivory/oxblood/espresso palette. Product imagery uses
 ## Public route inventory
 
 - `/`: dynamic homepage; published Studio sections, collections, product highlights, photographic story, and exhibition archive.
-- `/men`, `/women`: gender collection pages. Women currently has photographed catalogue previews; Men has an honest empty state until imagery and product records arrive.
+- `/men`, `/women`: gender collection pages. Both now show photographed catalogue previews — Women with 28 studio-cutout photos across Daily Wear, Festive, Ceremonial, and Rajwadi; Men with the Functional and Office Wear galleries plus the 50-photo WhatsApp import across Daily Wear, Festive, Functional, and Office Wear. Individual purchasable product records are still pending verified names, prices, sizes, and availability.
 - `/shop`: published product browser; when there are no published products, general and women catalogue views show the women's photographed designs. Men, search, and New Arrivals without matches show an honest empty state.
 - `/product/[id]`: published product detail, photo gallery, size options, wishlist, and enquiry when a valid product exists.
 - `/size-guide`: measurement instructions, optional profile saving, and contact guidance. No automatic size mapping or fit guarantee is offered.
@@ -55,8 +55,8 @@ No faithful, product-specific 3D asset was found. Generic procedural shoes are n
 
 ## Remaining business inputs
 
-- Men's footwear photographs and verified product records with names, prices, available sizes, inventory, and photography. The women's previews are not yet purchasable products.
+- Verified men's product records with names, prices, available sizes, and inventory. Owner-supplied men's photographs arrived on 1, 2, and 7 November 2026 and are live as previews; the women's previews are likewise not yet purchasable products.
 - A verified Fashion Feet size chart before automatic size recommendations or conversion tables return.
 - Verified workshop/process photographs and reviewed manufacturing claims before presenting a four-stage craft process as fact.
 - Store addresses and opening details before an in-person store experience is promoted.
-- At the time of this audit, domain DNS at GoDaddy and Resend DNS/API verification were pending. Formspree outbound contact notifications were later configured and delivered to the Microsoft 365 inbox on 6 November 2026. The custom domain still awaits GoDaddy DNS.
+- At the time of this audit, domain DNS at GoDaddy and Resend DNS/API verification were pending. Formspree outbound contact notifications were later configured and delivered to the Microsoft 365 inbox on 6 November 2026. The custom domain still awaits GoDaddy DNS; an authoritative query of the domain's GoDaddy nameservers on 8 November 2026 confirmed the apex A record is still missing.
