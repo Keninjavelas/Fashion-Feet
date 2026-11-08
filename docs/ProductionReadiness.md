@@ -1,6 +1,6 @@
 # Production operations and remaining work
 
-Status checked on **26 October 2026**. The storefront and isolated admin dashboard are deployed on Vercel and share Neon PostgreSQL. The storefront is reachable at `https://fashion-feet-storefront.vercel.app`; the admin is at `https://fashion-feet-admin.vercel.app`. This is a live deployment, not the earlier single-process SQLite prototype.
+Status checked on **26 October 2026** and operationally rechecked on **8 November 2026** (see below). The storefront and isolated admin dashboard are deployed on Vercel and share Neon PostgreSQL. The storefront is reachable at `https://fashion-feet-storefront.vercel.app`; the admin is at `https://fashion-feet-admin.vercel.app`. This is a live deployment, not the earlier single-process SQLite prototype.
 
 **27 October content update:** The three catalogues (Daily Wear, Festive, Ceremonial) are live for Men and Women. The owner supplied 21 women's footwear photographs for preview galleries. The individual product table remains empty pending verified names, prices, sizes, and availability; gallery photographs must not be described as purchasable listings.
 
@@ -11,6 +11,8 @@ Status checked on **26 October 2026**. The storefront and isolated admin dashboa
 **2 November men's content update:** Three owner-supplied `m o` photographs show black, brown, and tan matched pairs. The men-only Office Wear gallery presents each pair in a consistent frame. These are previews pending verified product information.
 
 **7 November men's content update:** Fifty distinct men's footwear photos from the owner's WhatsApp chat were added to the Daily Wear, Festive, Functional, and Office Wear preview galleries. The first three chat photos matched existing Office Wear designs and were not added again. Two photos of open-back, decorated footwear remain in local intake because their fit/category is uncertain. See [MensWhatsAppImport.md](MensWhatsAppImport.md) for the import audit. The new photos are displayed in uniform frames with their original backgrounds; they have not yet received the studio-cutout treatment used by earlier galleries. Ceremonial has no verified men's photos yet. Prices, sizes, and stock remain unverified, so these are not purchasable product records.
+
+**8 November operational recheck:** Measured today over public HTTPS: the storefront alias returned `200`, and the admin alias returned its configured Vercel Authentication redirect. An authoritative query of the domain's GoDaddy nameservers (`ns67`/`ns68.domaincontrol.com`) still returned no apex A record for `fashionfeet.co.in`, and `www.fashionfeet.co.in` is NXDOMAIN. Open work item 1 therefore remains open. Enquiry notification remains on the verified Formspree route; no Resend DNS work is required while it stays active.
 
 ## Checks already completed
 
@@ -25,7 +27,7 @@ These checks do not certify every administrator workflow or inbox delivery. Re-r
 
 ## Open production work
 
-1. **Custom domain:** `fashionfeet.co.in` is attached to the storefront Vercel project, but GoDaddy has no apex A record for it. A DNS administrator must add `A @ 76.76.21.21`, preserving the Microsoft 365 MX records. Verify HTTPS after propagation. Then update storefront `AUTH_URL` and `NEXTAUTH_URL` and admin `NEXT_PUBLIC_STOREFRONT_URL` to `https://fashionfeet.co.in`, redeploy, and test customer sign-in and admin links.
+1. **Custom domain:** `fashionfeet.co.in` is attached to the storefront Vercel project, but GoDaddy has no apex A record for it (reconfirmed by an authoritative DNS query on 8 November 2026). A DNS administrator must add `A @ 76.76.21.21`, preserving the Microsoft 365 MX records. Verify HTTPS after propagation. Then update storefront `AUTH_URL` and `NEXTAUTH_URL` and admin `NEXT_PUBLIC_STOREFRONT_URL` to `https://fashionfeet.co.in`, redeploy, and test customer sign-in and admin links.
 2. **Business content review:** Revisit restored FAQ answers, material/fit claims, shipping or offer language, store information, and seasonal copy with the business owner. The historical intake report in [ContentIntake.md](ContentIntake.md) is evidence of earlier findings, not a current inventory.
 3. **Signup placeholder:** The footer newsletter form does not persist subscriptions yet. Connect it to an approved subscription process or change its UI before treating it as a live signup channel. The older “Notify Me” form is not present in the current storefront source.
 4. **Mobile release:** `mobile/` is Expo source only. It still needs its own build/signing, store submission, and live client verification. Public API compatibility matters once an app is distributed.
