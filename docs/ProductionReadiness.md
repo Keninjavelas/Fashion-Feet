@@ -14,6 +14,8 @@ Status checked on **26 October 2026** and operationally rechecked on **8 Novembe
 
 **8 November operational recheck:** Measured today over public HTTPS: the storefront alias returned `200`, and the admin alias returned its configured Vercel Authentication redirect. An authoritative query of the domain's GoDaddy nameservers (`ns67`/`ns68.domaincontrol.com`) still returned no apex A record for `fashionfeet.co.in`, and `www.fashionfeet.co.in` is NXDOMAIN. Open work item 1 therefore remains open. Enquiry notification remains on the verified Formspree route; no Resend DNS work is required while it stays active.
 
+**9 November status recheck:** Nothing changed. The authoritative GoDaddy nameservers again returned no apex A record (serial `2026060713`) and `www` is still NXDOMAIN. The storefront alias served `200`, including the public read API (`/api/v1/site`). Measured the same day: `/api/v1/products` reports `total: 0`, and `/api/v1/stores` and `/api/v1/collections` return empty arrays — consistent with the November galleries being photographed previews rather than published product records.
+
 ## Checks already completed
 
 - Both Next.js 16 production builds completed successfully during the separate-deployment work.
@@ -27,7 +29,7 @@ These checks do not certify every administrator workflow or inbox delivery. Re-r
 
 ## Open production work
 
-1. **Custom domain:** `fashionfeet.co.in` is attached to the storefront Vercel project, but GoDaddy has no apex A record for it (reconfirmed by an authoritative DNS query on 8 November 2026). A DNS administrator must add `A @ 76.76.21.21`, preserving the Microsoft 365 MX records. Verify HTTPS after propagation. Then update storefront `AUTH_URL` and `NEXTAUTH_URL` and admin `NEXT_PUBLIC_STOREFRONT_URL` to `https://fashionfeet.co.in`, redeploy, and test customer sign-in and admin links.
+1. **Custom domain:** `fashionfeet.co.in` is attached to the storefront Vercel project, but GoDaddy has no apex A record for it (reconfirmed by authoritative DNS queries on 8 and 9 November 2026). A DNS administrator must add `A @ 76.76.21.21`, preserving the Microsoft 365 MX records. Verify HTTPS after propagation. Then update storefront `AUTH_URL` and `NEXTAUTH_URL` and admin `NEXT_PUBLIC_STOREFRONT_URL` to `https://fashionfeet.co.in`, redeploy, and test customer sign-in and admin links.
 2. **Business content review:** Revisit restored FAQ answers, material/fit claims, shipping or offer language, store information, and seasonal copy with the business owner. The historical intake report in [ContentIntake.md](ContentIntake.md) is evidence of earlier findings, not a current inventory.
 3. **Signup placeholder:** The footer newsletter form does not persist subscriptions yet. Connect it to an approved subscription process or change its UI before treating it as a live signup channel. The older “Notify Me” form is not present in the current storefront source.
 4. **Mobile release:** `mobile/` is Expo source only. It still needs its own build/signing, store submission, and live client verification. Public API compatibility matters once an app is distributed.
