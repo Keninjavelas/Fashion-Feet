@@ -12,6 +12,7 @@
     "build:admin": "npm run build --workspace fashion-feet-admin",
     "build:vercel": "prisma generate --config prisma.postgres.config.ts && next build",
     "db:deploy:postgres": "prisma migrate deploy --config prisma.postgres.config.ts",
+    "db:seed-catalogue": "tsx scripts/seed-catalogue-products.ts",
     "db:bootstrap-admin": "tsx scripts/bootstrap-admin.ts",
     "db:rotate-admin-password": "tsx scripts/rotate-admin-password.ts",
     "test:isolation": "node scripts/check-isolation.mjs",

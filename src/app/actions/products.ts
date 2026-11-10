@@ -410,3 +410,31 @@ export async function bulkArchiveProductsAction(productIds: string[]) {
     return { error: "Failed to bulk archive products." };
   }
 }
+
+export async function populateCatalogueAction() {
+  const admin = await getAuthenticatedAdmin();
+  if (!admin) return { error: "Unauthorized." };
+
+  try {
+    const { populateAllCatalogueProducts } = await import("@/../scripts/seed-catalogue-products");
+    const result = await populateAllCatalogueProducts();
+
+    await logAdminAudit({
+      adminId: admin.id,
+      action: "PRODUCTS_POPULATED_FROM_CATALOGUE",
+      resourceType: "Product",
+      metadata: { total: result.total, created: result.created, updated: result.updated }
+    });
+
+    revalidatePath("/admin/products");
+    revalidatePath("/shop");
+    revalidatePath("/women");
+    revalidatePath("/men");
+    revalidatePath("/festive");
+    revalidatePath("/");
+    return { success: true, ...result };
+  } catch (error: any) {
+    console.error("Error populating catalogue products:", error);
+    return { error: error.message || "Failed to populate catalogue products." };
+  }
+}

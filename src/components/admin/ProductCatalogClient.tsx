@@ -8,7 +8,8 @@ import {
 import Image from "next/image";
 import {
   createProductAction, updateProductAction, duplicateProductAction, archiveProductAction,
-  restoreProductAction, deleteProductAction, bulkArchiveProductsAction, generateSkuAction
+  restoreProductAction, deleteProductAction, bulkArchiveProductsAction, generateSkuAction,
+  populateCatalogueAction
 } from "@/app/actions/products";
 import { MEDIA_FOLDERS } from "@/lib/mediaConstants";
 import { PLACEHOLDER_PRODUCT_IMAGE } from "@/lib/placeholders";
@@ -63,6 +64,20 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortField, setSortField] = useState<"title" | "price" | "status">("title");
+  const [isPopulating, setIsPopulating] = useState(false);
+
+  const handlePopulateCatalogue = async () => {
+    if (!confirm("Populate or refresh all 85 authentic listed designs into the catalogue?")) return;
+    setIsPopulating(true);
+    const res = await populateCatalogueAction();
+    setIsPopulating(false);
+    if ("error" in res && res.error) {
+      alert(res.error);
+    } else if ("total" in res) {
+      alert(`Successfully synced ${res.total} products (${res.created} created, ${res.updated} updated)!`);
+      window.location.reload();
+    }
+  };
 
   // Editor Modal States
   const [editorOpen, setEditorOpen] = useState(false);
@@ -245,6 +260,16 @@ export function ProductCatalogClient({ initialProducts, collections, categories,
               <Archive className="w-4 h-4" /> Bulk Archive ({selectedIds.length})
             </button>
           )}
+
+          <button
+            onClick={handlePopulateCatalogue}
+            disabled={isPopulating}
+            className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
+            title="Populate all 85 authentic designs into the catalog"
+          >
+            {isPopulating ? <Loader2 className="w-4 h-4 animate-spin text-[#8A1538]" /> : <Sparkles className="w-4 h-4 text-[#D4AF37]" />}
+            Sync Listed Designs (85)
+          </button>
 
           <button
             onClick={openNewEditor}
