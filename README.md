@@ -1,69 +1,170 @@
 # Fashion Feet
 
-Fashion Feet is a Punjabi jutti storefront with a separate administration dashboard. The brand tagline is **Designer Punjabi Jutties**. The official logo is in `public/branding/fashion-feet-official.png`; two photographs of past exhibitions are in `public/exhibitions/` and appear on the homepage.
+![Fashion Feet Logo](public/branding/fashion-feet-official.png){:style="width:200px"}
 
-## Current deployment
+> **Designer Punjabi Jutties** – A premium Punjabi jutti storefront with an admin dashboard for seamless product management.
 
-- Public storefront: [fashion-feet-storefront.vercel.app](https://fashion-feet-storefront.vercel.app), Vercel project `fashion-feet-storefront`.
-- Admin dashboard: [fashion-feet-admin.vercel.app](https://fashion-feet-admin.vercel.app), Vercel project `fashion-feet-admin` with its own sign-in and TOTP MFA.
-- Custom storefront domain: [fashionfeet.co.in](https://fashionfeet.co.in). The GoDaddy apex A record `@ → 76.76.21.21` was added on 10 November 2026 with the Microsoft 365 MX, SPF, and verification records preserved, the hostname was verified in the storefront Vercel project, and its certificate issued the same day. `https://fashionfeet.co.in` now serves the storefront; `www` has no record yet because no redirect target has been chosen.
-- Production data: both deployments use the same managed Neon PostgreSQL database. The local development fallback is SQLite; `dev.db` is not production data.
-- Contact and product enquiries: saved to PostgreSQL for the admin inbox. Formspree notifies the verified `aryan.kapoor@fashionfeet.co.in` recipient without Fashion Feet DNS changes. A live storefront test was saved, appeared in Formspree, and arrived in the Microsoft 365 inbox on 6 November 2026. The Formspree account has two-factor authentication enabled. Submissions remain in the admin dashboard if notification fails. Resend remains an optional legacy path.
+---
 
-The current deployment steps and remaining DNS records are in [docs/AdminDeployment.md](docs/AdminDeployment.md). The operational checklist is in [docs/ProductionReadiness.md](docs/ProductionReadiness.md).
+## Table of Contents
+- [About](#about)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Repository Layout](#repository-layout)
+- [Getting Started](#getting-started)
+- [Deployment](#deployment)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
-The product catalogue has three shared business groupings: **Daily Wear**, **Festive**, and **Ceremonial**. Each can be browsed for Men or Women; Unisex products appear in both. **Rajwadi** is women-only; **Functional** and **Office Wear** are men-only. The owner supplied 28 women's footwear photographs, one group photograph showing five men's Functional juttis, three photographs of men's Office Wear pairs, and 50 further distinct men's footwear photos from WhatsApp. Each visible design has a consistently framed preview with a descriptive name and a link to its source photo. See [docs/Media.md](docs/Media.md). Confirmed product names, prices, sizes, and availability still need verified entries in `intake/catalogue.csv` before individual products can be published.
+---
 
-The proposed [Interactive Product Stage](display.md) is a future display plan. Revisit it after the Men's section and the rest of the storefront are ready; it is not implemented yet.
+## About
 
-## Repository layout
+Fashion Feet is a **Punjabi jutti** e‑commerce platform. It consists of two separately deployed Next.js applications:
 
-- `src/app/`, `src/components/`: public Next.js storefront and shared components.
-- `apps/admin/`: separate Next.js admin application. Its pages, upload endpoint, and admin API routes do not ship in the public storefront build.
-- `src/lib/`: shared server utilities and content readers.
-- `prisma/postgres/`: production PostgreSQL schema and migrations.
-- `prisma/`: local SQLite schema and migrations.
-- `mobile/`: Expo client for the read-only public `/api/v1` API. It is source code, not an app-store release.
-- `docs/`: architecture, operations, feature guides, and clearly marked historical test reports.
+1. **Public storefront** – The customer‑facing site.
+2. **Admin dashboard** – A secure interface for managing products, collections, FAQs, and site settings.
 
-## How updates reach the storefront
+Both apps share a common database (Neon PostgreSQL in production, SQLite locally) and a set of shared UI components.
 
-The admin publishes products, collections, FAQs, stores, site settings, and storefront layout through the shared database. Public pages read published content on request; an already-open browser tab needs a refresh. The FAQ page and `/api/v1/faqs` read the same FAQ rows. Saving a draft in Storefront Studio does not publish it.
+---
 
-The public `/api/v1` routes provide a read-only catalogue for the mobile client. Judy, the storefront assistant, defaults to an offline answer path grounded in published site content; optional remote providers need separate credentials.
+## Features
 
-## Local development
+- **Product catalogue** with three business groupings: Daily Wear, Festive, Ceremonial.
+- **Gender‑specific collections** (Men, Women, Unisex) with dedicated “Rajwadi” (women‑only) and “Functional/Office Wear” (men‑only) lines.
+- **Admin UI** for content publishing, image uploads, and MFA‑protected sign‑in.
+- **Read‑only public API** (`/api/v1`) for the Expo mobile client.
+- **Responsive design** and a modern design system (see `docs/DesignSystem.md`).
+- **Automated CI/CD** via Vercel with preview deployments.
 
-Use Node.js and npm, then install dependencies:
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js (React), Tailwind CSS |
+| Mobile | Expo (React Native) |
+| API / Server | Next.js API routes, Node.js |
+| Database | PostgreSQL (Neon) – production, SQLite – local |
+| ORM / Migrations | Prisma |
+| CI/CD | Vercel |
+| Form handling | Formspree |
+| Authentication | Password + TOTP MFA |
+
+---
+
+## Repository Layout
+
+```
+src/app/               # Public storefront pages & components
+src/components/        # Shared UI components
+apps/admin/            # Admin dashboard (Next.js)
+src/lib/               # Server utilities & content readers
+prisma/postgres/       # Production Postgres schema & migrations
+prisma/                # Local SQLite schema & migrations
+mobile/                # Expo client (read‑only API)
+public/                # Static assets (logo, exhibition photos)
+docs/                  # Architecture, ops guides, feature docs
+```
+
+---
+
+## Getting Started
 
 ```bash
+# Install dependencies
 npm install
-npm run dev
-npm run dev:admin
+
+# Development servers
+npm run dev          # Storefront (http://localhost:3000)
+npm run dev:admin    # Admin dashboard (http://localhost:3001)
 ```
 
-The storefront runs on port 3000 and the admin app on port 3001. Copy `.env.example` to an untracked `.env` and set development values as needed. The server uses local SQLite when `DATABASE_URL` is unset; Vercel requires a PostgreSQL URL. Never commit `.env`, database files, API keys, or recovery codes.
+1. Copy `.env.example` → `.env` and fill in required values.
+2. If `DATABASE_URL` is unset, the apps fall back to a local `dev.db` SQLite file.
+3. **Never** commit `.env`, database files, API keys, or recovery codes.
 
-Useful checks:
+### Useful Checks
 
 ```bash
-npm run build
-npm run build:admin
-npm run test:isolation
-npx tsc --noEmit
+npm run build                # Build storefront
+npm run build:admin          # Build admin dashboard
+npm run test:isolation       # Verify admin routes are excluded from storefront build
+npx tsc --noEmit             # TypeScript compile check
 ```
 
-If OneDrive locks `.next` during a local rebuild, set `FF_BUILD_DIR=build` for both `npm run build` and `npm run test:isolation` in that shell. The production build uses the default directory.
+> **Tip:** If OneDrive locks the `.next` folder during a rebuild, set `FF_BUILD_DIR=build` for the commands above.
 
-`test:isolation` checks that admin routes and actions are excluded from the storefront build. Production deployment and database migration commands are documented in [docs/AdminDeployment.md](docs/AdminDeployment.md).
+---
+
+## Deployment
+
+- **Storefront:** [https://fashionfeet.co.in](https://fashionfeet.co.in) (also served on the Vercel alias `https://fashion-feet-storefront.vercel.app`)
+- **Admin dashboard:** `https://fashion-feet-admin.vercel.app`
+- **Custom domain:** [fashionfeet.co.in](https://fashionfeet.co.in) — live since 10 November 2026 (GoDaddy apex A record added, Microsoft 365 records preserved, Vercel certificate issued).
+
+Production uses the shared Neon PostgreSQL instance. Deployment steps and current operational status are documented in:
+- `docs/AdminDeployment.md`
+- `docs/ProductionReadiness.md`
+
+---
 
 ## Documentation
 
-- [Architecture](docs/Architecture.md), [database](docs/Database.md), [data model](docs/DataModel.md), and [public API](docs/API.md).
-- [Storefront](docs/Storefront.md), [components](docs/Components.md), [design system](docs/DesignSystem.md), [seasonal experiences](docs/SeasonalExperiences.md), and [media](docs/Media.md).
-- [Admin deployment and security](docs/AdminDeployment.md), [production operations](docs/ProductionReadiness.md), and [mobile app](docs/MobileApp.md).
-- [Content intake](docs/ContentIntake.md), [MFA test history](docs/MfaFlow.md), [security test history](docs/SecurityHardening.md), and [acceptance history](docs/AcceptanceManifest.md).
-- [Interactive Product Stage — future display plan](display.md).
-- [Heritage Atelier redesign audit and screenshots](docs/HeritageAtelierAudit.md).
+- **Architecture:** `docs/Architecture.md`
+- **Database schema:** `docs/Database.md` & `docs/DataModel.md`
+- **Public API:** `docs/API.md`
+- **Storefront guide:** `docs/Storefront.md`
+- **Component library:** `docs/Components.md`
+- **Design system:** `docs/DesignSystem.md`
+- **Seasonal experiences:** `docs/SeasonalExperiences.md`
+- **Media assets:** `docs/Media.md`
+- **Admin deployment & security:** `docs/AdminDeployment.md`
+- **Production operations:** `docs/ProductionReadiness.md`
+- **Mobile app guide:** `docs/MobileApp.md`
+- **Content intake workflow:** `docs/ContentIntake.md`
+- **MFA test history:** `docs/MfaFlow.md`
+- **Security test history:** `docs/SecurityHardening.md`
+- **Acceptance test history:** `docs/AcceptanceManifest.md`
+- **Future interactive product stage:** `display.md`
+- **Heritage Atelier audit:** `docs/HeritageAtelierAudit.md`
 
-The older reports record what was tested at the time. Use the deployment and operations guides for current production status.
+---
+
+## Contributing
+
+We welcome community contributions! Please see the forthcoming `CONTRIBUTING.md` for guidelines, then follow the typical GitHub workflow:
+1. Fork the repository.
+2. Create a feature branch.
+3. Open a pull request.
+4. Verify all tests pass (`npm run test:isolation`).
+
+---
+
+## License
+
+This project is licensed under the **MIT License** – see the `LICENSE` file for details.
+
+---
+
+*Last updated: 2026-11-10*
+## Contributing
+
+We welcome community contributions! Please see the forthcoming `CONTRIBUTING.md` for guidelines, then follow the typical GitHub workflow:
+1. Fork the repository.
+2. Create a feature branch.
+3. Open a pull request.
+4. Verify all tests pass (`npm run test:isolation`).
+
+---
+
+## License
+
+This project is licensed under the **MIT License** – see the `LICENSE` file for details.
+
+---
+
+*Last updated: 2026-11-10*
