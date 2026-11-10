@@ -1,6 +1,6 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useProduct } from '../../src/api/hooks';
 import { Badge, readFlagLabels } from '../../src/components/Badge';
 import { PriceBlock } from '../../src/components/PriceBlock';
@@ -22,6 +22,7 @@ import { SPACING } from '../../src/theme/theme';
  */
 export default function ProductDetailScreen() {
   const theme = useTheme();
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const params = useLocalSearchParams();
   const idOrSku = readRouteParam(params.id);
@@ -171,6 +172,31 @@ export default function ProductDetailScreen() {
                 <DetailRow label="Added" value={formatDate(data.createdAt) ?? ''} />
               ) : null}
             </View>
+
+            <View style={styles.enquireBlock}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => {
+                  const prefill = `I would like to enquire about ${data.title}${data.sku ? ` (SKU: ${data.sku})` : ''}.`;
+                  router.push(`/(tabs)/contact?message=${encodeURIComponent(prefill)}`);
+                }}
+                style={({ pressed }) => [
+                  styles.enquireButton,
+                  {
+                    backgroundColor: theme.primary,
+                    borderRadius: theme.buttonRadius,
+                    opacity: pressed ? 0.85 : 1,
+                  },
+                ]}
+              >
+                <Text style={[styles.enquireButtonLabel, { color: theme.onPrimary }]}>
+                  Enquire about this design
+                </Text>
+              </Pressable>
+              <Text style={[styles.caption, { color: theme.textMuted, textAlign: 'center' }]}>
+                Have questions about fit, size, or styling? Contact our atelier concierge.
+              </Text>
+            </View>
           </>
         ) : null}
       </ScrollView>
@@ -282,5 +308,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flexShrink: 1,
     textAlign: 'right',
+  },
+  enquireBlock: {
+    gap: SPACING.sm,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.lg,
+  },
+  enquireButton: {
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  enquireButtonLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });

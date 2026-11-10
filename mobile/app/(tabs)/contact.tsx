@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Linking,
@@ -10,11 +10,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { useStores } from '../../src/api/hooks';
 import { Notice } from '../../src/components/StateView';
 import { useTheme } from '../../src/site/SiteProvider';
 import { SPACING } from '../../src/theme/theme';
 import { API_BASE_URL, IS_USING_FALLBACK_BASE_URL } from '../../src/api/client';
+import { readRouteParam } from '../../src/lib/params';
 
 /**
  * Contact.
@@ -25,21 +27,35 @@ import { API_BASE_URL, IS_USING_FALLBACK_BASE_URL } from '../../src/api/client';
  * opens the studio website /contact page with the entered fields
  * pre-filled via query parameters. That is the ONLY channel that
  * actually delivers an enquiry (the web form POSTs through the
- * src/app/actions/enquiries.ts server action).
+ * src/app/actions/createEnquiry.ts server action).
  *
  * If the app is using the localhost development fallback URL, the
  * button stays disabled for submission and the customer is directed to
- * the published store phone/email/WhatsApp links instead.
+ * the published store phone/email links instead.
  */
 export default function ContactScreen() {
   const theme = useTheme();
   const stores = useStores();
+  const params = useLocalSearchParams();
+  const routeName = readRouteParam(params.name);
+  const routeEmail = readRouteParam(params.email);
+  const routeMessage = readRouteParam(params.message);
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const [name, setName] = useState(routeName ?? '');
+  const [email, setEmail] = useState(routeEmail ?? '');
+  const [message, setMessage] = useState(routeMessage ?? '');
   const [attempted, setAttempted] = useState(false);
   const [redirected, setRedirected] = useState(false);
+
+  useEffect(() => {
+    if (routeName) setName(routeName);
+  }, [routeName]);
+  useEffect(() => {
+    if (routeEmail) setEmail(routeEmail);
+  }, [routeEmail]);
+  useEffect(() => {
+    if (routeMessage) setMessage(routeMessage);
+  }, [routeMessage]);
 
   const nameError = name.trim().length === 0 ? 'Please enter your name.' : null;
   const emailError = EMAIL_PATTERN.test(email.trim()) ? null : 'Please enter a valid email address.';
@@ -49,7 +65,7 @@ export default function ContactScreen() {
 
   const contactStore =
     (stores.data ?? []).find(
-      (store) => store.email !== null || store.phone !== null || store.whatsapp !== null
+      (store) => store.email !== null || store.phone !== null
     ) ?? null;
 
   const handleSubmit = () => {
@@ -154,8 +170,7 @@ export default function ContactScreen() {
               This development build points at the Android emulator loopback
               address. Set EXPO_PUBLIC_API_BASE_URL to the published studio
               website domain and the button above will open the real contact
-              form. In the meantime, use the phone / email / WhatsApp
-              channels below when they are published.
+              form. In the meantime, use the official email channels below.
             </Text>
           ) : (
             <Text style={[styles.caption, { color: theme.textMuted }]}>
@@ -179,9 +194,8 @@ export default function ContactScreen() {
               tone="warning"
               title="Browser could not be opened"
               message="Your details are valid, but the device would not open a
-              browser window. Please use the direct phone, email or WhatsApp
-              channels below, or visit the studio website's /contact page
-              manually."
+              browser window. Please use the direct email channels below, or
+              visit the studio website's /contact page manually."
               actionLabel="Retry"
               onAction={handleSubmit}
             />
@@ -234,14 +248,6 @@ export default function ContactScreen() {
                 <ContactLink
                   label={contactStore.email}
                   onPress={() => openLink(`mailto:${contactStore.email ?? ''}`)}
-                />
-              ) : null}
-              {contactStore.whatsapp ? (
-                <ContactLink
-                  label={`WhatsApp ${contactStore.whatsapp}`}
-                  onPress={() =>
-                    openLink(`https://wa.me/${(contactStore.whatsapp ?? '').replace(/[^\d]/g, '')}`)
-                  }
                 />
               ) : null}
             </View>
