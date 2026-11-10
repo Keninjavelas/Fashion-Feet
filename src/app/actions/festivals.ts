@@ -397,3 +397,37 @@ export async function deleteFestival(id: string) {
     return { error: "Failed to delete campaign." };
   }
 }
+
+/**
+ * Synchronizes the 11-day festive theme windows from the internet/calendar
+ * for the specified calendar year and optional month.
+ */
+export async function syncFestivalCalendarAction(year: number, month?: number) {
+  try {
+    const admin = await getAuthenticatedAdmin();
+    if (!admin) return { error: "Unauthorized." };
+
+    const { syncFestivalCalendarToDatabase } = await import("@/lib/festivalCalendarService");
+    const result = await syncFestivalCalendarToDatabase(year, month);
+    if (!result.success) {
+      return { error: result.error || "Failed to sync festival calendar." };
+    }
+
+    await logAdminAudit({
+      adminId: admin.id,
+      action: "FESTIVAL_CALENDAR_SYNCED",
+      resourceType: "Festival",
+      metadata: { year, month, count: result.count }
+    });
+
+    revalidatePath("/admin/festivals");
+    revalidatePath("/");
+    revalidatePath("/festive");
+    revalidatePath("/shop");
+
+    return { success: true, count: result.count, synced: result.synced };
+  } catch (error: any) {
+    console.error("Error in syncFestivalCalendarAction:", error);
+    return { error: error.message || "Failed to sync festival calendar." };
+  }
+}

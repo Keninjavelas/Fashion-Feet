@@ -14,7 +14,8 @@ import {
   activateFestivalNowAction,
   deactivateFestivalAction,
   duplicateFestivalCampaign,
-  deleteFestival
+  deleteFestival,
+  syncFestivalCalendarAction
 } from "@/app/actions/festivals";
 
 interface MediaAsset {
@@ -63,6 +64,28 @@ export function FestivalStudioClient({
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const [syncYear, setSyncYear] = useState<number>(new Date().getFullYear());
+  const [syncMonth, setSyncMonth] = useState<number>(0);
+  const [syncingCalendar, setSyncingCalendar] = useState<boolean>(false);
+
+  const handleSyncCalendar = async () => {
+    setSyncingCalendar(true);
+    setFeedback(null);
+    try {
+      const res = await syncFestivalCalendarAction(syncYear, syncMonth === 0 ? undefined : syncMonth);
+      if (res.error) {
+        showFeedback("error", res.error);
+      } else {
+        showFeedback("success", `Successfully synchronized ${res.count} festival schedule(s) for year ${syncYear} from the internet (11-day active windows).`);
+        window.location.reload();
+      }
+    } catch (err: any) {
+      showFeedback("error", err.message || "Failed to sync calendar.");
+    } finally {
+      setSyncingCalendar(false);
+    }
+  };
 
   const now = Date.now();
   const activeFestival = festivals.find((f) => f.enabled && (!f.autoDisable || new Date(f.endDate).getTime() >= now))
@@ -212,6 +235,82 @@ export function FestivalStudioClient({
           <button onClick={() => setFeedback(null)} className="opacity-70 hover:opacity-100">✕</button>
         </div>
       )}
+
+      {/* Automated Internet Calendar Festival Sync (11-Day Window Control) */}
+      <div className="p-6 bg-gradient-to-br from-[#12080C] via-[#1E0D14] to-[#0A0507] rounded-3xl border border-[#D4AF37]/40 shadow-xl text-white relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" /> Automated Calendar Week Sync (11-Day Window)
+              </span>
+            </div>
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
+              <span>📅</span> Internet Festive Calendar Automation
+            </h3>
+            <p className="text-white/80 text-xs leading-relaxed">
+              Based on the calendar year and month, festival dates are fetched directly from open national panchang and holiday APIs on the internet. Each festival is automatically configured for an <strong>11-day active window</strong>: <strong>5 days prior</strong> to the event, the festival day itself, and <strong>5 days post-event</strong>. Once the 11 days elapse, the storefront automatically reverts back to the timeless Default Atelier.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 bg-black/40 p-3.5 rounded-2xl border border-white/10">
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-white/60 mb-1">Calendar Year</label>
+              <select
+                value={syncYear}
+                onChange={(e) => setSyncYear(Number(e.target.value))}
+                className="bg-black/60 border border-white/20 text-white rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-[#D4AF37]"
+              >
+                {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-white/60 mb-1">Month (Optional)</label>
+              <select
+                value={syncMonth}
+                onChange={(e) => setSyncMonth(Number(e.target.value))}
+                className="bg-black/60 border border-white/20 text-white rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-[#D4AF37]"
+              >
+                <option value={0}>All Months (Full Year)</option>
+                <option value={1}>January (Lohri)</option>
+                <option value={2}>February</option>
+                <option value={3}>March (Holi / Eid)</option>
+                <option value={4}>April (Baisakhi)</option>
+                <option value={5}>May</option>
+                <option value={6}>June</option>
+                <option value={7}>July</option>
+                <option value={8}>August</option>
+                <option value={9}>September</option>
+                <option value={10}>October</option>
+                <option value={11}>November (Diwali)</option>
+                <option value={12}>December (Christmas)</option>
+              </select>
+            </div>
+
+            <div className="flex items-end pt-5">
+              <button
+                type="button"
+                onClick={handleSyncCalendar}
+                disabled={syncingCalendar}
+                className="px-5 py-2.5 bg-[#8A1538] hover:bg-[#A81B45] text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg border border-[#D4AF37]/50 flex items-center gap-2 disabled:opacity-50"
+              >
+                {syncingCalendar ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Fetching & Syncing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> Sync 11-Day Schedule
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Live Active Atmosphere Spotlight */}
       <div className="p-6 bg-gradient-to-r from-[#1C0D12] via-[#12080C] to-black rounded-3xl border border-[#D4AF37]/30 shadow-2xl relative overflow-hidden text-white">
