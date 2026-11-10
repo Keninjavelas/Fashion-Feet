@@ -4,6 +4,7 @@ import { BRAND_TAGLINE } from "@/lib/branding";
 import { BrandLogo } from "./BrandLogo";
 import type { StorefrontSection } from "@/lib/storefrontConfigTypes";
 import { CONTACT_EMAIL } from "@/lib/contactDetails";
+import { FooterNewsletterForm } from "./FooterNewsletterForm";
 
 export function Footer({ siteName = "Fashion Feet", section }: { siteName?: string; section?: StorefrontSection }) {
   if (section?.visible === false) return null;
@@ -13,9 +14,26 @@ export function Footer({ siteName = "Fashion Feet", section }: { siteName?: stri
       {section?.image && <div className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-10" style={{ backgroundImage: `url(${section.image})` }} aria-hidden="true" />}
       <div className="container relative z-10 mx-auto px-4 md:px-8">
         
-        <div className="mb-14 flex flex-col justify-between gap-6 border-b border-white/20 pb-12 md:flex-row md:items-end">
-          <div className="max-w-xl"><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d8b779]">Fashion Feet</p><h3 className="mt-4 font-serif text-3xl font-semibold text-white md:text-4xl">Have a pair in mind?</h3><p className="mt-3 text-sm leading-relaxed text-white/75">Tell us which design caught your eye. We can discuss its details and fit.</p></div>
-          <Link href="/contact" className="inline-flex min-h-12 items-center justify-center border border-[#d8b779] px-6 text-sm font-semibold text-white hover:bg-white/10">Contact Fashion Feet</Link>
+        {/* Top Fitting Consultation Callout */}
+        <div className="mb-10 flex flex-col justify-between gap-6 border-b border-white/20 pb-10 md:flex-row md:items-end">
+          <div className="max-w-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d8b779]">Fashion Feet</p>
+            <h3 className="mt-4 font-serif text-3xl font-semibold text-white md:text-4xl">Have a pair in mind?</h3>
+            <p className="mt-3 text-sm leading-relaxed text-white/75">Tell us which design caught your eye. We can discuss its details and fit.</p>
+          </div>
+          <Link href="/contact" className="inline-flex min-h-12 items-center justify-center border border-[#d8b779] px-6 text-sm font-semibold text-white hover:bg-white/10 transition-colors">Contact Fashion Feet</Link>
+        </div>
+
+        {/* Newsletter Section */}
+        <div className="bg-gradient-to-r from-[#1A0A10] via-[#240C12] to-[#1A0A10] rounded-2xl p-8 md:p-10 mb-14 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl border border-[#D4AF37]/30">
+          <div className="max-w-xl text-center md:text-left space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">Private Previews</span>
+            <h3 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-white">Join Our Heritage Atelier</h3>
+            <p className="text-[#F6F2EB]/80 text-xs md:text-sm font-sans leading-relaxed">
+              Subscribe for private previews of seasonal drops, festive showcases, and bespoke announcements.
+            </p>
+          </div>
+          <FooterNewsletterForm />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Inbox, Search, Mail, Phone, Clock, User, Send, CheckCircle2, AlertCircle, ShoppingBag } from "lucide-react";
+import { Inbox, Search, Mail, Phone, Clock, User, Send, CheckCircle2, AlertCircle, ShoppingBag, Download, Sparkles } from "lucide-react";
 import { updateEnquiryStatusAction, assignEnquiryAction, addEnquiryNoteAction } from "@/app/actions/enquiries";
 import { formatAdminDate, formatAdminDateTime } from "@/lib/adminDate";
 
@@ -42,20 +42,55 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
   const [selectedEnquiry, setSelectedEnquiry] = useState<EnquiryItem | null>(initialEnquiries[0] || null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "fitting" | "newsletter">("all");
   const [newNoteText, setNewNoteText] = useState("");
   const [isSubmittingNote, setIsSubmittingNote] = useState(false);
 
+  const newsletterSubscribers = enquiries.filter((e) => e.enquiryType === "NEWSLETTER");
+  const newsletterSubscriberCount = newsletterSubscribers.length;
+
   const filteredEnquiries = enquiries.filter((e) => {
-    const matchesSearch = e.name.toLowerCase().includes(search.toLowerCase()) || e.email.toLowerCase().includes(search.toLowerCase()) || (e.productSku && e.productSku.toLowerCase().includes(search.toLowerCase()));
+    const matchesSearch =
+      e.name.toLowerCase().includes(search.toLowerCase()) ||
+      e.email.toLowerCase().includes(search.toLowerCase()) ||
+      (e.productSku && e.productSku.toLowerCase().includes(search.toLowerCase())) ||
+      (e.message && e.message.toLowerCase().includes(search.toLowerCase()));
     const matchesStatus = statusFilter === "all" || e.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesType =
+      typeFilter === "all"
+        ? true
+        : typeFilter === "newsletter"
+        ? e.enquiryType === "NEWSLETTER"
+        : e.enquiryType !== "NEWSLETTER";
+    return matchesSearch && matchesStatus && matchesType;
   });
+
+  const exportSubscribersCsv = () => {
+    const headers = ["Email", "Subscriber Name", "Status", "Date Subscribed", "Reference ID"];
+    const rows = newsletterSubscribers.map((s) => [
+      `"${s.email.replace(/"/g, '""')}"`,
+      `"${(s.name || "Newsletter Subscriber").replace(/"/g, '""')}"`,
+      `"${s.status}"`,
+      `"${new Date(s.createdAt).toISOString()}"`,
+      `"${s.id}"`,
+    ]);
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `fashion-feet-subscribers-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const handleStatusChange = async (enquiryId: string, status: string) => {
     const res = await updateEnquiryStatusAction(enquiryId, status);
     if (res.error) alert(res.error);
     else {
-      setEnquiries(enquiries.map((e) => e.id === enquiryId ? { ...e, status } : e));
+      setEnquiries(enquiries.map((e) => (e.id === enquiryId ? { ...e, status } : e)));
       if (selectedEnquiry?.id === enquiryId) {
         setSelectedEnquiry({ ...selectedEnquiry, status });
       }
@@ -67,7 +102,7 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
     const res = await assignEnquiryAction(enquiryId, adminId || null);
     if (res.error) alert(res.error);
     else {
-      setEnquiries(enquiries.map((e) => e.id === enquiryId ? { ...e, assignedAdminId: adminId, assignedAdmin: targetAdmin } : e));
+      setEnquiries(enquiries.map((e) => (e.id === enquiryId ? { ...e, assignedAdminId: adminId, assignedAdmin: targetAdmin } : e)));
       if (selectedEnquiry?.id === enquiryId) {
         setSelectedEnquiry({ ...selectedEnquiry, assignedAdminId: adminId, assignedAdmin: targetAdmin });
       }
@@ -84,22 +119,37 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
       setNewNoteText("");
       if (res.enquiry) {
         setSelectedEnquiry(res.enquiry as any);
-        setEnquiries(enquiries.map((e) => e.id === res.enquiry.id ? (res.enquiry as any) : e));
+        setEnquiries(enquiries.map((e) => (e.id === res.enquiry.id ? (res.enquiry as any) : e)));
       }
     }
   };
 
   let notesList: InternalNote[] = [];
   if (selectedEnquiry?.internalNotes) {
-    try { notesList = JSON.parse(selectedEnquiry.internalNotes); } catch { notesList = []; }
+    try {
+      notesList = JSON.parse(selectedEnquiry.internalNotes);
+    } catch {
+      notesList = [];
+    }
   }
 
   return (
     <div className="space-y-6 font-sans">
       <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-gray-900">Customer Enquiries Inbox</h1>
-          <p className="text-xs text-gray-500">Manage virtual showroom fitting requests, size inquiries, and bespoke bridal appointments.</p>
+          <h1 className="font-serif text-2xl font-bold text-gray-900">Customer Enquiries & Subscriptions</h1>
+          <p className="text-xs text-gray-500">Manage showroom fitting inquiries, bespoke bridal appointments, and private atelier subscribers.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={exportSubscribersCsv}
+            disabled={newsletterSubscriberCount === 0}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 hover:border-[#8A1538] hover:text-[#8A1538] text-gray-700 rounded-xl text-xs font-bold transition-all shadow-xs disabled:opacity-40 disabled:pointer-events-none"
+            title="Download CSV of all newsletter subscribers"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export Subscribers CSV ({newsletterSubscriberCount})</span>
+          </button>
         </div>
       </div>
 
@@ -118,6 +168,26 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
               />
             </div>
 
+            {/* Type Filter */}
+            <div className="flex gap-1.5 overflow-x-auto text-[11px] font-bold">
+              {[
+                { id: "all", label: "All Inbox" },
+                { id: "fitting", label: "Fittings & Bespoke" },
+                { id: "newsletter", label: `Subscribers (${newsletterSubscriberCount})` },
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTypeFilter(t.id as any)}
+                  className={`px-2.5 py-1.5 rounded-lg whitespace-nowrap transition-all uppercase tracking-wider ${
+                    typeFilter === t.id ? "bg-[#1A0A10] text-[#D4AF37] shadow-xs" : "bg-white border text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Status Filter */}
             <div className="flex gap-1.5 overflow-x-auto text-[11px] font-bold">
               {["all", "NEW", "CONTACTED", "IN_PROGRESS", "COMPLETED"].map((st) => (
                 <button
@@ -137,11 +207,12 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
             {filteredEnquiries.length === 0 ? (
               <div className="p-12 text-center text-gray-400 space-y-2">
                 <Inbox className="w-8 h-8 mx-auto" />
-                <p className="text-xs font-medium">No customer enquiries match your filters.</p>
+                <p className="text-xs font-medium">No customer records match your filters.</p>
               </div>
             ) : (
               filteredEnquiries.map((e) => {
                 const isSelected = selectedEnquiry?.id === e.id;
+                const isNewsletter = e.enquiryType === "NEWSLETTER";
                 return (
                   <div
                     key={e.id}
@@ -149,16 +220,27 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
                     className={`p-4 cursor-pointer transition-all space-y-2 ${isSelected ? "bg-amber-50/60 border-l-4 border-[#8A1538]" : "hover:bg-gray-50"}`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-gray-900 text-xs truncate max-w-xs">{e.name}</span>
-                      <span className={`px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full ${
-                        e.status === "NEW" ? "bg-indigo-100 text-indigo-700" : e.status === "COMPLETED" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                      }`}>{e.status}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-gray-900 text-xs truncate max-w-xs">{e.name}</span>
+                        {isNewsletter && (
+                          <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded bg-amber-100 text-amber-800">
+                            Subscriber
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        className={`px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full ${
+                          e.status === "NEW" ? "bg-indigo-100 text-indigo-700" : e.status === "COMPLETED" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                        }`}
+                      >
+                        {e.status}
+                      </span>
                     </div>
 
                     <p className="text-xs text-gray-500 line-clamp-1">{e.message || e.subject || "Virtual Atelier Enquiry"}</p>
 
                     <div className="flex items-center justify-between text-[10px] text-gray-400 font-medium">
-                      <span>{e.product ? `Pair: ${e.product.title}` : e.productSku || "General Enquiry"}</span>
+                      <span>{isNewsletter ? "Newsletter Channel" : e.product ? `Pair: ${e.product.title}` : e.productSku || "General Enquiry"}</span>
                       <span>{formatAdminDate(e.createdAt)}</span>
                     </div>
                   </div>
@@ -173,7 +255,7 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
           {!selectedEnquiry ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center text-gray-400 space-y-3">
               <Inbox className="w-12 h-12 text-gray-300" />
-              <p className="text-xs font-medium">Select an enquiry from the left pane to view details and manage notes.</p>
+              <p className="text-xs font-medium">Select an item from the left pane to view details and manage notes.</p>
             </div>
           ) : (
             <div className="space-y-6 flex-1 flex flex-col justify-between">
@@ -181,11 +263,19 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
                 {/* Header Info */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8A1538]">Enquiry #{selectedEnquiry.id.slice(-6)}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#8A1538]">
+                      {selectedEnquiry.enquiryType === "NEWSLETTER" ? "Subscriber" : "Enquiry"} #{selectedEnquiry.id.slice(-6)}
+                    </span>
                     <h2 className="font-serif text-2xl font-bold text-gray-900">{selectedEnquiry.name}</h2>
                     <p className="text-xs text-gray-500 flex items-center gap-3 font-mono mt-1">
-                      <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5 text-[#C5A059]" /> {selectedEnquiry.email}</span>
-                      {selectedEnquiry.phone && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-[#C5A059]" /> {selectedEnquiry.phone}</span>}
+                      <span className="flex items-center gap-1">
+                        <Mail className="w-3.5 h-3.5 text-[#C5A059]" /> {selectedEnquiry.email}
+                      </span>
+                      {selectedEnquiry.phone && (
+                        <span className="flex items-center gap-1">
+                          <Phone className="w-3.5 h-3.5 text-[#C5A059]" /> {selectedEnquiry.phone}
+                        </span>
+                      )}
                     </p>
                   </div>
 
@@ -204,6 +294,21 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
                   </div>
                 </div>
 
+                {/* Newsletter Special Context */}
+                {selectedEnquiry.enquiryType === "NEWSLETTER" && (
+                  <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200/80 flex items-center justify-between gap-4 text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-[#8A1538] text-[#D4AF37] rounded-xl shadow-xs">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <span className="font-bold text-gray-900 block">Heritage Atelier Newsletter Subscriber</span>
+                        <span className="text-gray-600 text-[11px]">Subscribed from the storefront footer for private drops and seasonal announcements.</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Product Context */}
                 {selectedEnquiry.product && (
                   <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-between gap-4 text-xs">
@@ -213,7 +318,9 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
                       </div>
                       <div>
                         <span className="font-bold text-gray-900 block">{selectedEnquiry.product.title}</span>
-                        <span className="text-gray-500 font-mono text-[11px]">Category: {selectedEnquiry.product.category} &bull; Price: ₹{selectedEnquiry.product.price.toLocaleString("en-IN")}</span>
+                        <span className="text-gray-500 font-mono text-[11px]">
+                          Category: {selectedEnquiry.product.category} &bull; Price: ₹{selectedEnquiry.product.price.toLocaleString("en-IN")}
+                        </span>
                       </div>
                     </div>
 
@@ -227,7 +334,9 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
 
                 {/* Customer Message */}
                 <div className="space-y-2">
-                  <h4 className="font-bold text-xs uppercase tracking-wider text-gray-400">Customer Message</h4>
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-gray-400">
+                    {selectedEnquiry.enquiryType === "NEWSLETTER" ? "Subscription Details" : "Customer Message"}
+                  </h4>
                   <div className="p-4 bg-amber-50/40 border border-amber-100 rounded-2xl text-xs text-gray-800 leading-relaxed font-serif text-sm">
                     "{selectedEnquiry.message || selectedEnquiry.subject || "Boutique fitting enquiry submitted from Fashion Feet storefront."}"
                   </div>
@@ -242,7 +351,11 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
                     className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium focus:outline-none"
                   >
                     <option value="">Unassigned</option>
-                    {adminUsers.map((a) => (<option key={a.id} value={a.id}>{a.name} ({a.email})</option>))}
+                    {adminUsers.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name} ({a.email})
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -275,7 +388,9 @@ export function EnquiriesInboxClient({ initialEnquiries, adminUsers }: { initial
                   placeholder="Add internal note for atelier team..."
                   value={newNoteText}
                   onChange={(e) => setNewNoteText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleAddNote(); }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleAddNote();
+                  }}
                   className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#C5A059]"
                 />
                 <button
