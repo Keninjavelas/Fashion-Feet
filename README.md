@@ -1,6 +1,6 @@
 # Fashion Feet
 
-![Fashion Feet Logo](public/branding/fashion-feet-official.png){:style="width:200px"}
+![Fashion Feet Logo](public/branding/fashion-feet-official.png)
 
 > **Designer Punjabi Jutties** – A premium Punjabi jutti storefront with an admin dashboard for seamless product management.
 
